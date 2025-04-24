@@ -1,9 +1,7 @@
 package kb.health.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
@@ -19,17 +17,16 @@ public class Member {
     @Column(name = "member_id")
     private Long id;
 
-    //private String userId;
+    @Column(name = "phone_number", unique = true)
+    private String phoneNumber;
 
-    //private String userPw;
+    private String password;
 
     private String userName;
 
-    //private String email;
-
-    @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "from", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Follow> followings = new ArrayList<>();
 
-    @OneToMany(mappedBy = "following", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "to", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Follow> followers = new ArrayList<>();
 }

@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -14,22 +15,36 @@ public class FollowRepository {
 
     private final EntityManager em;
 
+    //팔로우 저장
     public void save(Follow follow) {
         em.persist(follow);
     }
 
+    //팔로우 삭제
+    public void delete(Follow follow) {
+        em.remove(follow);
+    }
+
     //내가 팔로워인 사람들 -> 내가 팔로우하고 있는 사람들(팔로잉 목록)
-    public List<Follow> findByFollower(Member member) {
-        return em.createQuery("select f from Follow f where f.follower = :member", Follow.class)
-                .setParameter("member", member)
+    public List<Follow> findFollowingByMemberId(Long memberId) {
+        return em.createQuery("select f from Follow f where f.from.id = :memberId", Follow.class)
+                .setParameter("memberId", memberId)
                 .getResultList();
     }
 
-    //나를 팔로우하는 사람들(팔로워 목록)
-    public List<Follow> findByFollowing(Member member) {
-        return em.createQuery("select f from Follow f where f.following = :member", Follow.class)
-                .setParameter("member", member)
+    // 나를 팔로우하는 사람들(팔로워 목록)
+    public List<Follow> findFollowersByMemberId(Long memberId) {
+        return em.createQuery("select f from Follow f where f.to.id = :memberId", Follow.class)
+                .setParameter("memberId", memberId)
                 .getResultList();
+    }
+
+    public Optional<Follow> findFollow(Long fromId, Long toId) {
+        return em.createQuery("select f from Follow f where f.from.id = :fromId and f.to.id = :toId", Follow.class)
+                .setParameter("fromId", fromId)
+                .setParameter("toId", toId)
+                .getResultStream()
+                .findFirst();  // 없을 경우 Optional.empty() 반환
     }
 
     //아마 안쓸듯
