@@ -18,20 +18,25 @@ public class ExerciseRecord extends BaseRecord {
     private ExerciseType exerciseType;
 
     /* 빌더 */
-    public static ExerciseRecord create(int durationMinutes, int caloriesBurned, ExerciseType exerciseType, Member member) {
+    public static ExerciseRecord create(int durationMinutes, int caloriesBurned, ExerciseType exerciseType) {
         ExerciseRecord record = new ExerciseRecord();
         record.setDurationMinutes(durationMinutes);
         record.setCaloriesBurned(caloriesBurned);
         record.setExerciseType(exerciseType);
 
-        record.assignMember(member);
-
         return record;
     }
 
     /* 연관관계 편의 메서드 */
-    private void assignMember(Member member) {
+    public void assignMember(Member member) {
         this.setMember(member);
         member.getExerciseRecords().add(this);
+    }
+
+    public void deleteFromMember() {
+        if (this.getMember() != null) {
+            this.getMember().getExerciseRecords().remove(this);
+            this.setMember(null);
+        }
     }
 }

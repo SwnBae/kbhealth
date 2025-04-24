@@ -1,8 +1,6 @@
 package kb.health.domain.record;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import kb.health.domain.Member;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,28 +9,37 @@ import lombok.Setter;
 @Getter @Setter
 public class DietRecord extends BaseRecord {
 
-    private String menu;
-    private int totalCalories;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "diet_record_id")
+    /**
+     * NULL이 될 수도 있음, 추후 처리 필요 (CASCADE? OR NULL처리?) -> 우선 NULL처리..
+     */
+    private Diet diet;
 
     @Enumerated(EnumType.STRING)
-    private MealType mealType; // 아침/점심/저녁
+    private MealType mealType; // 아침/점심/저녁/간식
 
     /* 빌더 */
-    public static DietRecord create(String menu, int totalCalories, MealType mealType, Member member) {
+    public static DietRecord create(Diet diet, MealType mealType) {
         DietRecord record = new DietRecord();
-        record.setMenu(menu);
-        record.setTotalCalories(totalCalories);
+        record.setDiet(diet);
         record.setMealType(mealType);
-
-        record.assignMember(member);
 
         return record;
     }
 
     /* 연관관계 편의 메서드 */
-    private void assignMember(Member member) {
+    public void assignMember(Member member) {
         this.setMember(member);
         member.getDietRecords().add(this); // 만약 따로 List<DietRecord>가 있다면!
     }
+
+    public void deleteFromMember() {
+        if (this.getMember() != null) {
+            this.getMember().getDietRecords().remove(this);
+            this.setMember(null);
+        }
+    }
+
 }
 

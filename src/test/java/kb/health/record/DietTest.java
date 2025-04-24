@@ -1,0 +1,132 @@
+package kb.health.record;
+
+import kb.health.Repository.DietRepository;
+import kb.health.Service.*;
+import kb.health.domain.Member;
+import kb.health.domain.record.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@SpringBootTest
+@Transactional
+class DietTest {
+
+    @Autowired RecordService recordService;
+    @Autowired MemberService memberService;
+    @Autowired DietRepository dietRepository;
+
+    Long savedMemberId;
+
+    @BeforeEach
+    void setUp() {
+        Member member = new Member();
+        member.setUserName("테스트 유저");
+        savedMemberId = memberService.save(member);
+    }
+
+    /**
+     * 음식 추가, 삭제
+     */
+    @Test
+    void 음식_추가() {
+        // given
+        DietRequest request = new DietRequest("연어 스테이크", 450);
+
+        // when
+        Long savedId = recordService.addDiet(request);
+        Diet savedDiet = dietRepository.findById(savedId);
+
+        // then
+        assertThat(savedDiet).isNotNull();
+        assertThat(savedDiet.getMenu()).isEqualTo("연어 스테이크");
+        assertThat(savedDiet.getCalories()).isEqualTo(450);
+    }
+
+    @Test
+    void 음식_삭제() {
+        // given
+        DietRequest request = new DietRequest("햄버거", 700);
+        Long savedId = recordService.addDiet(request);
+
+        // when
+        recordService.deleteDiet(savedId);
+
+        // then
+        Diet deletedDiet = dietRepository.findById(savedId);
+        assertThat(deletedDiet).isNull();
+    }
+
+    /**
+     * 식단 기록 삽입, 삭제, 수정
+     */
+
+    @Test
+    void 식단_기록_삽입() {
+        //given
+        DietRequest dietRequest = new DietRequest("닭가슴살+샐러드", 350);
+
+        Long dietId = recordService.addDiet(dietRequest);
+        Diet diet = dietRepository.findById(dietId);
+
+        DietRecordRequest recordRequest = new DietRecordRequest(dietId,MealType.LUNCH);
+
+        //when
+        recordService.saveDietRecord(recordRequest, savedMemberId);
+
+        //then
+        List<DietRecord> result = recordService.getDietRecords(savedMemberId);
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getDiet()).isEqualTo(diet);
+    }
+
+    @Test
+    void 식단_기록_조회() {
+        // given
+        Long dietId1 = recordService.addDiet(new DietRequest("샐러드", 150));
+        Long dietId2 = recordService.addDiet(new DietRequest("스테이크", 600));
+
+        recordService.saveDietRecord(new DietRecordRequest(dietId1, MealType.BREAKFAST), savedMemberId);
+        recordService.saveDietRecord(new DietRecordRequest(dietId2, MealType.DINNER), savedMemberId);
+
+        // when
+        List<DietRecord> records = recordService.getDietRecords(savedMemberId);
+
+        // then
+        assertThat(records).hasSize(2);
+        assertThat(records)
+                .extracting(record -> record.getDiet().getMenu())
+                .containsExactlyInAnyOrder("샐러드", "스테이크");
+    }
+
+    @Test
+    void 식단_기록_삭제() {
+        // given
+        Long dietId = recordService.addDiet(new DietRequest("라면", 500));
+        recordService.saveDietRecord(new DietRecordRequest(dietId, MealType.LUNCH), savedMemberId);
+
+        List<DietRecord> before = recordService.getDietRecords(savedMemberId);
+        Long recordId = before.get(0).getId();
+
+        // when
+        recordService.deleteDietRecord(recordId);
+
+        // then
+        List<DietRecord> after = recordService.getDietRecords(savedMemberId);
+        assertThat(after).isEmpty();
+    }
+
+    private Diet getFood(){
+        Diet diet = new Diet();
+        diet.setMenu("햄버거");
+        diet.setCalories(500);
+
+        return diet;
+    }
+}
