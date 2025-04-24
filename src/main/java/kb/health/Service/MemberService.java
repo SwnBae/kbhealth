@@ -57,6 +57,14 @@ public class MemberService {
                 .orElseThrow(() -> MemberException.memberNotFoundByUserName());
     }
 
+    //프로필 사진 수정
+    @Transactional
+    public void updateProfileImage(Long memberId, String imageUrl) {
+        Member member = memberRepository.findMemberById(memberId);
+        member.setProfileImageUrl(imageUrl);
+    }
+
+
     /**
      * 아래의 멤버 찾는 메서드는 내부 로직에서 사용할 예비 메서드
      */
