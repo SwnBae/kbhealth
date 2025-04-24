@@ -24,6 +24,24 @@ public class FollowRepository {
     public void delete(Follow follow) {
         em.remove(follow);
     }
+    
+    //해당 관계가 있는지 확인하는 메서드
+    public Optional<Follow> findFollow(Long fromId, Long toId) {
+        return em.createQuery("select f from Follow f where f.from.id = :fromId and f.to.id = :toId", Follow.class)
+                .setParameter("fromId", fromId)
+                .setParameter("toId", toId)
+                .getResultStream()
+                .findFirst();  // 없을 경우 Optional.empty() 반환
+    }
+
+    /**
+     * 아래 메서드들은 안쓸거 같음, 예비 메서드
+     */
+    
+    public List<Follow> findAll() {
+        return em.createQuery("select f from Follow f", Follow.class)
+                .getResultList();
+    }
 
     //내가 팔로워인 사람들 -> 내가 팔로우하고 있는 사람들(팔로잉 목록)
     public List<Follow> findFollowingByMemberId(Long memberId) {
@@ -39,17 +57,4 @@ public class FollowRepository {
                 .getResultList();
     }
 
-    public Optional<Follow> findFollow(Long fromId, Long toId) {
-        return em.createQuery("select f from Follow f where f.from.id = :fromId and f.to.id = :toId", Follow.class)
-                .setParameter("fromId", fromId)
-                .setParameter("toId", toId)
-                .getResultStream()
-                .findFirst();  // 없을 경우 Optional.empty() 반환
-    }
-
-    //아마 안쓸듯
-    public List<Follow> findAll() {
-        return em.createQuery("select f from Follow f", Follow.class)
-                .getResultList();
-    }
 }

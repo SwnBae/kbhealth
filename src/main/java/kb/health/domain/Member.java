@@ -22,8 +22,14 @@ public class Member {
 
     private String password;
 
+    //닉네임
     private String userName;
 
+    /**
+     * cascade
+     * 1. 회원(Member)이 삭제되면, 그 사람이 했던 모든 팔로우(Follow) 정보도 같이 삭제돼야 함
+     * 2.
+     */
     @OneToMany(mappedBy = "from", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Follow> followings = new ArrayList<>();
 

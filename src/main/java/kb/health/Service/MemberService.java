@@ -11,9 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
-
-import static kb.health.Exception.FollowException.followNotFound;
 
 @Service
 @RequiredArgsConstructor
@@ -30,29 +27,49 @@ public class MemberService {
     //회원 저장
     @Transactional
     public void save(Member member) {
-        try {
-            memberRepository.save(member);
-        } catch (Exception e) {
-            throw MemberException.duplicatePhoneNumber();
-        }
+        // 휴대폰 번호 중복 확인
+        memberRepository.findMemberByPN(member.getPhoneNumber())
+                .ifPresent(m -> {
+                    throw MemberException.duplicatePhoneNumber();
+                });
+
+        // 이름 중복 확인
+        memberRepository.findMemberByName(member.getUserName())
+                .ifPresent(m -> {
+                    throw MemberException.duplicateUserName();
+                });
+
+        memberRepository.save(member);
     }
 
     //회원 수정 (비밀번호, 닉네임 변경?)
 
 
     //휴대폰 번호로 찾기
-    public Optional<Member> findMemberByPhoneNumber(String phoneNumber) {
-        return memberRepository.findByMemberPN(phoneNumber);
+    public Member findMemberByPhoneNumber(String phoneNumber) {
+        return memberRepository.findMemberByPN(phoneNumber)
+                .orElseThrow(() -> MemberException.memberNotFoundByPhoneNumber());
     }
 
+    //이름으로 찾기
+    public Member findMemberByUserName(String userName) {
+        return memberRepository.findMemberByName(userName)
+                .orElseThrow(() -> MemberException.memberNotFoundByUserName());
+    }
+
+    /**
+     * 아래의 멤버 찾는 메서드는 내부 로직에서 사용할 예비 메서드
+     */
     //휴대폰 번호로 MemberId 찾기
-    public Optional<Long> findIdByPhoneNumber(String phoneNumber) {
-        return memberRepository.findByMemberPN(phoneNumber).map(Member::getId);
+    public Long findIdByPhoneNumber(String phoneNumber) {
+        return memberRepository.findMemberByPN(phoneNumber)
+                .map(Member::getId)
+                .orElseThrow(() -> MemberException.memberNotFoundByPhoneNumber());
     }
 
     //고유 값(PK)로 찾기, 내부 로직 사용
     public Member findById(Long id){
-        return memberRepository.findById(id);
+        return memberRepository.findMemberById(id);
     }
 
     /**
@@ -63,12 +80,12 @@ public class MemberService {
     @Transactional
     public void follow(Long myId, Long targetId) {
         if (myId.equals(targetId)) {
-            throw FollowException.cannotFollowYourself(myId);
+            throw FollowException.cannotFollowYourself();
         }
 
         //영속화
-        Member me = memberRepository.findById(myId);
-        Member target = memberRepository.findById(targetId);
+        Member me = memberRepository.findMemberById(myId);
+        Member target = memberRepository.findMemberById(targetId);
 
         // 팔로우 객체 생성
         Follow follow = Follow.createFollow(me, target);
@@ -81,7 +98,7 @@ public class MemberService {
     @Transactional
     public void unfollow(Long myId, Long targetId) {
         Follow follow = followRepository.findFollow(myId, targetId)
-                .orElseThrow(() -> FollowException.followNotFound(myId,targetId));
+                .orElseThrow(() -> FollowException.followNotFound());
 
         follow.disconnect();
 
@@ -90,7 +107,7 @@ public class MemberService {
 
     //팔로잉 목록 조회
     public List<Member> getFollowings(Long memberId) {
-        Member member = memberRepository.findById(memberId);
+        Member member = memberRepository.findMemberById(memberId);
         return member.getFollowings().stream()
                 .map(Follow::getTo)
                 .toList();
@@ -98,7 +115,7 @@ public class MemberService {
 
     //팔로워 목록 조회
     public List<Member> getFollowers(Long memberId) {
-        Member member = memberRepository.findById(memberId);
+        Member member = memberRepository.findMemberById(memberId);
         return member.getFollowers().stream()
                 .map(Follow::getFrom)
                 .toList();
