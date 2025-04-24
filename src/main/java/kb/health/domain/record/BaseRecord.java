@@ -21,6 +21,7 @@ public abstract class BaseRecord {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    //점수 처리는 추후..
     private int score;
 
     private LocalDateTime recordedAt;

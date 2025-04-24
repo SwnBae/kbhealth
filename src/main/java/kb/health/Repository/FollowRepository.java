@@ -37,7 +37,7 @@ public class FollowRepository {
     /**
      * 아래 메서드들은 안쓸거 같음, 예비 메서드
      */
-    
+
     public List<Follow> findAll() {
         return em.createQuery("select f from Follow f", Follow.class)
                 .getResultList();
@@ -56,5 +56,4 @@ public class FollowRepository {
                 .setParameter("memberId", memberId)
                 .getResultList();
     }
-
 }

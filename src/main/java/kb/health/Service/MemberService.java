@@ -6,6 +6,7 @@ import kb.health.Repository.FollowRepository;
 import kb.health.Repository.MemberRepository;
 import kb.health.domain.Follow;
 import kb.health.domain.Member;
+import kb.health.domain.MemberForm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +27,7 @@ public class MemberService {
 
     //회원 저장
     @Transactional
-    public void save(Member member) {
+    public Long save(Member member) {
         // 휴대폰 번호 중복 확인
         memberRepository.findMemberByPN(member.getPhoneNumber())
                 .ifPresent(m -> {
@@ -40,9 +41,18 @@ public class MemberService {
                 });
 
         memberRepository.save(member);
+        return member.getId();
     }
 
     //회원 수정 (비밀번호, 닉네임 변경?)
+    @Transactional
+    public void updateMember(Long memberId, MemberForm memberForm) {
+        Member member = memberRepository.findMemberById(memberId);
+
+        member.setPassword(memberForm.getPassword());
+        member.setUserName(memberForm.getUserName());
+        member.setProfileImageUrl(memberForm.getProfileImageUrl());
+    }
 
 
     //휴대폰 번호로 찾기
