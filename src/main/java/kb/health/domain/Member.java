@@ -24,6 +24,7 @@ public class Member {
 
     private String password;
 
+    @Column(name = "member_score")
     private int score;
 
     //닉네임
