@@ -36,6 +36,14 @@ public class RecordService {
     }
 
     @Transactional
+    public void updateDiet(Long dietId, DietRequest dietRequest) {
+        Diet diet = dietRepository.findById(dietId);
+
+        diet.setMenu(dietRequest.getMenu());
+        diet.setCalories(dietRequest.getCalories());
+    }
+
+    @Transactional
     public void deleteDiet(Long dietId) {
         Diet diet = dietRepository.findById(dietId);
 
@@ -47,6 +55,14 @@ public class RecordService {
 
             dietRepository.delete(dietId);
         }
+    }
+
+    public Diet getDiet(Long id){
+        return dietRepository.findById(id);
+    }
+
+    public List<Diet> getDietList(){
+        return dietRepository.findAll();
     }
 
     /**
