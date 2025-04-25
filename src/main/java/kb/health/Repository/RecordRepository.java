@@ -36,6 +36,12 @@ public class RecordRepository {
                 .getResultList();
     }
 
+    //모든 식단 기록 조회
+    public List<DietRecord> findAllDietRecord() {
+        return em.createQuery("SELECT d FROM DietRecord d", DietRecord.class)
+                .getResultList();
+    }
+
     // 특정 Member의 모든 운동 기록 조회
     public List<ExerciseRecord> findExerciseRecordsByMember(Long memberId) {
         return em.createQuery("SELECT e FROM ExerciseRecord e WHERE e.member.id = :memberId", ExerciseRecord.class)

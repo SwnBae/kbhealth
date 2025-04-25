@@ -101,6 +101,10 @@ public class MemberService {
         return memberRepository.findMemberById(id);
     }
 
+    public List<Member> findMembers(){
+        return memberRepository.findAll();
+    }
+
     /**
      * FOLLOW
      */
