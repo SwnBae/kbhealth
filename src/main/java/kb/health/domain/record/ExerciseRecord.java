@@ -1,5 +1,6 @@
 package kb.health.domain.record;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -11,7 +12,10 @@ import lombok.Setter;
 @Getter @Setter
 public class ExerciseRecord extends BaseRecord {
 
+    @Column(nullable = false)
     private int durationMinutes;
+
+    @Column(nullable = false)
     private int caloriesBurned;
 
     @Enumerated(EnumType.STRING)

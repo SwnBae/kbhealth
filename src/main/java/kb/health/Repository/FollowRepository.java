@@ -16,8 +16,10 @@ public class FollowRepository {
     private final EntityManager em;
 
     //팔로우 저장
-    public void save(Follow follow) {
+    public Long save(Follow follow) {
         em.persist(follow);
+
+        return follow.getId();
     }
 
     //팔로우 삭제

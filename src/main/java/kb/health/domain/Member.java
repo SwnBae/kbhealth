@@ -3,7 +3,9 @@ package kb.health.domain;
 import jakarta.persistence.*;
 import kb.health.domain.record.DietRecord;
 import kb.health.domain.record.ExerciseRecord;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
@@ -11,24 +13,27 @@ import java.util.List;
 
 @Entity
 @Getter @Setter
-//@NoArgsConstructor(access = AccessLevel.PROTECTED)
-//static으로 새 멤버 반환하는거 만들기
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member {
 
     @Id @GeneratedValue
     @Column(name = "member_id")
     private Long id;
 
+    @Column(name = "member_account", unique = true, nullable = false)
+    private String account;
+
     @Column(name = "phone_number", unique = true)
     private String phoneNumber;
 
+    @Column(nullable = false)
     private String password;
 
     @Column(name = "member_score")
     private int score;
 
     //닉네임
-    @Column(name = "user_name", unique = true)
+    @Column(name = "user_name", unique = true, nullable = false)
     private String userName;
 
     //기본 이미지 설정 경로 필요
@@ -54,4 +59,15 @@ public class Member {
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ExerciseRecord> exerciseRecords = new ArrayList<>();
+
+
+    /* 빌더 */
+    public static Member create(String account, String userName, String password, String phoneNumber) {
+        Member member = new Member();
+        member.setAccount(account);
+        member.setUserName(userName);
+        member.setPassword(password);
+        member.setPhoneNumber(phoneNumber);
+        return member;
+    }
 }

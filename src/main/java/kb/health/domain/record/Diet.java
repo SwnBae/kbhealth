@@ -15,6 +15,9 @@ public class Diet {
     @Column(name = "diet_id")
     private Long id;
 
+    @Column(length = 50, nullable = false)
     private String menu;
+
+    @Column(nullable = false)
     private int calories;
 }

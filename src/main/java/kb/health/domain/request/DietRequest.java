@@ -1,4 +1,4 @@
-package kb.health.domain.record;
+package kb.health.domain.request;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

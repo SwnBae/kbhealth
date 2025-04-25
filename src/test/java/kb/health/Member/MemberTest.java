@@ -1,10 +1,10 @@
 package kb.health.Member;
 
-import kb.health.Exception.FollowException;
 import kb.health.Exception.MemberException;
 import kb.health.Repository.MemberRepository;
 import kb.health.Service.MemberService;
 import kb.health.domain.Member;
+import kb.health.domain.request.MemberEditRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,7 +38,20 @@ public class MemberTest {
         memberService.save(member);
 
         //when
-        Member findMember = memberService.findMemberByPhoneNumber("123");
+        Member findMember = memberService.findMemberByPhoneNumber("010-0000-0000");
+
+        //then
+        assertEquals(member, findMember);
+    }
+
+    @Test
+    public void 계정으로_멤버조회() throws Exception {
+        //given
+        Member member = createMember();
+        memberService.save(member);
+
+        //when
+        Member findMember = memberService.findMemberByAccount("account");
 
         //then
         assertEquals(member, findMember);
@@ -64,13 +77,19 @@ public class MemberTest {
         memberService.save(member1);
 
         Member member2 = createMember();
-        member2.setPhoneNumber("123");
+        member2.setAccount("tmp");
+        member2.setUserName("tmpName");
 
-        //when, then
-        assertThrows(
+        //when
+        MemberException exception = assertThrows(
                 MemberException.class,
-                () -> memberService.save(member2));
+                () -> memberService.save(member2)
+        );
+
+        //then
+        assertEquals(1001, exception.getCode()); // ExceptionCode.DUPLICATE_PHONE_NUMBER.getCode()
     }
+
 
     @Test
     public void 중복된_닉네임으로_가입시도() throws Exception {
@@ -78,20 +97,101 @@ public class MemberTest {
         Member member1 = createMember();
         memberService.save(member1);
 
-        //휴대폰 번호만 다른 경우
+        //닉네임만 같은 경우
         Member member2 = createMember();
-        member2.setPhoneNumber("456");
+        member2.setAccount("tmp");
+        member2.setPhoneNumber("011-0000-0000");
 
         //when, then
-        assertThrows(
+        MemberException exception = assertThrows(
                 MemberException.class,
-                () -> memberService.save(member2));
+                () -> memberService.save(member2)
+        );
+
+        assertEquals(1002, exception.getCode());
     }
 
+    @Test
+    public void 중복된_계정으로_가입시도() throws Exception {
+        //given
+        Member member1 = createMember();
+        memberService.save(member1);
+
+        //계정만 같은 경우
+        Member member2 = createMember();
+        member2.setUserName("tmpName");
+        member2.setPhoneNumber("011-0000-0000");
+
+        //when, then
+        MemberException exception = assertThrows(
+                MemberException.class,
+                () -> memberService.save(member2)
+        );
+
+        assertEquals(1003, exception.getCode());
+    }
+
+    @Test
+    public void 존재하지_않는_휴대폰번호로_조회시_예외() {
+        // when
+        MemberException exception = assertThrows(
+                MemberException.class,
+                () -> memberService.findMemberByPhoneNumber("010-9999-9999")
+        );
+
+        // then
+        assertEquals(1004, exception.getCode());
+    }
+
+    @Test
+    public void 존재하지_않는_닉네임으로_조회시_예외() {
+        // when
+        MemberException exception = assertThrows(
+                MemberException.class,
+                () -> memberService.findMemberByUserName("nonexistentUser")
+        );
+
+        // then
+        assertEquals(1005, exception.getCode());
+    }
+
+    @Test
+    public void 존재하지_않는_계정으로_조회시_예외() {
+        // when
+        MemberException exception = assertThrows(
+                MemberException.class,
+                () -> memberService.findMemberByAccount("nonexistentAccount")
+        );
+
+        // then
+        assertEquals(1006, exception.getCode());
+    }
+
+
+    @Test
+    public void 회원_수정() throws Exception {
+        // given
+        Member member = createMember();
+        Long memberId = memberService.save(member);
+
+        MemberEditRequest form = new MemberEditRequest();
+        form.setPassword("new_password");
+        form.setUserName("updatedName");
+        form.setProfileImageUrl("http://example.com/profile.jpg");
+
+        // when
+        memberService.updateMember(memberId, form);
+        Member updatedMember = memberRepository.findMemberById(memberId);
+
+        // then
+        assertEquals("new_password", updatedMember.getPassword());
+        assertEquals("updatedName", updatedMember.getUserName());
+        assertEquals("http://example.com/profile.jpg", updatedMember.getProfileImageUrl());
+    }
+
+
     private Member createMember() {
-        Member member = new Member();
-        member.setUserName("member1");
-        member.setPhoneNumber("123");
+        Member member = Member.create("account", "member1", "password", "010-0000-0000");
 
         return member;
     }

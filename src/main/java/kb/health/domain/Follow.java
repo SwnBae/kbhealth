@@ -12,6 +12,7 @@ import lombok.Setter;
 public class Follow {
 
     @Id @GeneratedValue
+    @Column(name = "follow_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

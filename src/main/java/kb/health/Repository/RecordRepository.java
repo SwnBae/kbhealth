@@ -16,13 +16,17 @@ public class RecordRepository {
     private final EntityManager em;
 
     // 식단 레코드 저장
-    public void saveDietRecord(DietRecord dietRecord) {
+    public Long saveDietRecord(DietRecord dietRecord) {
         em.persist(dietRecord);
+
+        return dietRecord.getId();
     }
 
     // 운동 레코드 저장
-    public void saveExerciseRecord(ExerciseRecord exerciseRecord) {
+    public Long saveExerciseRecord(ExerciseRecord exerciseRecord) {
         em.persist(exerciseRecord);
+
+        return exerciseRecord.getId();
     }
 
     // 특정 Member의 모든 식단 기록 조회
