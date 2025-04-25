@@ -1,9 +1,6 @@
 package kb.health.domain.record;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import kb.health.domain.Member;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +8,11 @@ import lombok.Setter;
 @Entity
 @Getter @Setter
 public class ExerciseRecord extends BaseRecord {
+
+    @Id
+    @GeneratedValue
+    @Column(name = "exercise_record_id")
+    private Long id;
 
     @Column(nullable = false)
     private int durationMinutes;
