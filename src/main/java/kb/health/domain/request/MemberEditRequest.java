@@ -1,4 +1,4 @@
-package kb.health.domain;
+package kb.health.domain.request;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import lombok.Setter;
  */
 
 @Getter @Setter
-public class MemberForm {
+public class MemberEditRequest {
     private Long id;
 
     @NotEmpty(message = "패스워드는 필수 입니다.")

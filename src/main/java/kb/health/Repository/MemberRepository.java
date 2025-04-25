@@ -14,8 +14,10 @@ public class MemberRepository {
 
     private final EntityManager em;
 
-    public void save(Member member) {
+    public Long save(Member member) {
         em.persist(member);
+
+        return member.getId();
     }
 
     //내부 로직에서만 사용할 메서드
@@ -35,6 +37,14 @@ public class MemberRepository {
     public Optional<Member> findMemberByName(String userName) {
         return em.createQuery("select m from Member m where m.userName = :userName", Member.class)
                 .setParameter("userName", userName)
+                .getResultStream()
+                .findFirst();
+    }
+
+    //유저 Account로 멤버 찾기
+    public Optional<Member> findMemberByAccount(String account) {
+        return em.createQuery("select m from Member m where m.account = :account", Member.class)
+                .setParameter("account", account)
                 .getResultStream()
                 .findFirst();
     }

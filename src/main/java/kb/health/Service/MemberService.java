@@ -6,7 +6,7 @@ import kb.health.Repository.FollowRepository;
 import kb.health.Repository.MemberRepository;
 import kb.health.domain.Follow;
 import kb.health.domain.Member;
-import kb.health.domain.MemberForm;
+import kb.health.domain.request.MemberEditRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +24,6 @@ public class MemberService {
     /**
      * 회원
      */
-
     //회원 저장
     @Transactional
     public Long save(Member member) {
@@ -40,18 +39,25 @@ public class MemberService {
                     throw MemberException.duplicateUserName();
                 });
 
+        // 계정 중복 확인
+        memberRepository.findMemberByAccount(member.getAccount())
+                .ifPresent(m -> {
+                    throw MemberException.duplicateAccount();
+                });
+
         memberRepository.save(member);
         return member.getId();
     }
 
     //회원 수정 (비밀번호, 닉네임 변경?)
+    //중복체크 로직 필요
     @Transactional
-    public void updateMember(Long memberId, MemberForm memberForm) {
+    public void updateMember(Long memberId, MemberEditRequest memberEditRequest) {
         Member member = memberRepository.findMemberById(memberId);
 
-        member.setPassword(memberForm.getPassword());
-        member.setUserName(memberForm.getUserName());
-        member.setProfileImageUrl(memberForm.getProfileImageUrl());
+        member.setPassword(memberEditRequest.getPassword());
+        member.setUserName(memberEditRequest.getUserName());
+        member.setProfileImageUrl(memberEditRequest.getProfileImageUrl());
     }
 
 
@@ -67,13 +73,18 @@ public class MemberService {
                 .orElseThrow(() -> MemberException.memberNotFoundByUserName());
     }
 
+    //계정으로 찾기
+    public Member findMemberByAccount(String account) {
+        return memberRepository.findMemberByAccount(account)
+                .orElseThrow(() -> MemberException.memberNotFoundByAccount());
+    }
+
     //프로필 사진 수정
     @Transactional
     public void updateProfileImage(Long memberId, String imageUrl) {
         Member member = memberRepository.findMemberById(memberId);
         member.setProfileImageUrl(imageUrl);
     }
-
 
     /**
      * 아래의 멤버 찾는 메서드는 내부 로직에서 사용할 예비 메서드
@@ -93,7 +104,6 @@ public class MemberService {
     /**
      * FOLLOW
      */
-    
     //팔로우 기능, 이미 팔로우 한 사람은 취소만 가능 (버튼으로 구현)
     @Transactional
     public void follow(Long myId, Long targetId) {

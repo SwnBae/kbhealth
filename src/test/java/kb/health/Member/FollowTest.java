@@ -29,10 +29,12 @@ public class FollowTest {
     @Test
     public void 팔로잉() throws Exception {
         //given
-        Member member1 = new Member();
+        Member member1 = createMember();
         member1.setUserName("주인공");
-        Member member2 = new Member();
+        Member member2 = createMember();
         member2.setUserName("얘를 팔로우");
+        member2.setPhoneNumber("001-00-00");
+        member2.setAccount("account2");
 
         em.persist(member1);
         em.persist(member2);
@@ -54,10 +56,12 @@ public class FollowTest {
     @Test
     public void 팔로잉_취소() throws Exception {
         //given
-        Member member1 = new Member();
+        Member member1 = createMember();
         member1.setUserName("주인공");
-        Member member2 = new Member();
+        Member member2 = createMember();
         member2.setUserName("얘를 팔로우");
+        member2.setPhoneNumber("001-00-00");
+        member2.setAccount("account2");
 
         memberService.save(member1);
         memberService.save(member2);
@@ -71,18 +75,63 @@ public class FollowTest {
         assertTrue(member1.getFollowings().isEmpty(), "팔로잉 목록이 비어야 합니다.");
         assertTrue(member2.getFollowers().isEmpty(), "팔로워 목록이 비어야 합니다.");
     }
-    
+
+    @Test
+    public void 팔로잉_팔로워_조회() throws Exception {
+        // given
+        Member me = createMember();
+        me.setUserName("me");
+        me.setPhoneNumber("001");
+        memberService.save(me);
+
+        Member target1 = createMember();
+        target1.setUserName("target1");
+        target1.setPhoneNumber("001-00-00");
+        target1.setAccount("account1");
+        memberService.save(target1);
+
+        Member target2 = createMember();
+        target2.setUserName("target2");
+        target2.setPhoneNumber("002-00-00");
+        target2.setAccount("account2");
+        memberService.save(target2);
+
+        Long myId = me.getId();
+        Long target1Id = target1.getId();
+        Long target2Id = target2.getId();
+
+        // when
+        memberService.follow(myId, target1Id);
+        memberService.follow(myId, target2Id);
+
+        // then
+        assertEquals(2, memberService.getFollowings(myId).size());
+        assertEquals("target1", memberService.getFollowings(myId).get(0).getUserName());
+        assertEquals("target2", memberService.getFollowings(myId).get(1).getUserName());
+
+        assertEquals(1, memberService.getFollowers(target1Id).size());
+        assertEquals("me", memberService.getFollowers(target1Id).get(0).getUserName());
+    }
+
     @Test
     public void 자신을_팔로우하는_경우() throws Exception {
         //given
-        Member member = new Member();
+        Member member = createMember();
         member.setUserName("주인공");
 
         memberService.save(member);
 
         //when, then
-        assertThrows(
+        FollowException followException = assertThrows(
                 FollowException.class,
                 () -> memberService.follow(member.getId(), member.getId()));
+
+        assertEquals(2001, followException.getCode());
+    }
+
+    private Member createMember() {
+        Member member = Member.create("account", "member1", "password", "010-0000-0000");
+
+        return member;
     }
 }

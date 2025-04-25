@@ -4,6 +4,8 @@ import kb.health.Repository.DietRepository;
 import kb.health.Service.*;
 import kb.health.domain.Member;
 import kb.health.domain.record.*;
+import kb.health.domain.request.DietRecordRequest;
+import kb.health.domain.request.DietRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +28,7 @@ class DietTest {
 
     @BeforeEach
     void setUp() {
-        Member member = new Member();
-        member.setUserName("테스트 유저");
+        Member member = Member.create("account", "Test", "password", "010-0000-0000");
         savedMemberId = memberService.save(member);
     }
 
@@ -66,7 +67,6 @@ class DietTest {
     /**
      * 식단 기록 삽입, 삭제, 수정
      */
-
     @Test
     void 식단_기록_삽입() {
         //given
@@ -104,6 +104,27 @@ class DietTest {
                 .extracting(record -> record.getDiet().getMenu())
                 .containsExactlyInAnyOrder("샐러드", "스테이크");
     }
+
+    @Test
+    void 식단_기록_수정() {
+        // given
+        Long dietId1 = recordService.addDiet(new DietRequest("계란후라이", 200));
+        Long dietId2 = recordService.addDiet(new DietRequest("닭가슴살", 300));
+
+        // 처음에는 dietId1 (계란후라이)로 기록
+        recordService.saveDietRecord(new DietRecordRequest(dietId1, MealType.BREAKFAST), savedMemberId);
+        Long recordId = recordService.getDietRecords(savedMemberId).get(0).getId();
+
+        // when: 메뉴를 dietId2(닭가슴살)로, 식사시간을 DINNER로 수정
+        DietRecordRequest updateRequest = new DietRecordRequest(dietId2, MealType.DINNER);
+        recordService.updateDietRecord(recordId, updateRequest);
+
+        // then
+        DietRecord updatedRecord = recordService.getDietRecord(recordId);
+        assertThat(updatedRecord.getDiet().getMenu()).isEqualTo("닭가슴살");
+        assertThat(updatedRecord.getMealType()).isEqualTo(MealType.DINNER);
+    }
+
 
     @Test
     void 식단_기록_삭제() {

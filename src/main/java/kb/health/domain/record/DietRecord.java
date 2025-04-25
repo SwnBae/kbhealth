@@ -9,11 +9,11 @@ import lombok.Setter;
 @Getter @Setter
 public class DietRecord extends BaseRecord {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "diet_record_id")
     /**
      * NULL이 될 수도 있음, 추후 처리 필요 (CASCADE? OR NULL처리?) -> 우선 NULL처리..
      */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "diet_id")
     private Diet diet;
 
     @Enumerated(EnumType.STRING)

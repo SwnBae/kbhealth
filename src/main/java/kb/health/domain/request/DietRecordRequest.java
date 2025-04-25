@@ -1,6 +1,7 @@
-package kb.health.domain.record;
+package kb.health.domain.request;
 
 import jakarta.validation.constraints.NotEmpty;
+import kb.health.domain.record.MealType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
