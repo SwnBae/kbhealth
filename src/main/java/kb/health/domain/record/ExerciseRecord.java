@@ -2,6 +2,7 @@ package kb.health.domain.record;
 
 import jakarta.persistence.*;
 import kb.health.domain.Member;
+import kb.health.domain.request.ExerciseRecordRequest;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -29,6 +30,15 @@ public class ExerciseRecord extends BaseRecord {
         record.setDurationMinutes(durationMinutes);
         record.setCaloriesBurned(caloriesBurned);
         record.setExerciseType(exerciseType);
+
+        return record;
+    }
+
+    public static ExerciseRecord create(ExerciseRecordRequest request) {
+        ExerciseRecord record = new ExerciseRecord();
+        record.setDurationMinutes(request.getDurationMinutes());
+        record.setCaloriesBurned(request.getCaloriesBurned());
+        record.setExerciseType(request.getExerciseType());
 
         return record;
     }

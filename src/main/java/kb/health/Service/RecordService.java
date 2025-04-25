@@ -57,7 +57,7 @@ public class RecordService {
      * 저장
      */
     @Transactional
-    public void saveDietRecord(DietRecordRequest dietRecordRequest, Long memberId) {
+    public Long saveDietRecord(DietRecordRequest dietRecordRequest, Long memberId) {
         Member member = memberRepository.findMemberById(memberId);
         Diet diet = dietRepository.findById(dietRecordRequest.getDietId());
 
@@ -65,14 +65,20 @@ public class RecordService {
         dietRecord.assignMember(member);
 
         recordRepository.saveDietRecord(dietRecord);
+
+        return dietRecord.getId();
     }
 
     @Transactional
-    public void saveExerciseRecord(ExerciseRecord exerciseRecord, Long memberId) {
+    public Long saveExerciseRecord(ExerciseRecordRequest exerciseRecordRequest, Long memberId) {
         Member member = memberRepository.findMemberById(memberId);
+
+        ExerciseRecord exerciseRecord = ExerciseRecord.create(exerciseRecordRequest);
 
         exerciseRecord.assignMember(member);
         recordRepository.saveExerciseRecord(exerciseRecord);
+
+        return exerciseRecord.getId();
     }
 
     public List<DietRecord> getDietRecords(Long memberId) {
