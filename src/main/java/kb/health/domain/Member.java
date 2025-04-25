@@ -3,6 +3,7 @@ package kb.health.domain;
 import jakarta.persistence.*;
 import kb.health.domain.record.DietRecord;
 import kb.health.domain.record.ExerciseRecord;
+import kb.health.domain.request.MemberRegistRequest;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -68,6 +69,15 @@ public class Member {
         member.setUserName(userName);
         member.setPassword(password);
         member.setPhoneNumber(phoneNumber);
+        return member;
+    }
+
+    public static Member create(MemberRegistRequest request) {
+        Member member = new Member();
+        member.setAccount(request.getAccount());
+        member.setUserName(request.getUserName());
+        member.setPassword(request.getPassword());
+        member.setPhoneNumber(request.getPhoneNumber());
         return member;
     }
 }
