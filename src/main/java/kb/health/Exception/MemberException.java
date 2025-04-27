@@ -1,4 +1,7 @@
 package kb.health.Exception;
+
+import kb.health.domain.Member;
+
 /**
  * 코드 추가 예정
  */
@@ -36,6 +39,10 @@ public class MemberException extends RuntimeException{
 
     public static MemberException memberNotFoundByAccount() {
         return new MemberException("해당 계정으로 등록된 회원이 없습니다.", ExceptionCode.MEMBER_NOT_FOUND_BY_ACCOUNT);
+    }
+
+    public static MemberException invalidPassword(){
+        return new MemberException("비밀번호가 일치하지 않습니다.", ExceptionCode.INVALID_PASSWORD);
     }
 
     //아마 사용되지 않을 메서드

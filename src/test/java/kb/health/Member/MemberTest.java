@@ -189,6 +189,34 @@ public class MemberTest {
         assertEquals("http://example.com/profile.jpg", updatedMember.getProfileImageUrl());
     }
 
+    @Test
+    public void 로그인_성공() throws Exception {
+        // given
+        Member member = createMember();
+        memberService.save(member);
+
+        // when
+        boolean result = memberService.login("account", "password");
+
+        // then
+        assertTrue(result);
+    }
+
+    @Test
+    public void 로그인_비밀번호_틀림() {
+        // given
+        Member member = createMember();
+        memberService.save(member);
+
+        // when
+        MemberException exception = assertThrows(
+                MemberException.class,
+                () -> memberService.login("account", "wrongpassword")
+        );
+
+        // then
+        assertEquals(1007, exception.getCode());
+    }
 
     private Member createMember() {
         Member member = Member.create("account", "member1", "password", "010-0000-0000");
