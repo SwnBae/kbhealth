@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.util.Map;
+
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -16,11 +18,10 @@ public class GlobalExceptionHandler {
             case LOGIN_PROCESS_NEEDED:
             case CANNOT_FIND_MEMBER:
             case INVALID_PASSWORD:
-                break;
             case INVALID_TOKEN:
-                break;
-
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", e.getMessage(), "redirect" , "/login"));
         }
+        return null;
     }
 }
 
