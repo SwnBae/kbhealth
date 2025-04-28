@@ -1,9 +1,10 @@
 package kb.health.authentication;
 
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import kb.health.Exception.LoginException;
-import kb.health.Exception.MemberException;
 import kb.health.Service.MemberService;
 import kb.health.domain.Member;
 import lombok.RequiredArgsConstructor;
@@ -29,30 +30,37 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
-        if (request == null) {
+        HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class); // 응답 객체 필요
+
+        if (request == null || response == null) {
             throw LoginException.loginProcessNeeded();
         }
 
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        String token = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("jwt".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                }
+            }
+        }
+
+        if (token == null || !jwtUtil.validateJwtToken(token)) {
+            // 쿠키 삭제
+            Cookie jwtCookie = new Cookie("jwt", null);
+            jwtCookie.setHttpOnly(true);
+            jwtCookie.setSecure(false);
+            jwtCookie.setPath("/");
+            jwtCookie.setMaxAge(0); // 즉시 삭제
+            response.addCookie(jwtCookie);
+
             throw LoginException.loginProcessNeeded();
         }
 
-        String token = authHeader.replace("Bearer ", "");
-        if (!jwtUtil.validateJwtToken(token)) {
-            throw LoginException.loginProcessNeeded();
-        }
-
+        // 정상 처리...
         CurrentMember currentMember = new CurrentMember(jwtUtil.getIdFromJwt(token), jwtUtil.getAccountFromJwt(token));
-
-        Member member = null;
-
-        try{
-            member = memberService.findMemberByAccount(currentMember.account);
-        } catch (MemberException memberException){
-            throw LoginException.loginProcessNeeded();
-        }
-
+        Member member = memberService.findMemberByAccount(currentMember.account);
         if (member == null) {
             throw LoginException.loginProcessNeeded();
         }
