@@ -6,6 +6,7 @@ import kb.health.domain.Member;
 import kb.health.domain.record.*;
 import kb.health.domain.request.DietRecordRequest;
 import kb.health.domain.request.DietRequest;
+import kb.health.domain.response.DietRecordResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,9 +82,9 @@ class DietTest {
         recordService.saveDietRecord(recordRequest, savedMemberId);
 
         //then
-        List<DietRecord> result = recordService.getDietRecords(savedMemberId);
+        List<DietRecordResponse> result = recordService.getDietRecords(savedMemberId);
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getDiet()).isEqualTo(diet);
+        assertThat(result.get(0).getDietId()).isEqualTo(dietId);
     }
 
     @Test
@@ -96,12 +97,12 @@ class DietTest {
         recordService.saveDietRecord(new DietRecordRequest(dietId2, MealType.DINNER), savedMemberId);
 
         // when
-        List<DietRecord> records = recordService.getDietRecords(savedMemberId);
+        List<DietRecordResponse> records = recordService.getDietRecords(savedMemberId);
 
         // then
         assertThat(records).hasSize(2);
         assertThat(records)
-                .extracting(record -> record.getDiet().getMenu())
+                .extracting(record -> record.getDietMenu())
                 .containsExactlyInAnyOrder("샐러드", "스테이크");
     }
 
@@ -132,14 +133,14 @@ class DietTest {
         Long dietId = recordService.addDiet(new DietRequest("라면", 500));
         recordService.saveDietRecord(new DietRecordRequest(dietId, MealType.LUNCH), savedMemberId);
 
-        List<DietRecord> before = recordService.getDietRecords(savedMemberId);
+        List<DietRecordResponse> before = recordService.getDietRecords(savedMemberId);
         Long recordId = before.get(0).getId();
 
         // when
         recordService.deleteDietRecord(recordId);
 
         // then
-        List<DietRecord> after = recordService.getDietRecords(savedMemberId);
+        List<DietRecordResponse> after = recordService.getDietRecords(savedMemberId);
         assertThat(after).isEmpty();
     }
 

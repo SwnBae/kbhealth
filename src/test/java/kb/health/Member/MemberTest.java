@@ -1,5 +1,6 @@
 package kb.health.Member;
 
+import kb.health.Exception.LoginException;
 import kb.health.Exception.MemberException;
 import kb.health.Repository.MemberRepository;
 import kb.health.Service.MemberService;
@@ -210,13 +211,13 @@ public class MemberTest {
         memberService.save(member);
 
         // when
-        MemberException exception = assertThrows(
-                MemberException.class,
+        LoginException exception = assertThrows(
+                LoginException.class,
                 () -> memberService.login("account", "wrongpassword")
         );
 
         // then
-        assertEquals(1007, exception.getCode());
+        assertEquals(3003, exception.getCode());
     }
 
     private Member createMember() {
