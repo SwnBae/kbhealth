@@ -1,6 +1,7 @@
 package kb.health.Service;
 
 import kb.health.Exception.FollowException;
+import kb.health.Exception.LoginException;
 import kb.health.Exception.MemberException;
 import kb.health.Repository.FollowRepository;
 import kb.health.Repository.MemberRepository;
@@ -65,7 +66,7 @@ public class MemberService {
         Member member = findMemberByAccount(account);
 
         if(!member.getPassword().equals(password)) {
-            throw MemberException.invalidPassword();
+            throw LoginException.invalidPassword();
         }
 
         return true;
