@@ -13,7 +13,12 @@ public enum ExceptionCode {
 
     // ==== Follow 관련 ====
     CANNOT_FOLLOW_YOURSELF(2001),
-    FOLLOW_NOT_FOUND(2002);
+    FOLLOW_NOT_FOUND(2002),
+
+    // ==== Login Verify 관련 ====
+    LOGIN_PROCESS_NEEDED(3001);
+
+
 
     private final int code;
 
