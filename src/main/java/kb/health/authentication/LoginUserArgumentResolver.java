@@ -46,6 +46,7 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
         CurrentMember currentMember = new CurrentMember(jwtUtil.getIdFromJwt(token), jwtUtil.getAccountFromJwt(token));
 
         Member member = null;
+
         try{
             member = memberService.findMemberByAccount(currentMember.account);
         } catch (MemberException memberException){
