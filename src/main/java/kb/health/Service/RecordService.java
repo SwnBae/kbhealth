@@ -8,11 +8,13 @@ import kb.health.domain.record.*;
 import kb.health.domain.request.DietRecordRequest;
 import kb.health.domain.request.DietRequest;
 import kb.health.domain.request.ExerciseRecordRequest;
+import kb.health.domain.response.DietRecordResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -97,9 +99,17 @@ public class RecordService {
         return exerciseRecord.getId();
     }
 
-    public List<DietRecord> getDietRecords(Long memberId) {
-        return recordRepository.findDietRecordsByMember(memberId);
+    public List<DietRecord> getAllDietRecords() {
+        return recordRepository.findAllDietRecord();
     }
+
+    public List<DietRecordResponse> getDietRecords(Long memberId) {
+        List<DietRecord> dietRecords = recordRepository.findDietRecordsByMember(memberId);
+        return dietRecords.stream()
+                .map(DietRecordResponse::new)
+                .collect(Collectors.toList());
+    }
+
 
     public List<ExerciseRecord> getExerciseRecords(Long memberId) {
         return recordRepository.findExerciseRecordsByMember(memberId);

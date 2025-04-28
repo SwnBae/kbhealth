@@ -8,6 +8,8 @@ import kb.health.Repository.MemberRepository;
 import kb.health.domain.Follow;
 import kb.health.domain.Member;
 import kb.health.domain.request.MemberEditRequest;
+import kb.health.domain.request.MemberRegistRequest;
+import kb.health.domain.response.FollowResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,33 @@ public class MemberService {
     /**
      * 회원
      */
+    //회원 저장
+    @Transactional
+    public Long save(MemberRegistRequest request) {
+        // 휴대폰 번호 중복 확인
+        memberRepository.findMemberByPN(request.getPhoneNumber())
+                .ifPresent(m -> {
+                    throw MemberException.duplicatePhoneNumber();
+                });
+
+        // 이름 중복 확인
+        memberRepository.findMemberByName(request.getUserName())
+                .ifPresent(m -> {
+                    throw MemberException.duplicateUserName();
+                });
+
+        // 계정 중복 확인
+        memberRepository.findMemberByAccount(request.getAccount())
+                .ifPresent(m -> {
+                    throw MemberException.duplicateAccount();
+                });
+
+        Member member = Member.create(request);
+
+        memberRepository.save(member);
+        return member.getId();
+    }
+
     //회원 저장
     @Transactional
     public Long save(Member member) {
@@ -65,7 +94,7 @@ public class MemberService {
     public boolean login(String account, String password) {
         Member member = findMemberByAccount(account);
 
-        if(!member.getPassword().equals(password)) {
+        if (!member.getPassword().equals(password)) {
             throw LoginException.invalidPassword();
         }
 
@@ -108,11 +137,11 @@ public class MemberService {
     }
 
     //고유 값(PK)로 찾기, 내부 로직 사용
-    public Member findById(Long id){
+    public Member findById(Long id) {
         return memberRepository.findMemberById(id);
     }
 
-    public List<Member> findMembers(){
+    public List<Member> findMembers() {
         return memberRepository.findAll();
     }
 
@@ -148,19 +177,43 @@ public class MemberService {
         followRepository.delete(follow);
     }
 
-    //팔로잉 목록 조회
-    public List<Member> getFollowings(Long memberId) {
+    //    //팔로잉 목록 조회
+//    public List<Member> getFollowings(Long memberId) {
+//        Member member = memberRepository.findMemberById(memberId);
+//        return member.getFollowings().stream()
+//                .map(Follow::getTo)
+//                .toList();
+//    }
+//
+//    //팔로워 목록 조회
+//    public List<Member> getFollowers(Long memberId) {
+//        Member member = memberRepository.findMemberById(memberId);
+//        return member.getFollowers().stream()
+//                .map(Follow::getFrom)
+//                .toList();
+//    }
+    public List<FollowResponse> getFollowings(Long memberId) {
         Member member = memberRepository.findMemberById(memberId);
         return member.getFollowings().stream()
-                .map(Follow::getTo)
+                .map(follow -> toFollowResponse(follow.getTo())) // 팔로잉은 follow.getTo()에서 member를 가져옵니다
                 .toList();
     }
 
-    //팔로워 목록 조회
-    public List<Member> getFollowers(Long memberId) {
+    public List<FollowResponse> getFollowers(Long memberId) {
         Member member = memberRepository.findMemberById(memberId);
         return member.getFollowers().stream()
-                .map(Follow::getFrom)
+                .map(follow -> toFollowResponse(follow.getFrom())) // 팔로워는 follow.getFrom()에서 member를 가져옵니다
                 .toList();
     }
+
+
+    private FollowResponse toFollowResponse(Member member) {
+        return FollowResponse.builder()
+                .followId(member.getId())
+                .userName(member.getUserName())
+                .score(member.getScore())
+                .profileImageUrl(member.getProfileImageUrl())
+                .build();
+    }
+
 }

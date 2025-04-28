@@ -44,18 +44,4 @@ public class FollowRepository {
         return em.createQuery("select f from Follow f", Follow.class)
                 .getResultList();
     }
-
-    //내가 팔로워인 사람들 -> 내가 팔로우하고 있는 사람들(팔로잉 목록)
-    public List<Follow> findFollowingByMemberId(Long memberId) {
-        return em.createQuery("select f from Follow f where f.from.id = :memberId", Follow.class)
-                .setParameter("memberId", memberId)
-                .getResultList();
-    }
-
-    // 나를 팔로우하는 사람들(팔로워 목록)
-    public List<Follow> findFollowersByMemberId(Long memberId) {
-        return em.createQuery("select f from Follow f where f.to.id = :memberId", Follow.class)
-                .setParameter("memberId", memberId)
-                .getResultList();
-    }
 }
