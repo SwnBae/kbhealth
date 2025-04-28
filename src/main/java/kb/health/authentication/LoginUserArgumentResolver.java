@@ -1,9 +1,9 @@
 package kb.health.authentication;
 
 
-import io.jsonwebtoken.Header;
 import jakarta.servlet.http.HttpServletRequest;
-import kb.health.Exception.LoginNeededException;
+import kb.health.Exception.LoginException;
+import kb.health.Exception.MemberException;
 import kb.health.Service.MemberService;
 import kb.health.domain.Member;
 import lombok.RequiredArgsConstructor;
@@ -29,26 +29,33 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
-        String authHeader = null;
-        if (request != null) {
-            authHeader = request.getHeader("Authorization");
-            if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                String token = authHeader.replace("Bearer ", "");
-
-                if(jwtUtil.validateJwtToken(token)) {
-                    CurrentMember currentMember = new CurrentMember(jwtUtil.getIdFromJwt(token), jwtUtil.getAccountFromJwt(token));
-                    try{
-                        Member member = memberService.findMemberByAccount(currentMember.account);
-                        if (member == null) {
-                            throw LoginNeededException.loginProcessNeeded();
-                        }
-                        return currentMember;
-                    } catch (Exception e){
-                        throw LoginNeededException.loginProcessNeeded();
-                    }
-                }
-            }
+        if (request == null) {
+            throw LoginException.loginProcessNeeded();
         }
-        return null;
+
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw LoginException.loginProcessNeeded();
+        }
+
+        String token = authHeader.replace("Bearer ", "");
+        if (!jwtUtil.validateJwtToken(token)) {
+            throw LoginException.loginProcessNeeded();
+        }
+
+        CurrentMember currentMember = new CurrentMember(jwtUtil.getIdFromJwt(token), jwtUtil.getAccountFromJwt(token));
+
+        Member member = null;
+        try{
+            member = memberService.findMemberByAccount(currentMember.account);
+        } catch (MemberException memberException){
+            throw LoginException.loginProcessNeeded();
+        }
+
+        if (member == null) {
+            throw LoginException.loginProcessNeeded();
+        }
+
+        return currentMember;
     }
 }
