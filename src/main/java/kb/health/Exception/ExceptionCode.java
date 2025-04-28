@@ -1,7 +1,9 @@
 package kb.health.Exception;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+@Getter
 public enum ExceptionCode {
 
     // ==== Member 관련 ====
@@ -33,15 +35,4 @@ public enum ExceptionCode {
         this.status = status;
     }
 
-    public int getCode() {
-        return code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public HttpStatus getStatus() {
-        return status;
-    }
 }

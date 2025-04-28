@@ -10,10 +10,6 @@ public class GetRuntimeException extends RuntimeException {
         this.exceptionCode = exceptionCode;
     }
 
-    public ExceptionCode getExceptionCode() {
-        return exceptionCode;
-    }
-
     public int getCode() {
         return exceptionCode.getCode();
     }

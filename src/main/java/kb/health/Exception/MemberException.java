@@ -33,10 +33,6 @@ public class MemberException extends GetRuntimeException{
         return new MemberException(ExceptionCode.MEMBER_NOT_FOUND_BY_ACCOUNT);
     }
 
-    public static MemberException invalidPassword(){
-        return new MemberException(ExceptionCode.INVALID_PASSWORD);
-    }
-
     //아마 사용되지 않을 메서드
 //    public static MemberException memberNotFoundById() {
 //        throw new MemberException("해당 ID(FK)의 회원이 존재하지 않습니다: ");
