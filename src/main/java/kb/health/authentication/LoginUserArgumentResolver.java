@@ -3,6 +3,7 @@ package kb.health.authentication;
 
 import io.jsonwebtoken.Header;
 import jakarta.servlet.http.HttpServletRequest;
+import kb.health.Exception.LoginNeededException;
 import kb.health.Service.MemberService;
 import kb.health.domain.Member;
 import lombok.RequiredArgsConstructor;
@@ -39,11 +40,11 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
                     try{
                         Member member = memberService.findMemberByAccount(currentMember.account);
                         if (member == null) {
-                            throw new Exception(); //수정필요~~~~~~~~~~~~~~~~~~~~~
+                            throw LoginNeededException.loginProcessNeeded();
                         }
                         return currentMember;
                     } catch (Exception e){
-                        throw new Exception();
+                        throw LoginNeededException.loginProcessNeeded();
                     }
                 }
             }
