@@ -60,6 +60,16 @@ public class MemberService {
         member.setProfileImageUrl(memberEditRequest.getProfileImageUrl());
     }
 
+    //로그인 기능
+    public boolean login(String account, String password) {
+        Member member = findMemberByAccount(account);
+
+        if(!member.getPassword().equals(password)) {
+            throw MemberException.invalidPassword();
+        }
+
+        return true;
+    }
 
     //휴대폰 번호로 찾기
     public Member findMemberByPhoneNumber(String phoneNumber) {

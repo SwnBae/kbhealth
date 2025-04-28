@@ -9,6 +9,7 @@ public enum ExceptionCode {
     MEMBER_NOT_FOUND_BY_PHONE(1004),
     MEMBER_NOT_FOUND_BY_USERNAME(1005),
     MEMBER_NOT_FOUND_BY_ACCOUNT(1006),
+    INVALID_PASSWORD(1007),
 
     // ==== Follow 관련 ====
     CANNOT_FOLLOW_YOURSELF(2001),
@@ -16,6 +17,8 @@ public enum ExceptionCode {
 
     // ==== Login Verify 관련 ====
     LOGIN_PROCESS_NEEDED(3001);
+
+
 
     private final int code;
 
