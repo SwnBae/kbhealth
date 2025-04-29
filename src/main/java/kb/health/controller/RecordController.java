@@ -5,7 +5,7 @@ import kb.health.authentication.CurrentMember;
 import kb.health.authentication.LoginMember;
 import kb.health.domain.record.DietRecord;
 import kb.health.domain.request.DietRecordRequest;
-import kb.health.domain.response.DietRecordResponse;
+import kb.health.controller.response.DietRecordResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

@@ -1,4 +1,4 @@
-package kb.health.domain.response;
+package kb.health.controller.response;
 
 import lombok.Builder;
 import lombok.Getter;

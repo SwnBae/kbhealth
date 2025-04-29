@@ -1,4 +1,4 @@
-package kb.health.domain.response;
+package kb.health.controller.response;
 
 import kb.health.domain.record.DietRecord;
 import kb.health.domain.record.MealType;

@@ -4,7 +4,7 @@ import kb.health.Service.MemberService;
 import kb.health.authentication.CurrentMember;
 import kb.health.authentication.JwtUtil;
 import kb.health.authentication.LoginMember;
-import kb.health.domain.response.FollowResponse;
+import kb.health.controller.response.FollowResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
