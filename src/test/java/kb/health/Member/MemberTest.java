@@ -5,7 +5,7 @@ import kb.health.Exception.MemberException;
 import kb.health.Repository.MemberRepository;
 import kb.health.Service.MemberService;
 import kb.health.domain.Member;
-import kb.health.domain.request.MemberEditRequest;
+import kb.health.controller.request.MemberEditRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

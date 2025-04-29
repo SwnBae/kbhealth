@@ -2,7 +2,7 @@ package kb.health.domain.record;
 
 import jakarta.persistence.*;
 import kb.health.domain.Member;
-import kb.health.domain.request.ExerciseRecordRequest;
+import kb.health.controller.request.ExerciseRecordRequest;
 import lombok.Getter;
 import lombok.Setter;
 

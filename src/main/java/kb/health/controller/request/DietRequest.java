@@ -1,4 +1,4 @@
-package kb.health.domain.request;
+package kb.health.controller.request;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -3,7 +3,7 @@ package kb.health.domain;
 import jakarta.persistence.*;
 import kb.health.domain.record.DietRecord;
 import kb.health.domain.record.ExerciseRecord;
-import kb.health.domain.request.MemberRegistRequest;
+import kb.health.controller.request.MemberRegistRequest;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import kb.health.Service.MemberService;
 import kb.health.authentication.JwtUtil;
 import kb.health.controller.request.LoginRequest;
+import kb.health.controller.request.MemberRegistRequest;
 import kb.health.domain.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -31,7 +34,7 @@ public class LoginController {
              jwtCookie.setMaxAge(24 * 60 * 60); // 1일 유효
              response.addCookie(jwtCookie); // 쿠키 추가
 
-             return ResponseEntity.ok("로그인 성공");
+             return ResponseEntity.status(HttpStatus.OK).body(Map.of("massage" , "로그인 성공", "redirect", "/index"));
          } else {
              return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 실패");
          }
@@ -48,22 +51,15 @@ public class LoginController {
         return ResponseEntity.ok("로그아웃 성공");
     }
 
-    @GetMapping("/regist")
-    public String regist() {
-        return "regist";
-    }
-
     @PostMapping("/regist")
-        public String regist(@ModelAttribute Member member) {
-            memberService.save(member);
-            return "redirect:/login";
+    public ResponseEntity<?> regist(@ModelAttribute MemberRegistRequest memberRegistRequest) {
+        memberService.save(memberRegistRequest);
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message","회원가입 성공", "redirect", "/login"));
     }
 
-    @ExceptionHandler(MatchException.class)
-    public String handleMatchException(MatchException e, Model model) {
-        model.addAttribute("error", e.getMessage());
-        return "redirect:/login";
-    }
+
+
+
 
 
 

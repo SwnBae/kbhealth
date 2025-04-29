@@ -4,7 +4,7 @@ import kb.health.Repository.RecordRepository;
 import kb.health.Service.*;
 import kb.health.domain.Member;
 import kb.health.domain.record.*;
-import kb.health.domain.request.ExerciseRecordRequest;
+import kb.health.controller.request.ExerciseRecordRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

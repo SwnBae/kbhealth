@@ -1,4 +1,4 @@
-package kb.health.domain.request;
+package kb.health.controller.request;
 
 import jakarta.validation.constraints.NotEmpty;
 import kb.health.domain.record.ExerciseType;
