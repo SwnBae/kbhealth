@@ -3,8 +3,8 @@ package kb.health.controller;
 import kb.health.Service.RecordService;
 import kb.health.authentication.CurrentMember;
 import kb.health.authentication.LoginMember;
+import kb.health.controller.request.DietRequest;
 import kb.health.domain.record.Diet;
-import kb.health.domain.request.DietRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

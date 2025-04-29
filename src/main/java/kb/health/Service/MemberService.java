@@ -177,21 +177,6 @@ public class MemberService {
         followRepository.delete(follow);
     }
 
-    //    //팔로잉 목록 조회
-//    public List<Member> getFollowings(Long memberId) {
-//        Member member = memberRepository.findMemberById(memberId);
-//        return member.getFollowings().stream()
-//                .map(Follow::getTo)
-//                .toList();
-//    }
-//
-//    //팔로워 목록 조회
-//    public List<Member> getFollowers(Long memberId) {
-//        Member member = memberRepository.findMemberById(memberId);
-//        return member.getFollowers().stream()
-//                .map(Follow::getFrom)
-//                .toList();
-//    }
     public List<FollowResponse> getFollowings(Long memberId) {
         Member member = memberRepository.findMemberById(memberId);
         return member.getFollowings().stream()
