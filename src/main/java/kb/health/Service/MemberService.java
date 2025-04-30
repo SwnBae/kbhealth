@@ -80,7 +80,6 @@ public class MemberService {
     }
 
     //회원 수정 (비밀번호, 닉네임 변경?)
-    //중복체크 로직 필요
     @Transactional
     public void updateMember(Long memberId, MemberEditRequest memberEditRequest) {
         Member member = memberRepository.findMemberById(memberId);

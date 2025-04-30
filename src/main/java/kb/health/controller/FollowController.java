@@ -6,6 +6,7 @@ import kb.health.authentication.JwtUtil;
 import kb.health.authentication.LoginMember;
 import kb.health.controller.response.FollowResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,30 +20,34 @@ public class FollowController {
     private final JwtUtil jwtUtil;
 
     @PostMapping("/following/{member_id}")
-    public String follow(@PathVariable("member_id") Long followingId , @LoginMember CurrentMember currentMember) {
+    public ResponseEntity<?> followMember(@PathVariable("member_id") Long followingId, @LoginMember CurrentMember currentMember) {
         memberService.follow(currentMember.getId(), followingId);
-        return "succeed";
+        return ResponseEntity.ok("Success");
     }
+
 
     /**
      * 팔로잉 목록 조회 API
      */
+
     @GetMapping("/followingList/{member_id}")
-    public List<FollowResponse> getFollowings(@PathVariable("member_id") Long memberId) {
-        return memberService.getFollowings(memberId);
+    public ResponseEntity<List<FollowResponse>> getFollowings(@PathVariable("member_id") Long memberId){
+        return ResponseEntity.ok(memberService.getFollowings(memberId));
     }
 
     /**
      * 팔로워 목록 조회 API
      */
+
     @GetMapping("/followerList/{member_id}")
-    public List<FollowResponse> getFollowers(@PathVariable("member_id") Long memberId) {
-        return memberService.getFollowers(memberId);
+    public ResponseEntity<List<FollowResponse>> getFollowers(@PathVariable("member_id") Long memberId){
+        return ResponseEntity.ok(memberService.getFollowers(memberId));
     }
 
-    @PostMapping("/unfollow/{member_id}")
-    public String unfollow(@PathVariable("member_id") Long followingId, @LoginMember CurrentMember currentMember) {
-        memberService.unfollow(currentMember.getId(), followingId);
-        return "succeed";
+    @DeleteMapping("/following/{member_id}")
+    public ResponseEntity<?> unfollowMember(@PathVariable("member_id") Long memberId, @LoginMember CurrentMember currentMember) {
+        memberService.unfollow(currentMember.getId(), memberId);
+        return ResponseEntity.ok("Success");
     }
+
 }

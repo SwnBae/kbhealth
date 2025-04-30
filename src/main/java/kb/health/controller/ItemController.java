@@ -6,6 +6,7 @@ import kb.health.authentication.LoginMember;
 import kb.health.controller.request.DietRequest;
 import kb.health.domain.record.Diet;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,18 +19,19 @@ public class ItemController {
     private final RecordService recordService;
 
     @GetMapping
-    public List<Diet> list(@LoginMember CurrentMember currentMember) {
-        return recordService.getDietList();
+    public ResponseEntity<List<Diet>> getAllItems(@LoginMember CurrentMember currentMember) {
+        return ResponseEntity.ok(recordService.getDietList());
     }
 
     @PostMapping
-    public void create(@LoginMember CurrentMember currentMember, @RequestBody DietRequest dietRequest) {
+    public ResponseEntity<?> createItem(@LoginMember CurrentMember currentMember,@RequestBody DietRequest dietRequest) {
         recordService.addDiet(dietRequest);
+        return ResponseEntity.ok("식단 추가 성공");
     }
 
     @GetMapping("/{dietId}")
-    public Diet getItem(@LoginMember CurrentMember currentMember, @PathVariable Long dietId) {
-        return recordService.getDiet(dietId);
+    public ResponseEntity<?> getItemById(@LoginMember CurrentMember currentMember, @PathVariable Long dietId) {
+        return ResponseEntity.ok(recordService.getDiet(dietId));
     }
 
     @PutMapping("/{dietId}")
