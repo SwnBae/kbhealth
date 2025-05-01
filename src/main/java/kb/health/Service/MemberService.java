@@ -6,6 +6,7 @@ import kb.health.Exception.MemberException;
 import kb.health.Repository.FollowRepository;
 import kb.health.Repository.MemberRepository;
 import kb.health.controller.request.MemberRegistRequest;
+import kb.health.controller.response.MemberResponse;
 import kb.health.domain.Follow;
 import kb.health.domain.Member;
 import kb.health.controller.request.MemberEditRequest;
@@ -91,7 +92,7 @@ public class MemberService {
 
     //로그인 기능
     public boolean login(String account, String password) {
-        Member member = findMemberByAccount(account);
+        Member member = getMemberByAccount(account);
 
         if (!member.getPassword().equals(password)) {
             throw LoginException.invalidPassword();
@@ -100,22 +101,32 @@ public class MemberService {
         return true;
     }
 
-    //휴대폰 번호로 찾기
-    public Member findMemberByPhoneNumber(String phoneNumber) {
-        return memberRepository.findMemberByPN(phoneNumber)
+    // 휴대폰 번호로 찾기
+    public MemberResponse findMemberByPhoneNumber(String phoneNumber) {
+        Member member = memberRepository.findMemberByPN(phoneNumber)
                 .orElseThrow(() -> MemberException.memberNotFoundByPhoneNumber());
+        return MemberResponse.create(member);
     }
 
-    //이름으로 찾기
-    public Member findMemberByUserName(String userName) {
-        return memberRepository.findMemberByName(userName)
+    // 이름으로 찾기
+    public MemberResponse findMemberByUserName(String userName) {
+        Member member = memberRepository.findMemberByName(userName)
                 .orElseThrow(() -> MemberException.memberNotFoundByUserName());
+        return MemberResponse.create(member);
     }
 
-    //계정으로 찾기
-    public Member findMemberByAccount(String account) {
-        return memberRepository.findMemberByAccount(account)
+    // 계정으로 찾기
+    public MemberResponse findMemberByAccount(String account) {
+        Member member = memberRepository.findMemberByAccount(account)
                 .orElseThrow(() -> MemberException.memberNotFoundByAccount());
+        return MemberResponse.create(member);
+    }
+
+    //account로 휴대폰번호 찾기
+    public String findPNByAccount(String account) {
+        return memberRepository.findMemberByAccount(account)
+                .map(Member::getPhoneNumber)
+                .orElseThrow(() -> MemberException.memberNotFoundByPhoneNumber());
     }
 
     //프로필 사진 수정
@@ -128,11 +139,9 @@ public class MemberService {
     /**
      * 아래의 멤버 찾는 메서드는 내부 로직에서 사용할 예비 메서드
      */
-    //휴대폰 번호로 MemberId 찾기
-    public Long findIdByPhoneNumber(String phoneNumber) {
-        return memberRepository.findMemberByPN(phoneNumber)
-                .map(Member::getId)
-                .orElseThrow(() -> MemberException.memberNotFoundByPhoneNumber());
+    public Member getMemberByAccount(String account) {
+        return memberRepository.findMemberByAccount(account)
+                .orElseThrow(() -> MemberException.memberNotFoundByAccount());
     }
 
     //고유 값(PK)로 찾기, 내부 로직 사용
@@ -147,11 +156,16 @@ public class MemberService {
     /**
      * FOLLOW
      */
-    //팔로우 기능, 이미 팔로우 한 사람은 취소만 가능 (버튼으로 구현)
+    //팔로우 기능
     @Transactional
     public void follow(Long myId, Long targetId) {
         if (myId.equals(targetId)) {
             throw FollowException.cannotFollowYourself();
+        }
+
+        // 이미 팔로우 중인지 확인
+        if (followRepository.findFollow(myId, targetId).isPresent()) {
+//            throw FollowException.alreadyFollowing(); // 이미 팔로우 중인 경우 예외 발생
         }
 
         //영속화
@@ -179,25 +193,14 @@ public class MemberService {
     public List<FollowResponse> getFollowings(Long memberId) {
         Member member = memberRepository.findMemberById(memberId);
         return member.getFollowings().stream()
-                .map(follow -> toFollowResponse(follow.getTo())) // 팔로잉은 follow.getTo()에서 member를 가져옵니다
+                .map(follow -> FollowResponse.create(follow.getTo()))
                 .toList();
     }
 
     public List<FollowResponse> getFollowers(Long memberId) {
         Member member = memberRepository.findMemberById(memberId);
         return member.getFollowers().stream()
-                .map(follow -> toFollowResponse(follow.getFrom())) // 팔로워는 follow.getFrom()에서 member를 가져옵니다
+                .map(follow -> FollowResponse.create(follow.getFrom()))
                 .toList();
     }
-
-
-    private FollowResponse toFollowResponse(Member member) {
-        return FollowResponse.builder()
-                .followId(member.getId())
-                .userName(member.getUserName())
-                .score(member.getScore())
-                .profileImageUrl(member.getProfileImageUrl())
-                .build();
-    }
-
 }

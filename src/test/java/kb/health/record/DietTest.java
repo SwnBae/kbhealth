@@ -118,7 +118,7 @@ class DietTest {
 
         // when: 메뉴를 dietId2(닭가슴살)로, 식사시간을 DINNER로 수정
         DietRecordRequest updateRequest = new DietRecordRequest(dietId2, MealType.DINNER);
-        recordService.updateDietRecord(recordId, updateRequest);
+        recordService.updateDietRecord(savedMemberId, recordId, updateRequest);
 
         // then
         DietRecord updatedRecord = recordService.getDietRecord(recordId);
@@ -137,7 +137,7 @@ class DietTest {
         Long recordId = before.get(0).getId();
 
         // when
-        recordService.deleteDietRecord(recordId);
+        recordService.deleteDietRecord(savedMemberId, recordId);
 
         // then
         List<DietRecordResponse> after = recordService.getDietRecords(savedMemberId);

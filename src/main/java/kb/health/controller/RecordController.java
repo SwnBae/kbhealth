@@ -39,12 +39,12 @@ public class RecordController {
     // 다이어트 기록 수정
     @PutMapping("/{drId}")
     public void update(@LoginMember CurrentMember currentMember, @PathVariable Long drId, @RequestBody DietRecordRequest request) {
-        recordService.updateDietRecord(drId, request);
+        recordService.updateDietRecord(currentMember.getId(), drId, request);
     }
 
     // 다이어트 기록 삭제
     @DeleteMapping("/{drId}")
     public void delete(@LoginMember CurrentMember currentMember, @PathVariable Long drId) {
-        recordService.deleteDietRecord(drId);
+        recordService.deleteDietRecord(currentMember.getId(), drId);
     }
 }

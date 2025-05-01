@@ -4,6 +4,7 @@ import kb.health.Exception.LoginException;
 import kb.health.Exception.MemberException;
 import kb.health.Repository.MemberRepository;
 import kb.health.Service.MemberService;
+import kb.health.controller.response.MemberResponse;
 import kb.health.domain.Member;
 import kb.health.controller.request.MemberEditRequest;
 import org.junit.jupiter.api.Test;
@@ -34,41 +35,53 @@ public class MemberTest {
 
     @Test
     public void 휴대폰_번호로_멤버조회() throws Exception {
-        //given
+        // given
         Member member = createMember();
         memberService.save(member);
 
-        //when
-        Member findMember = memberService.findMemberByPhoneNumber("010-0000-0000");
+        // when
+        MemberResponse findMember = memberService.findMemberByPhoneNumber("010-0000-0000");
 
-        //then
-        assertEquals(member, findMember);
+        // then
+        assertEquals(member.getId(), findMember.getMemberId());
+        assertEquals(member.getUserName(), findMember.getUserName());
+        assertEquals(member.getDayScore(), findMember.getDayScore());
+        assertEquals(member.getBaseScore(), findMember.getBaseScore());
+        assertEquals(member.getProfileImageUrl(), findMember.getProfileImageUrl());
     }
 
     @Test
     public void 계정으로_멤버조회() throws Exception {
-        //given
+        // given
         Member member = createMember();
         memberService.save(member);
 
-        //when
-        Member findMember = memberService.findMemberByAccount("account");
+        // when
+        MemberResponse findMember = memberService.findMemberByAccount("account");
 
-        //then
-        assertEquals(member, findMember);
+        // then
+        assertEquals(member.getId(), findMember.getMemberId());
+        assertEquals(member.getUserName(), findMember.getUserName());
+        assertEquals(member.getDayScore(), findMember.getDayScore());
+        assertEquals(member.getBaseScore(), findMember.getBaseScore());
+        assertEquals(member.getProfileImageUrl(), findMember.getProfileImageUrl());
     }
 
     @Test
     public void 닉네임으로_멤버조회() throws Exception {
-        //given
+        // given
         Member member = createMember();
         memberService.save(member);
 
-        //when
-        Member findMember = memberService.findMemberByUserName("member1");
+        // when
+        MemberResponse findMember = memberService.findMemberByUserName("member1");
 
-        //then
-        assertEquals(member, findMember);
+        // then
+        assertEquals(member.getId(), findMember.getMemberId());
+        assertEquals(member.getUserName(), findMember.getUserName());
+        assertEquals(member.getDayScore(), findMember.getDayScore());
+        assertEquals(member.getBaseScore(), findMember.getBaseScore());
+        assertEquals(member.getProfileImageUrl(), findMember.getProfileImageUrl());
     }
 
     @Test

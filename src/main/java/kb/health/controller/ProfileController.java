@@ -5,6 +5,7 @@ import kb.health.Service.MemberService;
 import kb.health.authentication.CurrentMember;
 import kb.health.authentication.LoginMember;
 import kb.health.controller.request.MemberEditRequest;
+import kb.health.controller.response.MemberResponse;
 import kb.health.domain.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,10 +22,11 @@ public class ProfileController {
     private final MemberService memberService;
 
     //멤버 조회
+    //멤버DTO로 반환하도록 수정!
     @GetMapping("/profile/{member_account}")
-    public ResponseEntity<Member> getProfile(@PathVariable("member_account") String member_account) {
-        Member memberByAccount = memberService.findMemberByAccount(member_account);
-        return ResponseEntity.ok(memberByAccount);
+    public ResponseEntity<MemberResponse> getProfile(@PathVariable("member_account") String member_account) {
+        MemberResponse memberResponse = memberService.findMemberByAccount(member_account);
+        return ResponseEntity.ok(memberResponse);
     }
 
     // 이미지 주소 요청

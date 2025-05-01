@@ -15,7 +15,7 @@ import java.util.List;
 @Entity
 @Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Member {
+public class Member extends BaseEntity{
 
     @Id @GeneratedValue
     @Column(name = "member_id")
@@ -30,9 +30,6 @@ public class Member {
     @Column(nullable = false)
     private String password;
 
-    @Column(name = "member_score")
-    private int score;
-
     //닉네임
     @Column(name = "user_name", unique = true, nullable = false)
     private String userName;
@@ -40,6 +37,14 @@ public class Member {
     //기본 이미지 설정 경로 필요
     @Column(name = "profile_image_url")
     private String profileImageUrl = "/images/default_profile.png";
+
+    //일일 점수
+    @Column(name = "member_day_score")
+    private int dayScore;
+
+    //기본 점수
+    @Column(name = "base_score")
+    private int baseScore;
 
     /**
      * FOLLOW

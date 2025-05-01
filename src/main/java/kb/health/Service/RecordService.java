@@ -127,16 +127,26 @@ public class RecordService {
      * 삭제
      */
     @Transactional
-    public void deleteDietRecord(Long id) {
+    public void deleteDietRecord(Long currentMemberId, Long id) {
         DietRecord dietRecord = recordRepository.findDietRecordById(id);
+
+        if (!dietRecord.getMember().getId().equals(currentMemberId)) {
+//            throw new AuthorizationException("본인의 기록만 수정할 수 있습니다");
+        }
+
         dietRecord.deleteFromMember();
 
         recordRepository.deleteDietRecord(id);
     }
 
     @Transactional
-    public void deleteExerciseRecord(Long id) {
+    public void deleteExerciseRecord(Long currentMemberId, Long id) {
         ExerciseRecord exerciseRecord = recordRepository.findExerciseRecordById(id);
+
+        if (!exerciseRecord.getMember().getId().equals(currentMemberId)) {
+//            throw new AuthorizationException("본인의 기록만 수정할 수 있습니다");
+        }
+
         exerciseRecord.deleteFromMember();
 
         recordRepository.deleteExerciseRecord(id);
@@ -146,8 +156,13 @@ public class RecordService {
      * 수정
      */
     @Transactional
-    public void updateDietRecord(Long id, DietRecordRequest dietRecordRequest){
+    public void updateDietRecord(Long currentMemberId, Long id, DietRecordRequest dietRecordRequest){
         DietRecord dietRecord = recordRepository.findDietRecordById(id);
+
+        if (!dietRecord.getMember().getId().equals(currentMemberId)) {
+//            throw new AuthorizationException("본인의 기록만 수정할 수 있습니다");
+        }
+
         Diet diet = dietRepository.findById(dietRecordRequest.getDietId());
 
         dietRecord.setDiet(diet);
@@ -155,8 +170,12 @@ public class RecordService {
     }
 
     @Transactional
-    public void updateExerciseRecord(Long id, ExerciseRecordRequest exerciseRecordRequest){
+    public void updateExerciseRecord(Long currentMemberId, Long id, ExerciseRecordRequest exerciseRecordRequest){
         ExerciseRecord exerciseRecord = recordRepository.findExerciseRecordById(id);
+
+        if (!exerciseRecord.getMember().getId().equals(currentMemberId)) {
+//            throw new AuthorizationException("본인의 기록만 수정할 수 있습니다");
+        }
 
         exerciseRecord.setDurationMinutes(exerciseRecordRequest.getDurationMinutes());
         exerciseRecord.setCaloriesBurned(exerciseRecordRequest.getCaloriesBurned());

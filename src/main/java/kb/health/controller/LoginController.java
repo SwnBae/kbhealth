@@ -25,7 +25,7 @@ public class LoginController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest , HttpServletResponse response) {
          if(memberService.login(loginRequest.getAccount(), loginRequest.getPassword())){
-             Member member = memberService.findMemberByAccount(loginRequest.getAccount());
+             Member member = memberService.getMemberByAccount(loginRequest.getAccount());
              String jwtToken = jwtUtil.generateJwtToken(member.getAccount() , member.getId());
              Cookie jwtCookie = new Cookie("jwt", jwtToken);
              jwtCookie.setHttpOnly(true); // JavaScript 접근 방지

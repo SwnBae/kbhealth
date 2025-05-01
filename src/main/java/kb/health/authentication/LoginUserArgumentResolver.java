@@ -60,7 +60,7 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
 
         // 정상 처리...
         CurrentMember currentMember = new CurrentMember(jwtUtil.getIdFromJwt(token), jwtUtil.getAccountFromJwt(token));
-        Member member = memberService.findMemberByAccount(currentMember.account);
+        Member member = memberService.getMemberByAccount(currentMember.account);
         if (member == null) {
             throw LoginException.loginProcessNeeded();
         }

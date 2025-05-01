@@ -20,16 +20,20 @@ public class FollowController {
     private final JwtUtil jwtUtil;
 
     @PostMapping("/following/{member_id}")
-    public ResponseEntity<?> followMember(@PathVariable("member_id") Long followingId, @LoginMember CurrentMember currentMember) {
+    public ResponseEntity<?> followMember(@LoginMember CurrentMember currentMember, @PathVariable("member_id") Long followingId) {
         memberService.follow(currentMember.getId(), followingId);
         return ResponseEntity.ok("Success");
     }
 
+    @DeleteMapping("/following/{member_id}")
+    public ResponseEntity<?> unfollowMember(@LoginMember CurrentMember currentMember, @PathVariable("member_id") Long memberId) {
+        memberService.unfollow(currentMember.getId(), memberId);
+        return ResponseEntity.ok("Success");
+    }
 
     /**
      * 팔로잉 목록 조회 API
      */
-
     @GetMapping("/followingList/{member_id}")
     public ResponseEntity<List<FollowResponse>> getFollowings(@PathVariable("member_id") Long memberId){
         return ResponseEntity.ok(memberService.getFollowings(memberId));
@@ -38,16 +42,8 @@ public class FollowController {
     /**
      * 팔로워 목록 조회 API
      */
-
     @GetMapping("/followerList/{member_id}")
     public ResponseEntity<List<FollowResponse>> getFollowers(@PathVariable("member_id") Long memberId){
         return ResponseEntity.ok(memberService.getFollowers(memberId));
     }
-
-    @DeleteMapping("/following/{member_id}")
-    public ResponseEntity<?> unfollowMember(@PathVariable("member_id") Long memberId, @LoginMember CurrentMember currentMember) {
-        memberService.unfollow(currentMember.getId(), memberId);
-        return ResponseEntity.ok("Success");
-    }
-
 }

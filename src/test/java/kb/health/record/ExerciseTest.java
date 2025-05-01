@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -70,7 +71,7 @@ class ExerciseTest {
         updateRequest.setCaloriesBurned(400);
         updateRequest.setExerciseType(ExerciseType.WEIGHT);
 
-        recordService.updateExerciseRecord(savedRecord.getId(), updateRequest);
+        recordService.updateExerciseRecord(savedMemberId, savedRecord.getId(), updateRequest);
 
         // then
         ExerciseRecord updatedRecord = recordService.getExerciseRecord(savedId);
@@ -90,7 +91,7 @@ class ExerciseTest {
         Long savedId = recordService.saveExerciseRecord(request, savedMemberId);
 
         // when
-        recordService.deleteExerciseRecord(savedId);
+        recordService.deleteExerciseRecord(savedMemberId, savedId);
 
         // then
         ExerciseRecord deletedRecord = recordRepository.findExerciseRecordById(savedId);
