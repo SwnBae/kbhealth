@@ -45,7 +45,7 @@ public class MemberTest {
         // then
         assertEquals(member.getId(), findMember.getMemberId());
         assertEquals(member.getUserName(), findMember.getUserName());
-        assertEquals(member.getDayScore(), findMember.getDayScore());
+        assertEquals(member.getTotalScore(), findMember.getDayScore());
         assertEquals(member.getBaseScore(), findMember.getBaseScore());
         assertEquals(member.getProfileImageUrl(), findMember.getProfileImageUrl());
     }
@@ -62,7 +62,7 @@ public class MemberTest {
         // then
         assertEquals(member.getId(), findMember.getMemberId());
         assertEquals(member.getUserName(), findMember.getUserName());
-        assertEquals(member.getDayScore(), findMember.getDayScore());
+        assertEquals(member.getTotalScore(), findMember.getDayScore());
         assertEquals(member.getBaseScore(), findMember.getBaseScore());
         assertEquals(member.getProfileImageUrl(), findMember.getProfileImageUrl());
     }
@@ -79,7 +79,7 @@ public class MemberTest {
         // then
         assertEquals(member.getId(), findMember.getMemberId());
         assertEquals(member.getUserName(), findMember.getUserName());
-        assertEquals(member.getDayScore(), findMember.getDayScore());
+        assertEquals(member.getTotalScore(), findMember.getDayScore());
         assertEquals(member.getBaseScore(), findMember.getBaseScore());
         assertEquals(member.getProfileImageUrl(), findMember.getProfileImageUrl());
     }

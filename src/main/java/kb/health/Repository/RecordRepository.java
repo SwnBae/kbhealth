@@ -7,6 +7,8 @@ import kb.health.domain.record.ExerciseRecord;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -82,4 +84,31 @@ public class RecordRepository {
                 .setParameter("diet", diet)
                 .getResultList();
     }
+
+    public List<DietRecord> findDietRecordsByMemberAndDate(Long memberId, LocalDate today) {
+        LocalDateTime startOfYesterday = today.minusDays(1).atStartOfDay();
+        LocalDateTime endOfYesterday = today.atStartOfDay();
+
+        return em.createQuery(
+                        "SELECT d FROM DietRecord d WHERE d.member.id = :memberId AND d.lastModifyDate >= :start AND d.lastModifyDate < :end",
+                        DietRecord.class)
+                .setParameter("memberId", memberId)
+                .setParameter("start", startOfYesterday)
+                .setParameter("end", endOfYesterday)
+                .getResultList();
+    }
+
+    public List<ExerciseRecord> findExerciseRecordsByMemberAndDate(Long memberId, LocalDate today) {
+        LocalDateTime startOfYesterday = today.minusDays(1).atStartOfDay();
+        LocalDateTime endOfYesterday = today.atStartOfDay();
+
+        return em.createQuery(
+                        "SELECT e FROM ExerciseRecord e WHERE e.member.id = :memberId AND e.lastModifyDate >= :start AND e.lastModifyDate < :end",
+                        ExerciseRecord.class)
+                .setParameter("memberId", memberId)
+                .setParameter("start", startOfYesterday)
+                .setParameter("end", endOfYesterday)
+                .getResultList();
+    }
+
 }

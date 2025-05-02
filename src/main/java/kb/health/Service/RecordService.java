@@ -1,5 +1,6 @@
 package kb.health.Service;
 
+import kb.health.Repository.DailyScoreRepository;
 import kb.health.Repository.DietRepository;
 import kb.health.Repository.MemberRepository;
 import kb.health.Repository.RecordRepository;
@@ -24,6 +25,7 @@ public class RecordService {
     private final RecordRepository recordRepository;
     private final MemberRepository memberRepository;
     private final DietRepository dietRepository;
+    private final DailyScoreRepository dailyScoreRepository;
 
     /**
      * 음식 관리

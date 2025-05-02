@@ -1,6 +1,8 @@
 package kb.health.domain;
 
 import jakarta.persistence.*;
+import kb.health.controller.request.MemberBodyInfoEditRequest;
+import kb.health.controller.request.MemberEditRequest;
 import kb.health.domain.record.DietRecord;
 import kb.health.domain.record.ExerciseRecord;
 import kb.health.controller.request.MemberRegistRequest;
@@ -39,12 +41,20 @@ public class Member extends BaseEntity{
     private String profileImageUrl = "/images/default_profile.png";
 
     //일일 점수
-    @Column(name = "member_day_score")
-    private int dayScore;
+    @Column(name = "total_score")
+    private int totalScore;
 
     //기본 점수
     @Column(name = "base_score")
     private int baseScore;
+
+    //신체 정보
+    @Embedded
+    private BodyInfo bodyInfo;
+
+    //필요 영양소
+    @Embedded
+    private DailyNutritionStandard dailyNutritionStandard;
 
     /**
      * FOLLOW
@@ -66,14 +76,21 @@ public class Member extends BaseEntity{
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ExerciseRecord> exerciseRecords = new ArrayList<>();
 
+    /**
+     * 일일 점수
+     */
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DailyScore> dailyScores = new ArrayList<>();
 
     /* 빌더 */
+    // 테스트용
     public static Member create(String account, String userName, String password, String phoneNumber) {
         Member member = new Member();
         member.setAccount(account);
         member.setUserName(userName);
         member.setPassword(password);
         member.setPhoneNumber(phoneNumber);
+
         return member;
     }
 
@@ -83,6 +100,40 @@ public class Member extends BaseEntity{
         member.setUserName(request.getUserName());
         member.setPassword(request.getPassword());
         member.setPhoneNumber(request.getPhoneNumber());
+
+        // 신체 정보 세팅
+        BodyInfo bodyInfo = new BodyInfo(
+                request.getHeight(),
+                request.getWeight(),
+                request.getGender(),
+                request.getAge()
+        );
+        member.setBodyInfo(bodyInfo);
+
+        DailyNutritionStandard nutritionStandard = DailyNutritionStandard.calculate(bodyInfo);
+        member.setDailyNutritionStandard(nutritionStandard);
+
         return member;
+    }
+
+    /**
+     * 수정
+     */
+    //계정정보 수정
+    public void updateAccountInfo(MemberEditRequest memberEditRequest) {
+        this.password = memberEditRequest.getPassword();
+        this.userName = memberEditRequest.getUserName();
+        this.profileImageUrl = memberEditRequest.getProfileImageUrl();
+    }
+
+    //신체정보 수정
+    public void updateBodyInfo(MemberBodyInfoEditRequest request) {
+        this.bodyInfo.setHeight(request.getHeight());
+        this.bodyInfo.setWeight(request.getWeight());
+        this.bodyInfo.setGender(request.getGender());
+        this.bodyInfo.setAge(request.getAge());
+
+        // 새로운 신체 정보에 따른 영양소 재계산
+        this.dailyNutritionStandard = DailyNutritionStandard.calculate(this.bodyInfo);
     }
 }

@@ -17,7 +17,7 @@ public class MemberResponse {
         return MemberResponse.builder()
                 .memberId(member.getId())
                 .userName(member.getUserName())
-                .dayScore(member.getDayScore())
+                .dayScore(member.getTotalScore())
                 .baseScore(member.getBaseScore())
                 .profileImageUrl(member.getProfileImageUrl())
                 .build();

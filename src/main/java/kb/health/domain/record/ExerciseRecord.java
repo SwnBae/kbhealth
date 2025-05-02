@@ -24,6 +24,8 @@ public class ExerciseRecord extends BaseRecord {
     @Enumerated(EnumType.STRING)
     private ExerciseType exerciseType;
 
+    private boolean exercised;
+
     /* 빌더 */
     public static ExerciseRecord create(int durationMinutes, int caloriesBurned, ExerciseType exerciseType) {
         ExerciseRecord record = new ExerciseRecord();

@@ -19,12 +19,12 @@ public class Diet extends BaseEntity {
     @Column(length = 50, nullable = false)
     private String menu;
 
-    @Column(nullable = false)
-    private int calories;
-
     private String category;
 
     private double standardAmount;  // 예: 100g
+
+    @Column(nullable = false)
+    private int calories;
 
     private double protein;         // 예: 6.7
     private double fat;             // 예: 5.16

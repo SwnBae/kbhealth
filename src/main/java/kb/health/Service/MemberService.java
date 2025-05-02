@@ -5,6 +5,7 @@ import kb.health.Exception.LoginException;
 import kb.health.Exception.MemberException;
 import kb.health.Repository.FollowRepository;
 import kb.health.Repository.MemberRepository;
+import kb.health.controller.request.MemberBodyInfoEditRequest;
 import kb.health.controller.request.MemberRegistRequest;
 import kb.health.controller.response.MemberResponse;
 import kb.health.domain.Follow;
@@ -80,17 +81,35 @@ public class MemberService {
         return member.getId();
     }
 
-    //회원 수정 (비밀번호, 닉네임 변경?)
+    /**
+     * 회원 수정
+     */
+    //계정 정보 수정
     @Transactional
     public void updateMember(Long memberId, MemberEditRequest memberEditRequest) {
         Member member = memberRepository.findMemberById(memberId);
 
-        member.setPassword(memberEditRequest.getPassword());
-        member.setUserName(memberEditRequest.getUserName());
-        member.setProfileImageUrl(memberEditRequest.getProfileImageUrl());
+        member.updateAccountInfo(memberEditRequest);
     }
 
-    //로그인 기능
+    //신체 정보 수정
+    @Transactional
+    public void updateMemberBodyInfo(Long memberId, MemberBodyInfoEditRequest bodyInfoEditRequest) {
+        Member member = memberRepository.findMemberById(memberId);
+
+        member.updateBodyInfo(bodyInfoEditRequest);
+    }
+
+    //프로필 사진 수정
+    @Transactional
+    public void updateProfileImage(Long memberId, String imageUrl) {
+        Member member = memberRepository.findMemberById(memberId);
+        member.setProfileImageUrl(imageUrl);
+    }
+
+    /**
+     * 로그인 기능
+     */
     public boolean login(String account, String password) {
         Member member = getMemberByAccount(account);
 
@@ -101,6 +120,9 @@ public class MemberService {
         return true;
     }
 
+    /**
+     * 회원 찾기
+     */
     // 휴대폰 번호로 찾기
     public MemberResponse findMemberByPhoneNumber(String phoneNumber) {
         Member member = memberRepository.findMemberByPN(phoneNumber)
@@ -127,13 +149,6 @@ public class MemberService {
         return memberRepository.findMemberByAccount(account)
                 .map(Member::getPhoneNumber)
                 .orElseThrow(() -> MemberException.memberNotFoundByPhoneNumber());
-    }
-
-    //프로필 사진 수정
-    @Transactional
-    public void updateProfileImage(Long memberId, String imageUrl) {
-        Member member = memberRepository.findMemberById(memberId);
-        member.setProfileImageUrl(imageUrl);
     }
 
     /**

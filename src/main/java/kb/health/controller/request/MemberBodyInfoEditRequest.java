@@ -1,24 +1,14 @@
 package kb.health.controller.request;
 
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import kb.health.domain.Gender;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-public class MemberRegistRequest {
+public class MemberBodyInfoEditRequest {
 
-    @NotEmpty(message = "계정은 필수 입니다.")
-    private String account;
-
-    private String phoneNumber;
-
-    @NotEmpty(message = "패스워드는 필수 입니다.")
-    private String password;
-
-    @NotEmpty(message = "닉네임은 필수 입니다.")
-    private String userName;
+    private Long id;  // 멤버 ID 추가
 
     @NotNull(message = "키는 필수 입니다.")
     private Double height;
