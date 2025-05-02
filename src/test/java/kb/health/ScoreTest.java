@@ -8,10 +8,8 @@ import kb.health.Service.ScoreService;
 import kb.health.controller.request.DietRecordRequest;
 import kb.health.controller.request.DietRequest;
 import kb.health.controller.request.ExerciseRecordRequest;
-import kb.health.domain.BodyInfo;
-import kb.health.domain.DailyNutritionStandard;
-import kb.health.domain.Gender;
-import kb.health.domain.Member;
+import kb.health.controller.response.NutritionAchievementResponse;
+import kb.health.domain.*;
 import kb.health.domain.record.Diet;
 import kb.health.domain.record.ExerciseRecord;
 import kb.health.domain.record.ExerciseType;
@@ -22,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
 
 @SpringBootTest
 @Transactional
@@ -59,14 +59,24 @@ class ScoreTest {
         Long d2 = addDiet("햄버거", 700);
         Long d3 = addDiet("닭가슴살+샐러드", 350);
 
-        recordService.saveDietRecord(new DietRecordRequest(d1, MealType.BREAKFAST), savedMemberId);
-        recordService.saveDietRecord(new DietRecordRequest(d2, MealType.LUNCH), savedMemberId);
-        recordService.saveDietRecord(new DietRecordRequest(d3, MealType.DINNER), savedMemberId);
+        recordService.saveDietRecord(new DietRecordRequest(d1, MealType.BREAKFAST), savedMemberId, LocalDate.of(2025, 4, 30));
+        recordService.saveDietRecord(new DietRecordRequest(d2, MealType.LUNCH), savedMemberId, LocalDate.of(2025, 4, 30));
+        recordService.saveDietRecord(new DietRecordRequest(d3, MealType.DINNER), savedMemberId, LocalDate.of(2025, 4, 30));
+
+        scoreService.updateDailyScoresForAllMembers(LocalDate.of(2025, 5, 1));
+
+        Long d4 = addDiet("피자", 200);
+        Long d5 = addDiet("햄버거", 500);
+        Long d6 = addDiet("돈가스", 350);
+
+        recordService.saveDietRecord(new DietRecordRequest(d4, MealType.BREAKFAST), savedMemberId, LocalDate.of(2025, 5, 1));
+        recordService.saveDietRecord(new DietRecordRequest(d5, MealType.LUNCH), savedMemberId, LocalDate.of(2025, 5, 1));
+        recordService.saveDietRecord(new DietRecordRequest(d6, MealType.DINNER), savedMemberId, LocalDate.of(2025, 5, 1));
 
         // 운동 기록 추가
 
-        Long e1 = recordService.saveExerciseRecord(new ExerciseRecordRequest(30, 300, ExerciseType.CARDIO), savedMemberId);
-        Long e2 = recordService.saveExerciseRecord(new ExerciseRecordRequest(45, 400, ExerciseType.WEIGHT), savedMemberId);
+        Long e1 = recordService.saveExerciseRecord(new ExerciseRecordRequest(30, 300, ExerciseType.CARDIO), savedMemberId, LocalDate.of(2025, 5, 1));
+        Long e2 = recordService.saveExerciseRecord(new ExerciseRecordRequest(45, 400, ExerciseType.WEIGHT), savedMemberId, LocalDate.of(2025, 5, 1));
 
         ExerciseRecord record1 = recordService.getExerciseRecord(e1);
         ExerciseRecord record2 = recordService.getExerciseRecord(e2);
@@ -106,8 +116,24 @@ class ScoreTest {
     @Rollback(value = false)
     void testDailyScore() {
         // 일일 점수 계산
-         scoreService.updateDailyScoresForAllMembers();
+        scoreService.updateDailyScoresForAllMembers();
+        Member member = memberService.findById(savedMemberId);
 
+        LocalDate today = LocalDate.now();
+
+        NutritionAchievementResponse nutritionAchievementResponse = recordService.getNutritionAchievement(savedMemberId, today.minusDays(1));
+        System.out.println("Nutrition Achievement Response1: " + nutritionAchievementResponse.toString());
+
+
+        nutritionAchievementResponse = recordService.getNutritionAchievement(savedMemberId, today);
+        System.out.println("Nutrition Achievement Response2: " + nutritionAchievementResponse.toString());
+
+
+
+        for (DailyScore dailyScore : member.getDailyScores()) {
+            System.out.println(dailyScore.getTotalScore());
+            System.out.println(dailyScore.getDietScore());
+        }
     }
 }
 

@@ -45,12 +45,12 @@ public class MemberTest {
         memberService.save(member);
 
         // when
-        MemberResponse findMember = memberService.findMemberByPhoneNumber("010-0000-0000");
+        Member findMember = memberService.findMemberByPhoneNumber("010-0000-0000");
 
         // then
-        assertEquals(member.getId(), findMember.getMemberId());
+        assertEquals(member.getId(), findMember.getId());
         assertEquals(member.getUserName(), findMember.getUserName());
-        assertEquals(member.getTotalScore(), findMember.getDayScore());
+        assertEquals(member.getTotalScore(), findMember.getTotalScore());
         assertEquals(member.getBaseScore(), findMember.getBaseScore());
         assertEquals(member.getProfileImageUrl(), findMember.getProfileImageUrl());
     }
@@ -62,12 +62,12 @@ public class MemberTest {
         memberService.save(member);
 
         // when
-        MemberResponse findMember = memberService.findMemberByAccount("account");
+        Member findMember = memberService.findMemberByAccount("account");
 
         // then
-        assertEquals(member.getId(), findMember.getMemberId());
+        assertEquals(member.getId(), findMember.getId());
         assertEquals(member.getUserName(), findMember.getUserName());
-        assertEquals(member.getTotalScore(), findMember.getDayScore());
+        assertEquals(member.getTotalScore(), findMember.getTotalScore());
         assertEquals(member.getBaseScore(), findMember.getBaseScore());
         assertEquals(member.getProfileImageUrl(), findMember.getProfileImageUrl());
     }
@@ -79,12 +79,12 @@ public class MemberTest {
         memberService.save(member);
 
         // when
-        MemberResponse findMember = memberService.findMemberByUserName("member1");
+        Member findMember = memberService.findMemberByUserName("member1");
 
         // then
-        assertEquals(member.getId(), findMember.getMemberId());
+        assertEquals(member.getId(), findMember.getId());
         assertEquals(member.getUserName(), findMember.getUserName());
-        assertEquals(member.getTotalScore(), findMember.getDayScore());
+        assertEquals(member.getTotalScore(), findMember.getTotalScore());
         assertEquals(member.getBaseScore(), findMember.getBaseScore());
         assertEquals(member.getProfileImageUrl(), findMember.getProfileImageUrl());
     }

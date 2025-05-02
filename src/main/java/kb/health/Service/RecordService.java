@@ -4,6 +4,8 @@ import kb.health.Repository.DailyScoreRepository;
 import kb.health.Repository.DietRepository;
 import kb.health.Repository.MemberRepository;
 import kb.health.Repository.RecordRepository;
+import kb.health.controller.response.NutritionAchievementResponse;
+import kb.health.domain.DailyNutritionStandard;
 import kb.health.domain.Member;
 import kb.health.domain.record.*;
 import kb.health.controller.request.DietRecordRequest;
@@ -14,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -100,6 +104,46 @@ public class RecordService {
         return exerciseRecord.getId();
     }
 
+    /**
+     * 테스트 코드
+     */
+    @Transactional
+    public Long saveDietRecord(DietRecordRequest dietRecordRequest, Long memberId, LocalDate customDate) {
+        Member member = memberRepository.findMemberById(memberId);
+        Diet diet = dietRepository.findById(dietRecordRequest.getDietId());
+
+        DietRecord dietRecord = DietRecord.create(diet, dietRecordRequest.getMealType());
+        dietRecord.assignMember(member);
+
+        // Set custom date
+        LocalDateTime customDateTime = customDate.atStartOfDay();
+        dietRecord.setCreatedDate(customDateTime);  // Set the custom createdDate
+        dietRecord.setLastModifyDate(customDateTime);  // Set the custom lastModifyDate
+
+        recordRepository.saveDietRecord(dietRecord);
+
+        return dietRecord.getId();
+    }
+
+    @Transactional
+    public Long saveExerciseRecord(ExerciseRecordRequest exerciseRecordRequest, Long memberId, LocalDate customDate) {
+        Member member = memberRepository.findMemberById(memberId);
+
+        ExerciseRecord exerciseRecord = ExerciseRecord.create(exerciseRecordRequest);
+        exerciseRecord.assignMember(member);
+
+        LocalDateTime customDateTime = customDate.atStartOfDay();
+        exerciseRecord.setCreatedDate(customDateTime);  // Set the custom createdDate
+        exerciseRecord.setLastModifyDate(customDateTime);  // Set the custom lastModifyDate
+
+        recordRepository.saveExerciseRecord(exerciseRecord);
+
+        return exerciseRecord.getId();
+    }
+    /**
+     * 테스트 코드 끝
+     */
+
     public List<DietRecord> getAllDietRecords() {
         return recordRepository.findAllDietRecord();
     }
@@ -181,5 +225,16 @@ public class RecordService {
         exerciseRecord.setDurationMinutes(exerciseRecordRequest.getDurationMinutes());
         exerciseRecord.setCaloriesBurned(exerciseRecordRequest.getCaloriesBurned());
         exerciseRecord.setExerciseType(exerciseRecordRequest.getExerciseType());
+    }
+
+    /**
+     * 하루 영양소 달성률
+     */
+    public NutritionAchievementResponse getNutritionAchievement(Long memberId, LocalDate date) {
+        Member member = memberRepository.findMemberById(memberId);
+
+        List<DietRecord> records = recordRepository.findDietRecordsByMemberAndDate(member, date);
+        DailyNutritionStandard standard = member.getDailyNutritionStandard();
+        return NutritionAchievementResponse.create(records, standard);
     }
 }

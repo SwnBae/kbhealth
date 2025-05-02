@@ -87,10 +87,11 @@ public class RecordRepository {
     }
 
     public List<DietRecord> findDietRecordsByMemberAndDate(Member member, LocalDate date) {
-//        LocalDateTime start = date.atStartOfDay().minusDays(1);
-//        LocalDateTime end = date.atStartOfDay();
-        LocalDateTime start = date.atStartOfDay();
-        LocalDateTime end = date.plusDays(1).atStartOfDay();
+        LocalDateTime start = date.atStartOfDay().minusDays(1);
+        LocalDateTime end = date.atStartOfDay();
+
+//        LocalDateTime start = date.atStartOfDay();
+//        LocalDateTime end = date.plusDays(1).atStartOfDay();
 
         return em.createQuery(
                         "SELECT d FROM DietRecord d WHERE d.member = :member AND d.lastModifyDate >= :start AND d.lastModifyDate < :end",
@@ -102,10 +103,10 @@ public class RecordRepository {
     }
 
     public List<ExerciseRecord> findExerciseRecordsByMemberAndDate(Member member, LocalDate date) {
-//        LocalDateTime start = date.atStartOfDay().minusDays(1);
-//        LocalDateTime end = date.atStartOfDay();
-        LocalDateTime start = date.atStartOfDay();
-        LocalDateTime end = date.plusDays(1).atStartOfDay();
+        LocalDateTime start = date.atStartOfDay().minusDays(1);
+        LocalDateTime end = date.atStartOfDay();
+//        LocalDateTime start = date.atStartOfDay();
+//        LocalDateTime end = date.plusDays(1).atStartOfDay();
 
         return em.createQuery(
                         "SELECT e FROM ExerciseRecord e WHERE e.member = :member AND e.lastModifyDate >= :start AND e.lastModifyDate < :end",
@@ -115,6 +116,5 @@ public class RecordRepository {
                 .setParameter("end", end)
                 .getResultList();
     }
-
 
 }

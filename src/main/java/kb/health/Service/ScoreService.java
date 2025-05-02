@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -31,11 +32,7 @@ public class ScoreService {
         // 1. 모든 멤버를 조회
         List<Member> members = memberRepository.findAll();
 
-        /**
-         * 테스트용
-         */
         LocalDate date = LocalDate.now();
-//        LocalDate date = LocalDate.now().minusDays(1); // 전날 날짜
 
         // 2. 각 멤버에 대해 일일 점수 계산
         for (Member member : members) {
@@ -69,6 +66,44 @@ public class ScoreService {
         }
     }
 
+    // 테스트용
+    @Transactional
+    public void updateDailyScoresForAllMembers(LocalDate date) {
+        // 1. 모든 멤버를 조회
+        List<Member> members = memberRepository.findAll();
+
+        // 2. 각 멤버에 대해 일일 점수 계산
+        for (Member member : members) {
+            System.out.println("=============================");
+            System.out.println(member.getUserName());
+            // 해당 날짜의 다이어트 기록과 운동 기록을 가져옵니다.
+            List<DietRecord> dietRecordList = recordRepository.findDietRecordsByMemberAndDate(member, date);
+            List<ExerciseRecord> exerciseRecordList = recordRepository.findExerciseRecordsByMemberAndDate(member, date);
+
+            System.out.println("기록");
+            for (DietRecord dietRecord : dietRecordList) {
+                System.out.println(dietRecord.getDiet().getMenu());
+            }
+
+            for (ExerciseRecord exerciseRecord : exerciseRecordList) {
+                System.out.println(exerciseRecord.getExerciseType());
+            }
+
+            if (dietRecordList.isEmpty() && exerciseRecordList.isEmpty()) {
+                continue;
+            }
+
+            // 3. DailyScore 생성 및 저장
+            DailyScore dailyScore = DailyScore.create(member, dietRecordList, exerciseRecordList, date);
+            System.out.println("점수");
+            System.out.println(dailyScore.getTotalScore());
+            dailyScoreRepository.save(dailyScore);
+
+            // 4. 멤버의 총점과 최근 10일 점수 갱신
+            updateMemberScores(member);
+        }
+    }
+
     // 멤버의 총점과 최근 10일 점수를 갱신하는 메서드
     private void updateMemberScores(Member member) {
         // 1. 총점 갱신: 모든 일일 점수의 합
@@ -85,6 +120,13 @@ public class ScoreService {
 
         // 3. 멤버 저장 (점수 갱신)
         memberRepository.save(member);
+    }
+
+    // 최근 10일간의 점수 오름차순으로 정렬해서 리스트로 반환 -> 대시보드 그래프 활용
+    public List<DailyScore> getLast10DaysScores(Member member) {
+        List<DailyScore> scores = dailyScoreRepository.findTop10ByMemberOrderByDateDesc(member);
+        scores.sort(Comparator.comparing(DailyScore::getDate));
+        return scores;
     }
 }
 

@@ -16,7 +16,8 @@ import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
-public class MemberController {
+@RequestMapping("/api/auth")
+public class AuthController {
 
     private final MemberService memberService;
     private final JwtUtil jwtUtil;

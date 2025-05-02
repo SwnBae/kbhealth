@@ -124,24 +124,21 @@ public class MemberService {
      * 회원 찾기
      */
     // 휴대폰 번호로 찾기
-    public MemberResponse findMemberByPhoneNumber(String phoneNumber) {
-        Member member = memberRepository.findMemberByPN(phoneNumber)
+    public Member findMemberByPhoneNumber(String phoneNumber) {
+        return memberRepository.findMemberByPN(phoneNumber)
                 .orElseThrow(() -> MemberException.memberNotFoundByPhoneNumber());
-        return MemberResponse.create(member);
     }
 
     // 이름으로 찾기
-    public MemberResponse findMemberByUserName(String userName) {
-        Member member = memberRepository.findMemberByName(userName)
+    public Member findMemberByUserName(String userName) {
+        return memberRepository.findMemberByName(userName)
                 .orElseThrow(() -> MemberException.memberNotFoundByUserName());
-        return MemberResponse.create(member);
     }
 
     // 계정으로 찾기
-    public MemberResponse findMemberByAccount(String account) {
-        Member member = memberRepository.findMemberByAccount(account)
+    public Member findMemberByAccount(String account) {
+        return memberRepository.findMemberByAccount(account)
                 .orElseThrow(() -> MemberException.memberNotFoundByAccount());
-        return MemberResponse.create(member);
     }
 
     //account로 휴대폰번호 찾기
