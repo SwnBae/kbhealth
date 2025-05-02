@@ -55,6 +55,4 @@ public class MemberController {
         memberService.save(memberRegistRequest);
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("message","회원가입 성공", "redirect", "/login"));
     }
-
-
 }
