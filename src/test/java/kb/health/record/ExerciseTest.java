@@ -2,6 +2,9 @@ package kb.health.record;
 
 import kb.health.Repository.RecordRepository;
 import kb.health.Service.*;
+import kb.health.domain.BodyInfo;
+import kb.health.domain.DailyNutritionStandard;
+import kb.health.domain.Gender;
 import kb.health.domain.Member;
 import kb.health.domain.record.*;
 import kb.health.controller.request.ExerciseRecordRequest;
@@ -32,6 +35,14 @@ class ExerciseTest {
     @BeforeEach
     void setUp() {
         Member member = Member.create("account", "Test", "password", "010-0000-0000");
+
+        // BodyInfo와 DailyNutritionStandard 설정
+        BodyInfo bodyInfo = new BodyInfo(175.0, 70.0, Gender.MALE, 30);
+        member.setBodyInfo(bodyInfo);
+
+        DailyNutritionStandard standard = DailyNutritionStandard.calculate(bodyInfo);
+        member.setDailyNutritionStandard(standard);
+
         savedMemberId = memberService.save(member);
     }
 

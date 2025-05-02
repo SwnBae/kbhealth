@@ -25,7 +25,6 @@ public class RecordService {
     private final RecordRepository recordRepository;
     private final MemberRepository memberRepository;
     private final DietRepository dietRepository;
-    private final DailyScoreRepository dailyScoreRepository;
 
     /**
      * 음식 관리

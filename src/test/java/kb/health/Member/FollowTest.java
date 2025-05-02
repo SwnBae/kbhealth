@@ -6,6 +6,9 @@ import kb.health.Exception.FollowException;
 import kb.health.Repository.FollowRepository;
 import kb.health.Repository.MemberRepository;
 import kb.health.Service.MemberService;
+import kb.health.domain.BodyInfo;
+import kb.health.domain.DailyNutritionStandard;
+import kb.health.domain.Gender;
 import kb.health.domain.Member;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,8 +133,21 @@ public class FollowTest {
     }
 
     private Member createMember() {
-        Member member = Member.create("account", "member1", "password", "010-0000-0000");
+        String account = "account";
+        String userName = "member1";
+        String password = "password";
+        String phoneNumber = "010-0000-0000";
+
+        Member member = Member.create(account, userName, password, phoneNumber);
+
+        // BodyInfo와 DailyNutritionStandard 세팅
+        BodyInfo bodyInfo = new BodyInfo(175.0, 70.0, Gender.MALE, 30);
+        member.setBodyInfo(bodyInfo);
+
+        DailyNutritionStandard standard = DailyNutritionStandard.calculate(bodyInfo);
+        member.setDailyNutritionStandard(standard);
 
         return member;
     }
+
 }

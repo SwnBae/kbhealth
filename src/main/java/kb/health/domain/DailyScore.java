@@ -28,9 +28,9 @@ public class DailyScore extends BaseEntity {
 
     private LocalDate date; // 해당 날짜
 
-    private int dietScore;
+    private double dietScore;
     private boolean exercised;
-    private int totalScore;
+    private double totalScore;
 
     /**
      * 계산 로직
@@ -78,7 +78,14 @@ public class DailyScore extends BaseEntity {
                 .sum(), nutritionStandard.getSodium());
 
         // 4. 전체 점수 계산 (영양소별 점수 합산)
-        int totalScore = caloriesScore + proteinScore + fatScore + carbsScore + sugarsScore + fiberScore + sodiumScore;
+        double dietScore =
+                caloriesScore * 0.2 +
+                        proteinScore * 0.2 +
+                        fatScore * 0.15 +
+                        carbsScore * 0.15 +
+                        sugarsScore * 0.1 +
+                        fiberScore * 0.1 +
+                        sodiumScore * 0.1;
 
         // 운동 여부 체크
         boolean exercised = exerciseRecordList.stream()
@@ -87,17 +94,23 @@ public class DailyScore extends BaseEntity {
         exercised = exercised && !exerciseRecordList.isEmpty();
 
         // 5. 100점 만점으로 비율 계산
-        totalScore = Math.min(totalScore, 100); // 100점을 넘지 않도록 조정
+        double totalScore = Math.min(dietScore, 100); // 100점을 넘지 않도록 조정
 
         //6. 운동 여부에 따른 가중치 적용
         if (!exercised) {
-            totalScore = (int) (totalScore * 0.7);
+            totalScore = (totalScore * 0.7);
         }
+
+        // dietScore 계산 후, 소수점 둘째 자리까지 버림 처리
+        dietScore = Math.floor(dietScore * 100) / 100;
+
+        // totalScore 계산 후, 소수점 둘째 자리까지 버림 처리
+        totalScore = Math.floor(totalScore * 100) / 100;
 
         // DailyScore 객체에 값 설정
         dailyScore.assignMember(member);
         dailyScore.setDate(LocalDate.now().minusDays(1)); // 전날 날짜 설정
-        dailyScore.setDietScore(totalScore); // 영양소 점수
+        dailyScore.setDietScore(dietScore); // 영양소 점수
         dailyScore.setExercised(exercised); // 운동 여부
         dailyScore.setTotalScore(totalScore); // 최종 점수
 

@@ -42,11 +42,11 @@ public class Member extends BaseEntity{
 
     //일일 점수
     @Column(name = "total_score")
-    private int totalScore;
+    private double totalScore;
 
-    //기본 점수
+    //기본 점수 (10일 기준)
     @Column(name = "base_score")
-    private int baseScore;
+    private double baseScore;
 
     //신체 정보
     @Embedded

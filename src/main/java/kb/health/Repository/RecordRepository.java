@@ -1,6 +1,7 @@
 package kb.health.Repository;
 
 import jakarta.persistence.EntityManager;
+import kb.health.domain.Member;
 import kb.health.domain.record.Diet;
 import kb.health.domain.record.DietRecord;
 import kb.health.domain.record.ExerciseRecord;
@@ -85,30 +86,35 @@ public class RecordRepository {
                 .getResultList();
     }
 
-    public List<DietRecord> findDietRecordsByMemberAndDate(Long memberId, LocalDate today) {
-        LocalDateTime startOfYesterday = today.minusDays(1).atStartOfDay();
-        LocalDateTime endOfYesterday = today.atStartOfDay();
+    public List<DietRecord> findDietRecordsByMemberAndDate(Member member, LocalDate date) {
+//        LocalDateTime start = date.atStartOfDay().minusDays(1);
+//        LocalDateTime end = date.atStartOfDay();
+        LocalDateTime start = date.atStartOfDay();
+        LocalDateTime end = date.plusDays(1).atStartOfDay();
 
         return em.createQuery(
-                        "SELECT d FROM DietRecord d WHERE d.member.id = :memberId AND d.lastModifyDate >= :start AND d.lastModifyDate < :end",
+                        "SELECT d FROM DietRecord d WHERE d.member = :member AND d.lastModifyDate >= :start AND d.lastModifyDate < :end",
                         DietRecord.class)
-                .setParameter("memberId", memberId)
-                .setParameter("start", startOfYesterday)
-                .setParameter("end", endOfYesterday)
+                .setParameter("member", member)
+                .setParameter("start", start)
+                .setParameter("end", end)
                 .getResultList();
     }
 
-    public List<ExerciseRecord> findExerciseRecordsByMemberAndDate(Long memberId, LocalDate today) {
-        LocalDateTime startOfYesterday = today.minusDays(1).atStartOfDay();
-        LocalDateTime endOfYesterday = today.atStartOfDay();
+    public List<ExerciseRecord> findExerciseRecordsByMemberAndDate(Member member, LocalDate date) {
+//        LocalDateTime start = date.atStartOfDay().minusDays(1);
+//        LocalDateTime end = date.atStartOfDay();
+        LocalDateTime start = date.atStartOfDay();
+        LocalDateTime end = date.plusDays(1).atStartOfDay();
 
         return em.createQuery(
-                        "SELECT e FROM ExerciseRecord e WHERE e.member.id = :memberId AND e.lastModifyDate >= :start AND e.lastModifyDate < :end",
+                        "SELECT e FROM ExerciseRecord e WHERE e.member = :member AND e.lastModifyDate >= :start AND e.lastModifyDate < :end",
                         ExerciseRecord.class)
-                .setParameter("memberId", memberId)
-                .setParameter("start", startOfYesterday)
-                .setParameter("end", endOfYesterday)
+                .setParameter("member", member)
+                .setParameter("start", start)
+                .setParameter("end", end)
                 .getResultList();
     }
+
 
 }

@@ -9,8 +9,8 @@ import lombok.Getter;
 public class FollowResponse {
     private Long followId;  // Follow 엔티티의 PK
     private String userName;
-    private int dayScore;
-    private int baseScore;
+    private double dayScore;
+    private double baseScore;
     private String profileImageUrl;
 
     public static FollowResponse create(Member member) {

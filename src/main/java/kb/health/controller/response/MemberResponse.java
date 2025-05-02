@@ -9,8 +9,8 @@ import lombok.Getter;
 public class MemberResponse {
     private Long memberId;
     private String userName;
-    private int dayScore;
-    private int baseScore;
+    private double dayScore;
+    private double baseScore;
     private String profileImageUrl;
 
     public static MemberResponse create(Member member) {
