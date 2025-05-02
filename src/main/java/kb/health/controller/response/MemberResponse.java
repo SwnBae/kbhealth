@@ -17,7 +17,7 @@ public class MemberResponse {
     private String profileImageUrl;
 
     private NutritionAchievementResponse todayAchievement;
-    private List<DailyScoreResponse> last10DaysScores = new ArrayList<>();
+    private List<DailyScoreResponse> last10DaysScores;
 
     public static MemberResponse create(Member member, NutritionAchievementResponse todayAchievement, List<DailyScoreResponse> last10DaysScores) {
         return MemberResponse.builder()

@@ -113,7 +113,6 @@ class ScoreTest {
     }
 
     @Test
-    @Rollback(value = false)
     void testDailyScore() {
         // 일일 점수 계산
         scoreService.updateDailyScoresForAllMembers();
