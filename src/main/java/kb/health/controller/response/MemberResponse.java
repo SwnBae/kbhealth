@@ -26,6 +26,8 @@ public class MemberResponse {
                 .totalScore(member.getTotalScore())
                 .baseScore(member.getBaseScore())
                 .profileImageUrl(member.getProfileImageUrl())
+                .todayAchievement(todayAchievement)
+                .last10DaysScores(last10DaysScores)
                 .build();
     }
 }
