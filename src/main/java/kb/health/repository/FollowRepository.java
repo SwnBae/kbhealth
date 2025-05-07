@@ -1,8 +1,7 @@
-package kb.health.Repository;
+package kb.health.repository;
 
 import jakarta.persistence.EntityManager;
 import kb.health.domain.Follow;
-import kb.health.domain.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

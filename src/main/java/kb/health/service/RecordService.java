@@ -1,9 +1,8 @@
-package kb.health.Service;
+package kb.health.service;
 
-import kb.health.Repository.DailyScoreRepository;
-import kb.health.Repository.DietRepository;
-import kb.health.Repository.MemberRepository;
-import kb.health.Repository.RecordRepository;
+import kb.health.repository.DietRepository;
+import kb.health.repository.MemberRepository;
+import kb.health.repository.RecordRepository;
 import kb.health.controller.response.NutritionAchievementResponse;
 import kb.health.domain.DailyNutritionStandard;
 import kb.health.domain.Member;
@@ -11,7 +10,6 @@ import kb.health.domain.record.*;
 import kb.health.controller.request.DietRecordRequest;
 import kb.health.controller.request.DietRequest;
 import kb.health.controller.request.ExerciseRecordRequest;
-import kb.health.controller.response.DietRecordResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)

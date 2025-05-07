@@ -1,7 +1,7 @@
 package kb.health.record;
 
-import kb.health.Repository.RecordRepository;
-import kb.health.Service.*;
+import kb.health.repository.RecordRepository;
+import kb.health.service.*;
 import kb.health.domain.BodyInfo;
 import kb.health.domain.DailyNutritionStandard;
 import kb.health.domain.Gender;
@@ -12,7 +12,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;

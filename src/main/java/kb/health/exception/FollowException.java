@@ -1,4 +1,4 @@
-package kb.health.Exception;
+package kb.health.exception;
 
 /**
  * 코드 추가 예정

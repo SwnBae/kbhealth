@@ -1,8 +1,9 @@
 package kb.health.controller;
 
-import kb.health.Service.MemberService;
-import kb.health.Service.RecordService;
-import kb.health.Service.ScoreService;
+import kb.health.controller.request.MemberBodyInfoEditRequest;
+import kb.health.service.MemberService;
+import kb.health.service.RecordService;
+import kb.health.service.ScoreService;
 import kb.health.authentication.CurrentMember;
 import kb.health.authentication.LoginMember;
 import kb.health.controller.request.MemberEditRequest;
@@ -56,11 +57,15 @@ public class ProfileController {
 //    }
 
     // 프로필 수정
-    @PostMapping("/edit")
+    @PostMapping("/editinfo")
     public ResponseEntity<?> updateProfile(@LoginMember CurrentMember currentMember, @RequestBody MemberEditRequest memberEditRequest) {
         memberService.updateMember(currentMember.getId(), memberEditRequest);
         return ResponseEntity.ok("회원정보 수정 성공");
     }
 
-
+    @PostMapping("/editbodyinfo")
+    public  ResponseEntity<?> updateBodyInfo(@LoginMember CurrentMember currentMember, @RequestBody MemberBodyInfoEditRequest memberBodyInfoEditRequest) {
+        memberService.updateMemberBodyInfo(currentMember.getId(), memberBodyInfoEditRequest);
+        return ResponseEntity.ok("신체정보 수정 성공");
+    }
 }

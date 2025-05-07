@@ -1,13 +1,12 @@
 package kb.health;
 
-import kb.health.Repository.DietRepository;
-import kb.health.Repository.RecordRepository;
-import kb.health.Service.MemberService;
-import kb.health.Service.RecordService;
-import kb.health.Service.ScoreService;
+import kb.health.repository.DietRepository;
+import kb.health.repository.RecordRepository;
+import kb.health.service.MemberService;
+import kb.health.service.RecordService;
+import kb.health.service.ScoreService;
 import kb.health.controller.ProfileController;
 import kb.health.controller.request.DietRecordRequest;
-import kb.health.controller.request.DietRequest;
 import kb.health.controller.request.ExerciseRecordRequest;
 import kb.health.controller.response.DailyScoreResponse;
 import kb.health.controller.response.MemberResponse;

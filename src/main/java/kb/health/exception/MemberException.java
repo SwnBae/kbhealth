@@ -1,5 +1,5 @@
-package kb.health.Exception;
-import kb.health.domain.Member;
+package kb.health.exception;
+
 /**
  * 코드 추가 예정
  */

@@ -2,10 +2,10 @@ package kb.health.Member;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import kb.health.Exception.FollowException;
-import kb.health.Repository.FollowRepository;
-import kb.health.Repository.MemberRepository;
-import kb.health.Service.MemberService;
+import kb.health.exception.FollowException;
+import kb.health.repository.FollowRepository;
+import kb.health.repository.MemberRepository;
+import kb.health.service.MemberService;
 import kb.health.domain.BodyInfo;
 import kb.health.domain.DailyNutritionStandard;
 import kb.health.domain.Gender;
@@ -13,7 +13,6 @@ import kb.health.domain.Member;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;

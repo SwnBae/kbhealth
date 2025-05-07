@@ -1,6 +1,6 @@
 package kb.health;
 
-import kb.health.Service.MemberService;
+import kb.health.service.MemberService;
 import kb.health.authentication.JwtUtil;
 import kb.health.authentication.LoginUserArgumentResolver;
 import lombok.RequiredArgsConstructor;

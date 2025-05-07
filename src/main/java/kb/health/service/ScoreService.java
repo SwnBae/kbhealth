@@ -1,8 +1,8 @@
-package kb.health.Service;
+package kb.health.service;
 
-import kb.health.Repository.DailyScoreRepository;
-import kb.health.Repository.MemberRepository;
-import kb.health.Repository.RecordRepository;
+import kb.health.repository.DailyScoreRepository;
+import kb.health.repository.MemberRepository;
+import kb.health.repository.RecordRepository;
 import kb.health.domain.DailyScore;
 import kb.health.domain.Member;
 import kb.health.domain.record.DietRecord;

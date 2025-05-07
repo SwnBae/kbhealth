@@ -1,4 +1,4 @@
-package kb.health.Repository;
+package kb.health.repository;
 
 import kb.health.domain.DailyScore;
 import kb.health.domain.Member;

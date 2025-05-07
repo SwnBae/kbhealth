@@ -1,7 +1,7 @@
 package kb.health.record;
 
-import kb.health.Repository.DietRepository;
-import kb.health.Service.*;
+import kb.health.repository.DietRepository;
+import kb.health.service.*;
 import kb.health.domain.BodyInfo;
 import kb.health.domain.DailyNutritionStandard;
 import kb.health.domain.Gender;
@@ -9,7 +9,6 @@ import kb.health.domain.Member;
 import kb.health.domain.record.*;
 import kb.health.controller.request.DietRecordRequest;
 import kb.health.controller.request.DietRequest;
-import kb.health.controller.response.DietRecordResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

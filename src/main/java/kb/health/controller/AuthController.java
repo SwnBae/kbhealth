@@ -2,7 +2,7 @@ package kb.health.controller;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import kb.health.Service.MemberService;
+import kb.health.service.MemberService;
 import kb.health.authentication.JwtUtil;
 import kb.health.controller.request.LoginRequest;
 import kb.health.controller.request.MemberRegistRequest;

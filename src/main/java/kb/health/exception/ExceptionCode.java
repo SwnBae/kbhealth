@@ -1,4 +1,4 @@
-package kb.health.Exception;
+package kb.health.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

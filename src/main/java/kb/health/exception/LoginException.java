@@ -1,4 +1,4 @@
-package kb.health.Exception;
+package kb.health.exception;
 
 public class LoginException extends GetRuntimeException {
     public LoginException(ExceptionCode exceptionCode) {

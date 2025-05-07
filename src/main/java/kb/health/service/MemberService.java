@@ -1,13 +1,12 @@
-package kb.health.Service;
+package kb.health.service;
 
-import kb.health.Exception.FollowException;
-import kb.health.Exception.LoginException;
-import kb.health.Exception.MemberException;
-import kb.health.Repository.FollowRepository;
-import kb.health.Repository.MemberRepository;
+import kb.health.exception.FollowException;
+import kb.health.exception.LoginException;
+import kb.health.exception.MemberException;
+import kb.health.repository.FollowRepository;
+import kb.health.repository.MemberRepository;
 import kb.health.controller.request.MemberBodyInfoEditRequest;
 import kb.health.controller.request.MemberRegistRequest;
-import kb.health.controller.response.MemberResponse;
 import kb.health.domain.Follow;
 import kb.health.domain.Member;
 import kb.health.controller.request.MemberEditRequest;

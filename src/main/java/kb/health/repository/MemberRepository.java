@@ -1,4 +1,4 @@
-package kb.health.Repository;
+package kb.health.repository;
 
 import jakarta.persistence.EntityManager;
 import kb.health.domain.Member;

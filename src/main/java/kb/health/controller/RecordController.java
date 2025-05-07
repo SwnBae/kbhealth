@@ -1,6 +1,6 @@
 package kb.health.controller;
 
-import kb.health.Service.RecordService;
+import kb.health.service.RecordService;
 import kb.health.authentication.CurrentMember;
 import kb.health.authentication.LoginMember;
 import kb.health.controller.request.DietRecordRequest;

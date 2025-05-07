@@ -1,4 +1,4 @@
-package kb.health.Repository;
+package kb.health.repository;
 
 import jakarta.persistence.EntityManager;
 import kb.health.domain.record.Diet;
@@ -12,6 +12,13 @@ import java.util.List;
 public class DietRepository {
 
     private final EntityManager em;
+
+    // 음식 여러 개 등록
+    public void saveAll(List<Diet> diets) {
+        for (Diet diet : diets) {
+            em.persist(diet);
+        }
+    }
 
     // 음식 등록
     public Long save(Diet diet) {
