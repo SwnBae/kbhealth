@@ -1,6 +1,7 @@
 package kb.health.controller;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import kb.health.Service.MemberService;
 import kb.health.authentication.JwtUtil;
 import kb.health.controller.request.LoginRequest;
@@ -34,7 +35,7 @@ public class AuthController {
              jwtCookie.setMaxAge(24 * 60 * 60); // 1일 유효
              response.addCookie(jwtCookie); // 쿠키 추가
 
-             return ResponseEntity.status(HttpStatus.OK).body(Map.of("massage" , "로그인 성공", "redirect", "/index"));
+             return ResponseEntity.status(HttpStatus.OK).body(Map.of("message" , "로그인 성공", "redirect", "/index"));
          } else {
              return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 실패");
          }
@@ -52,7 +53,7 @@ public class AuthController {
     }
 
     @PostMapping("/regist")
-    public ResponseEntity<?> regist(@ModelAttribute MemberRegistRequest memberRegistRequest) {
+    public ResponseEntity<?> regist(@RequestBody @Valid MemberRegistRequest memberRegistRequest) {
         memberService.save(memberRegistRequest);
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("message","회원가입 성공", "redirect", "/login"));
     }

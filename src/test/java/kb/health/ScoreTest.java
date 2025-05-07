@@ -5,9 +5,12 @@ import kb.health.Repository.RecordRepository;
 import kb.health.Service.MemberService;
 import kb.health.Service.RecordService;
 import kb.health.Service.ScoreService;
+import kb.health.controller.ProfileController;
 import kb.health.controller.request.DietRecordRequest;
 import kb.health.controller.request.DietRequest;
 import kb.health.controller.request.ExerciseRecordRequest;
+import kb.health.controller.response.DailyScoreResponse;
+import kb.health.controller.response.MemberResponse;
 import kb.health.controller.response.NutritionAchievementResponse;
 import kb.health.domain.*;
 import kb.health.domain.record.Diet;
@@ -18,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +41,9 @@ class ScoreTest {
     DietRepository dietRepository;
     @Autowired
     RecordRepository recordRepository;
+
+    @Autowired
+    ProfileController profileController;
 
     Long savedMemberId;
 
@@ -75,14 +82,25 @@ class ScoreTest {
 
         // 운동 기록 추가
 
-        Long e1 = recordService.saveExerciseRecord(new ExerciseRecordRequest(30, 300, ExerciseType.CARDIO), savedMemberId, LocalDate.of(2025, 5, 1));
-        Long e2 = recordService.saveExerciseRecord(new ExerciseRecordRequest(45, 400, ExerciseType.WEIGHT), savedMemberId, LocalDate.of(2025, 5, 1));
+        Long e1 = recordService.saveExerciseRecord(new ExerciseRecordRequest("근력1",30, 300, ExerciseType.CARDIO), savedMemberId, LocalDate.of(2025, 5, 1));
+        Long e2 = recordService.saveExerciseRecord(new ExerciseRecordRequest("근력2",45, 400, ExerciseType.WEIGHT), savedMemberId, LocalDate.of(2025, 5, 1));
 
         ExerciseRecord record1 = recordService.getExerciseRecord(e1);
         ExerciseRecord record2 = recordService.getExerciseRecord(e2);
 
         record1.setExercised(true);
         record2.setExercised(true);
+
+        scoreService.updateDailyScoresForAllMembers(LocalDate.of(2025, 5, 2));
+
+        /**
+         * 오늘 영양소 체크
+         */
+        Long d7 = addDiet("국밥", 900);
+        Long d8 = addDiet("타코", 700);
+
+        recordService.saveDietRecord(new DietRecordRequest(d7, MealType.BREAKFAST), savedMemberId, LocalDate.of(2025, 5, 7));
+        recordService.saveDietRecord(new DietRecordRequest(d8, MealType.LUNCH), savedMemberId, LocalDate.of(2025, 5, 7));
     }
 
     private Member createMember() {
@@ -113,25 +131,33 @@ class ScoreTest {
     }
 
     @Test
+    @Rollback(value = false)
     void testDailyScore() {
-        // 일일 점수 계산
-        scoreService.updateDailyScoresForAllMembers();
         Member member = memberService.findById(savedMemberId);
 
-        LocalDate today = LocalDate.now();
+        ResponseEntity<MemberResponse> response = profileController.getProfile(member.getAccount());
+        MemberResponse profile = response.getBody();
 
-        NutritionAchievementResponse nutritionAchievementResponse = recordService.getNutritionAchievement(savedMemberId, today.minusDays(1));
-        System.out.println("Nutrition Achievement Response1: " + nutritionAchievementResponse.toString());
+        System.out.println("== [프로필 정보] ==");
+        System.out.printf("회원 ID: %d%n", profile.getMemberId());
+        System.out.printf("닉네임: %s%n", profile.getUserName());
+        System.out.printf("총점: %.2f%n", profile.getTotalScore());
+        System.out.printf("기본점수: %.2f%n", profile.getBaseScore());
+        System.out.printf("프로필 이미지 URL: %s%n", profile.getProfileImageUrl());
 
+        System.out.println("\n== [오늘의 영양소 목표 달성률] ==");
+        NutritionAchievementResponse nutrition = profile.getTodayAchievement();
+        System.out.printf("열량: %.2f%%%n", nutrition.getCaloriesRate() * 100);
+        System.out.printf("단백질: %.2f%%%n", nutrition.getProteinRate() * 100);
+        System.out.printf("지방: %.2f%%%n", nutrition.getFatRate() * 100);
+        System.out.printf("탄수화물: %.2f%%%n", nutrition.getCarbRate() * 100);
+        System.out.printf("당류: %.2f%%%n", nutrition.getSugarsRate() * 100);
+        System.out.printf("식이섬유: %.2f%%%n", nutrition.getFiberRate() * 100);
+        System.out.printf("나트륨: %.2f%%%n", nutrition.getSodiumRate() * 100);
 
-        nutritionAchievementResponse = recordService.getNutritionAchievement(savedMemberId, today);
-        System.out.println("Nutrition Achievement Response2: " + nutritionAchievementResponse.toString());
-
-
-
-        for (DailyScore dailyScore : member.getDailyScores()) {
-            System.out.println(dailyScore.getTotalScore());
-            System.out.println(dailyScore.getDietScore());
+        System.out.println("\n== [최근 10일 점수] ==");
+        for (DailyScoreResponse dailyScore : profile.getLast10DaysScores()) {
+            System.out.printf("날짜: %s | 총점: %.2f%n", dailyScore.getDate(), dailyScore.getTotalScore());
         }
     }
 }

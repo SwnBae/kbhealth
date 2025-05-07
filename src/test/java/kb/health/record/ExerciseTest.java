@@ -52,7 +52,7 @@ class ExerciseTest {
     @Test
     void 운동_기록_삽입() {
         // given
-        ExerciseRecordRequest request = new ExerciseRecordRequest(30, 300, ExerciseType.CARDIO);
+        ExerciseRecordRequest request = new ExerciseRecordRequest("근력1", 30, 300, ExerciseType.CARDIO);
 
         // when
         Long savedId = recordService.saveExerciseRecord(request, savedMemberId);
@@ -60,6 +60,7 @@ class ExerciseTest {
 
         // then
         assertThat(savedRecord).isNotNull();
+        assertThat(savedRecord.getExerciseName()).isEqualTo("근력1");
         assertThat(savedRecord.getDurationMinutes()).isEqualTo(30);
         assertThat(savedRecord.getCaloriesBurned()).isEqualTo(300);
         assertThat(savedRecord.getExerciseType()).isEqualTo(ExerciseType.CARDIO);
@@ -71,13 +72,14 @@ class ExerciseTest {
     @Test
     void 운동_기록_수정() {
         // given
-        ExerciseRecordRequest request = new ExerciseRecordRequest(30, 300, ExerciseType.CARDIO);
+        ExerciseRecordRequest request = new ExerciseRecordRequest("근력1",30, 300, ExerciseType.CARDIO);
 
         Long savedId = recordService.saveExerciseRecord(request, savedMemberId);
         ExerciseRecord savedRecord = recordRepository.findExerciseRecordById(savedId);
 
         // when: 운동시간, 칼로리, 운동 타입 수정
         ExerciseRecordRequest updateRequest = new ExerciseRecordRequest();
+        updateRequest.setExerciseName("근력2");
         updateRequest.setDurationMinutes(45);
         updateRequest.setCaloriesBurned(400);
         updateRequest.setExerciseType(ExerciseType.WEIGHT);
@@ -86,6 +88,7 @@ class ExerciseTest {
 
         // then
         ExerciseRecord updatedRecord = recordService.getExerciseRecord(savedId);
+        assertThat(updatedRecord.getExerciseName()).isEqualTo("근력2");
         assertThat(updatedRecord.getDurationMinutes()).isEqualTo(45);
         assertThat(updatedRecord.getCaloriesBurned()).isEqualTo(400);
         assertThat(updatedRecord.getExerciseType()).isEqualTo(ExerciseType.WEIGHT);
@@ -97,7 +100,7 @@ class ExerciseTest {
     @Test
     void 운동_기록_삭제() {
         // given
-        ExerciseRecordRequest request = new ExerciseRecordRequest(30, 300, ExerciseType.CARDIO);
+        ExerciseRecordRequest request = new ExerciseRecordRequest("근력1",30, 300, ExerciseType.CARDIO);
 
         Long savedId = recordService.saveExerciseRecord(request, savedMemberId);
 
@@ -116,11 +119,13 @@ class ExerciseTest {
     void 운동_기록_조회() {
         // given
         ExerciseRecordRequest request1 = new ExerciseRecordRequest();
+        request1.setExerciseName("근력1");
         request1.setDurationMinutes(30);
         request1.setCaloriesBurned(300);
         request1.setExerciseType(ExerciseType.CARDIO);
 
         ExerciseRecordRequest request2 = new ExerciseRecordRequest();
+        request2.setExerciseName("근력2");
         request2.setDurationMinutes(45);
         request2.setCaloriesBurned(400);
         request2.setExerciseType(ExerciseType.WEIGHT);

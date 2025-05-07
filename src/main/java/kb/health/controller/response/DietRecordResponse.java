@@ -2,30 +2,29 @@ package kb.health.controller.response;
 
 import kb.health.domain.record.DietRecord;
 import kb.health.domain.record.MealType;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Getter
-@Setter
+@AllArgsConstructor
 public class DietRecordResponse {
     private Long id;
     private Long dietId;
     private String dietMenu;
     private MealType mealType;
 
-    public DietRecordResponse(DietRecord dietRecord) {
-        this.id = dietRecord.getId();
+    public static DietRecordResponse create(DietRecord dietRecord) {
+        Long id = dietRecord.getId();
+        Long dietId = null;
+        String dietMenu = "No menu available";
 
-        // diet가 null인지 확인하고, dietId를 설정
         if (dietRecord.getDiet() != null) {
-            this.dietId = dietRecord.getDiet().getId(); // Diet의 id를 설정
-            this.dietMenu = dietRecord.getDiet().getMenu();  // Diet 엔티티에서 메뉴 가져오기
-        } else {
-            this.dietId = null;  // diet가 null일 경우 dietId도 null
-            this.dietMenu = "No menu available";  // 기본값 처리
+            dietId = dietRecord.getDiet().getId();
+            dietMenu = dietRecord.getDiet().getMenu();
         }
 
-        this.mealType = dietRecord.getMealType();
+        return new DietRecordResponse(id, dietId, dietMenu, dietRecord.getMealType());
     }
-
 }

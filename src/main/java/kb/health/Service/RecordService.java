@@ -148,11 +148,9 @@ public class RecordService {
         return recordRepository.findAllDietRecord();
     }
 
-    public List<DietRecordResponse> getDietRecords(Long memberId) {
-        List<DietRecord> dietRecords = recordRepository.findDietRecordsByMember(memberId);
-        return dietRecords.stream()
-                .map(DietRecordResponse::new)
-                .collect(Collectors.toList());
+    public List<DietRecord> getDietRecords(Long memberId) {
+        return recordRepository.findDietRecordsByMember(memberId);
+
     }
 
 
@@ -222,6 +220,7 @@ public class RecordService {
 //            throw new AuthorizationException("본인의 기록만 수정할 수 있습니다");
         }
 
+        exerciseRecord.setExerciseName(exerciseRecordRequest.getExerciseName());
         exerciseRecord.setDurationMinutes(exerciseRecordRequest.getDurationMinutes());
         exerciseRecord.setCaloriesBurned(exerciseRecordRequest.getCaloriesBurned());
         exerciseRecord.setExerciseType(exerciseRecordRequest.getExerciseType());
@@ -229,11 +228,12 @@ public class RecordService {
 
     /**
      * 하루 영양소 달성률
+     * 조회할 때마다 계산해서 반환한다 -> 멤버 신체정보 업데이트 해도 정상적으로 반환된다.
      */
     public NutritionAchievementResponse getNutritionAchievement(Long memberId, LocalDate date) {
         Member member = memberRepository.findMemberById(memberId);
 
-        List<DietRecord> records = recordRepository.findDietRecordsByMemberAndDate(member, date);
+        List<DietRecord> records = recordRepository.findDietRecordsByMemberAndDateOnly(member, date);
         DailyNutritionStandard standard = member.getDailyNutritionStandard();
         return NutritionAchievementResponse.create(records, standard);
     }

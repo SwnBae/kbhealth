@@ -80,12 +80,17 @@ public class RecordRepository {
         }
     }
 
+
+
     public List<DietRecord> findDietRecordsByDiet(Diet diet) {
         return em.createQuery("SELECT d FROM DietRecord d WHERE d.diet = :diet", DietRecord.class)
                 .setParameter("diet", diet)
                 .getResultList();
     }
 
+    /**
+     * 전날 00시 ~ 해당 00시까지
+     */
     public List<DietRecord> findDietRecordsByMemberAndDate(Member member, LocalDate date) {
         LocalDateTime start = date.atStartOfDay().minusDays(1);
         LocalDateTime end = date.atStartOfDay();
@@ -116,5 +121,35 @@ public class RecordRepository {
                 .setParameter("end", end)
                 .getResultList();
     }
+
+    /**
+     * 당일만 조회하는 메서드
+     */
+    public List<DietRecord> findDietRecordsByMemberAndDateOnly(Member member, LocalDate date) {
+        LocalDateTime start = date.atStartOfDay();
+        LocalDateTime end = date.plusDays(1).atStartOfDay();
+
+        return em.createQuery(
+                        "SELECT d FROM DietRecord d WHERE d.member = :member AND d.lastModifyDate >= :start AND d.lastModifyDate < :end",
+                        DietRecord.class)
+                .setParameter("member", member)
+                .setParameter("start", start)
+                .setParameter("end", end)
+                .getResultList();
+    }
+
+    public List<ExerciseRecord> findExerciseRecordsByMemberAndDateOnly(Member member, LocalDate date) {
+        LocalDateTime start = date.atStartOfDay();
+        LocalDateTime end = date.plusDays(1).atStartOfDay();
+
+        return em.createQuery(
+                        "SELECT e FROM ExerciseRecord e WHERE e.member = :member AND e.lastModifyDate >= :start AND e.lastModifyDate < :end",
+                        ExerciseRecord.class)
+                .setParameter("member", member)
+                .setParameter("start", start)
+                .setParameter("end", end)
+                .getResultList();
+    }
+
 
 }

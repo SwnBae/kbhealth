@@ -78,10 +78,62 @@
 ----------
 ### 2. 기능 구현 단위
 
+### `RecordController` (기록 관련)
 
-* **입력 유효성 검증**
+| 기능         | HTTP 메서드 | URI                             |
+| ------------ | ----------- | -------------------------------- |
+| 식단 목록 조회   | GET         | `/api/records/diet`             |
+| 식단 생성        | POST        | `/api/records/diet`             |
+| 식단 단건 조회   | GET         | `/api/records/diet/{drId}`      |
+| 식단 수정        | PUT         | `/api/records/diet/{drId}`      |
+| 식단 삭제        | DELETE      | `/api/records/diet/{drId}`      |
+| 운동 목록 조회   | GET         | `/api/records/exercise`         |
+| 운동 생성        | POST        | `/api/records/exercise`         |
+| 운동 단건 조회   | GET         | `/api/records/exercise/{exId}`  |
+| 운동 수정        | PUT         | `/api/records/exercise/{exId}`  |
+| 운동 삭제        | DELETE      | `/api/records/exercise/{exId}`  |
 
-    * 입력 유효성 검증 및 예외 처리
+---
+
+### `AuthController` (회원 인증 관련)
+
+| 기능         | HTTP 메서드 | URI                |
+| ------------ | ----------- | ------------------ |
+| 로그인       | POST        | `/api/auth/login`  |
+| 로그아웃     | GET         | `/api/auth/logout` |
+| 회원가입     | POST        | `/api/auth/regist` |
+
+---
+
+### `FollowController` (팔로우/팔로워 관리)
+
+| 기능               | HTTP 메서드 | URI                               |
+| ------------------ | ----------- | --------------------------------- |
+| 팔로우             | POST        | `/api/follow/following/{member_id}` |
+| 언팔로우           | DELETE      | `/api/follow/following/{member_id}` |
+| 팔로잉 목록 조회   | GET         | `/api/follow/followingList/{member_id}` |
+| 팔로워 목록 조회   | GET         | `/api/follow/followerList/{member_id}` |
+
+---
+
+### `ItemController` (식단 관련)
+
+| 기능             | HTTP 메서드 | URI                        |
+| ---------------- | ----------- | -------------------------- |
+| 식단 목록 조회   | GET         | `/api/items`               |
+| 식단 추가        | POST        | `/api/items`               |
+| 특정 식단 조회   | GET         | `/api/items/{dietId}`      |
+| 식단 수정        | PUT         | `/api/items/{dietId}`      |
+| 식단 삭제        | DELETE      | `/api/items/{dietId}`      |
+
+---
+
+### `ProfileController` (회원 프로필 관련)
+
+| 기능         | HTTP 메서드 | URI                              |
+| ------------ | ----------- | --------------------------------- |
+| 프로필 조회   | GET         | `/api/profile/{member_account}`   |
+| 프로필 수정   | POST        | `/api/profile/edit`              |    
 
  ----
 ### 3. 예외 처리

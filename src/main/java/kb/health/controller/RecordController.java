@@ -4,47 +4,97 @@ import kb.health.Service.RecordService;
 import kb.health.authentication.CurrentMember;
 import kb.health.authentication.LoginMember;
 import kb.health.controller.request.DietRecordRequest;
+import kb.health.controller.request.ExerciseRecordRequest;
+import kb.health.controller.response.ExerciseRecordResponse;
 import kb.health.domain.record.DietRecord;
 import kb.health.controller.response.DietRecordResponse;
+import kb.health.domain.record.ExerciseRecord;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/dietRecords")
+@RequestMapping("/api/records")
 public class RecordController {
 
     private final RecordService recordService;
 
-    // 다이어트 기록 목록
-    @GetMapping
-    public List<DietRecordResponse> list(@LoginMember CurrentMember currentMember) {
-        return recordService.getDietRecords(currentMember.getId()); // 로그인된 사용자만 조회하도록 처리 가능
+    /**
+     * 식단
+     */
+
+    // 기록 목록
+    @GetMapping("/diet")
+    public List<DietRecordResponse> getDietRecordList(@LoginMember CurrentMember currentMember) {
+        List<DietRecord> records = recordService.getDietRecords(currentMember.getId());
+        return records.stream()
+                .map(DietRecordResponse::create)
+                .collect(Collectors.toList());
     }
 
-    // 다이어트 기록 생성
-    @PostMapping
-    public void create(@LoginMember CurrentMember currentMember, @RequestBody DietRecordRequest request) {
+    // 기록 생성
+    @PostMapping("/diet")
+    public void createDietRecord(@LoginMember CurrentMember currentMember, @RequestBody DietRecordRequest request) {
         recordService.saveDietRecord(request, currentMember.getId());
     }
 
-    // 특정 다이어트 기록 조회
-    @GetMapping("/{drId}")
-    public DietRecord getDietRecord(@LoginMember CurrentMember currentMember, @PathVariable Long drId) {
-        return recordService.getDietRecord(drId);
+    // 특정 기록 조회
+    @GetMapping("/diet/{drId}")
+    public DietRecordResponse getDietRecord(@LoginMember CurrentMember currentMember, @PathVariable Long drId) {
+        DietRecord dietRecord = recordService.getDietRecord(drId);
+        return DietRecordResponse.create(dietRecord);
     }
 
-    // 다이어트 기록 수정
-    @PutMapping("/{drId}")
-    public void update(@LoginMember CurrentMember currentMember, @PathVariable Long drId, @RequestBody DietRecordRequest request) {
+    // 기록 수정
+    @PutMapping("/diet/{drId}")
+    public void updateDietRecord(@LoginMember CurrentMember currentMember, @PathVariable Long drId, @RequestBody DietRecordRequest request) {
         recordService.updateDietRecord(currentMember.getId(), drId, request);
     }
 
-    // 다이어트 기록 삭제
-    @DeleteMapping("/{drId}")
-    public void delete(@LoginMember CurrentMember currentMember, @PathVariable Long drId) {
+    // 기록 삭제
+    @DeleteMapping("/diet/{drId}")
+    public void deleteDietRecord(@LoginMember CurrentMember currentMember, @PathVariable Long drId) {
         recordService.deleteDietRecord(currentMember.getId(), drId);
+    }
+
+    /**
+     * 운동
+     */
+
+    // 기록 목록
+    @GetMapping("/exercise")
+    public List<ExerciseRecordResponse> getExerciseRecordList(@LoginMember CurrentMember currentMember) {
+        List<ExerciseRecord> records = recordService.getExerciseRecords(currentMember.getId());
+        return records.stream()
+                .map(ExerciseRecordResponse::create)
+                .collect(Collectors.toList());
+    }
+
+    // 기록 생성
+    @PostMapping("/exercise")
+    public void createExerciseRecord(@LoginMember CurrentMember currentMember, @RequestBody ExerciseRecordRequest request) {
+        recordService.saveExerciseRecord(request, currentMember.getId());
+    }
+
+    // 특정 기록 조회
+    @GetMapping("/exercise/{exId}")
+    public ExerciseRecordResponse getExerciseRecord(@LoginMember CurrentMember currentMember, @PathVariable Long exId) {
+        ExerciseRecord exerciseRecord = recordService.getExerciseRecord(exId);
+        return ExerciseRecordResponse.create(exerciseRecord);
+    }
+
+    // 기록 수정
+    @PutMapping("/exercise/{exId}")
+    public void updateExerciseRecord(@LoginMember CurrentMember currentMember, @PathVariable Long exId, @RequestBody ExerciseRecordRequest request) {
+        recordService.updateExerciseRecord(currentMember.getId(), exId, request);
+    }
+
+    // 기록 삭제
+    @DeleteMapping("/exercise/{exId}")
+    public void deleteExerciseRecord(@LoginMember CurrentMember currentMember, @PathVariable Long exId) {
+        recordService.deleteExerciseRecord(currentMember.getId(), exId);
     }
 }

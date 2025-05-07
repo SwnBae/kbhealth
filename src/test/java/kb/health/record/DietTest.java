@@ -93,9 +93,9 @@ class DietTest {
         recordService.saveDietRecord(recordRequest, savedMemberId);
 
         //then
-        List<DietRecordResponse> result = recordService.getDietRecords(savedMemberId);
+        List<DietRecord> result = recordService.getDietRecords(savedMemberId);
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getDietId()).isEqualTo(dietId);
+        assertThat(result.get(0).getId()).isEqualTo(dietId);
     }
 
     @Test
@@ -108,12 +108,12 @@ class DietTest {
         recordService.saveDietRecord(new DietRecordRequest(dietId2, MealType.DINNER), savedMemberId);
 
         // when
-        List<DietRecordResponse> records = recordService.getDietRecords(savedMemberId);
+        List<DietRecord> records = recordService.getDietRecords(savedMemberId);
 
         // then
         assertThat(records).hasSize(2);
         assertThat(records)
-                .extracting(record -> record.getDietMenu())
+                .extracting(record -> record.getDiet().getMenu())
                 .containsExactlyInAnyOrder("샐러드", "스테이크");
     }
 
@@ -144,14 +144,14 @@ class DietTest {
         Long dietId = recordService.addDiet(new DietRequest("라면", 500));
         recordService.saveDietRecord(new DietRecordRequest(dietId, MealType.LUNCH), savedMemberId);
 
-        List<DietRecordResponse> before = recordService.getDietRecords(savedMemberId);
+        List<DietRecord> before = recordService.getDietRecords(savedMemberId);
         Long recordId = before.get(0).getId();
 
         // when
         recordService.deleteDietRecord(savedMemberId, recordId);
 
         // then
-        List<DietRecordResponse> after = recordService.getDietRecords(savedMemberId);
+        List<DietRecord> after = recordService.getDietRecords(savedMemberId);
         assertThat(after).isEmpty();
     }
 

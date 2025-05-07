@@ -16,6 +16,9 @@ public class ExerciseRecord extends BaseRecord {
     private Long id;
 
     @Column(nullable = false)
+    private String exerciseName;
+
+    @Column(nullable = false)
     private int durationMinutes;
 
     @Column(nullable = false)
@@ -38,6 +41,7 @@ public class ExerciseRecord extends BaseRecord {
 
     public static ExerciseRecord create(ExerciseRecordRequest request) {
         ExerciseRecord record = new ExerciseRecord();
+        record.setExerciseName(request.getExerciseName());
         record.setDurationMinutes(request.getDurationMinutes());
         record.setCaloriesBurned(request.getCaloriesBurned());
         record.setExerciseType(request.getExerciseType());

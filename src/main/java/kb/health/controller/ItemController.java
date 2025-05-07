@@ -24,7 +24,7 @@ public class ItemController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createItem(@LoginMember CurrentMember currentMember,@RequestBody DietRequest dietRequest) {
+    public ResponseEntity<?> createItem(@LoginMember CurrentMember currentMember, @RequestBody DietRequest dietRequest) {
         recordService.addDiet(dietRequest);
         return ResponseEntity.ok("식단 추가 성공");
     }
