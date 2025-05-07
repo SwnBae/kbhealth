@@ -35,12 +35,14 @@ public class ItemController {
     }
 
     @PutMapping("/{dietId}")
-    public void update(@LoginMember CurrentMember currentMember, @PathVariable Long dietId, @RequestBody DietRequest dietRequest) {
+    public ResponseEntity<?> update(@LoginMember CurrentMember currentMember, @PathVariable Long dietId, @RequestBody DietRequest dietRequest) {
         recordService.updateDiet(dietId, dietRequest);
+        return ResponseEntity.ok("음식 수정 성공");
     }
 
     @DeleteMapping("/{dietId}")
-    public void delete(@LoginMember CurrentMember currentMember, @PathVariable Long dietId) {
+    public ResponseEntity<?> delete(@LoginMember CurrentMember currentMember, @PathVariable Long dietId) {
         recordService.deleteDiet(dietId);
+        return ResponseEntity.ok("음식 삭제 성공");
     }
 }
