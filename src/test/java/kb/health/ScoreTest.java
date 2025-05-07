@@ -1,5 +1,6 @@
 package kb.health;
 
+import kb.health.controller.request.MemberRegistRequest;
 import kb.health.repository.DietRepository;
 import kb.health.repository.RecordRepository;
 import kb.health.service.MemberService;
@@ -9,7 +10,7 @@ import kb.health.controller.ProfileController;
 import kb.health.controller.request.DietRecordRequest;
 import kb.health.controller.request.ExerciseRecordRequest;
 import kb.health.controller.response.DailyScoreResponse;
-import kb.health.controller.response.MemberResponse;
+import kb.health.controller.response.MemberProfileResponse;
 import kb.health.controller.response.NutritionAchievementResponse;
 import kb.health.domain.*;
 import kb.health.domain.record.Diet;
@@ -60,24 +61,73 @@ class ScoreTest {
 
         savedMemberId = memberService.save(member);
 
-        // 식단 추가
-        Long d1 = addDiet("연어 스테이크", 450);
-        Long d2 = addDiet("햄버거", 700);
-        Long d3 = addDiet("닭가슴살+샐러드", 350);
+        MemberRegistRequest memberRegistRequest1 = new MemberRegistRequest();
+        memberRegistRequest1.setAccount("account1");
+        memberRegistRequest1.setPassword("password1");
+        memberRegistRequest1.setUserName("user1");
+        memberRegistRequest1.setPhoneNumber("010-1111-1111");
+        memberRegistRequest1.setHeight(170.0);
+        memberRegistRequest1.setWeight(60.0);
+        memberRegistRequest1.setGender(kb.health.domain.Gender.MALE);
+        memberRegistRequest1.setAge(25);
 
-        recordService.saveDietRecord(new DietRecordRequest(d1, MealType.BREAKFAST), savedMemberId, LocalDate.of(2025, 4, 30));
-        recordService.saveDietRecord(new DietRecordRequest(d2, MealType.LUNCH), savedMemberId, LocalDate.of(2025, 4, 30));
-        recordService.saveDietRecord(new DietRecordRequest(d3, MealType.DINNER), savedMemberId, LocalDate.of(2025, 4, 30));
+        Member member2 = Member.create(memberRegistRequest1);
+
+        MemberRegistRequest memberRegistRequest2 = new MemberRegistRequest();
+        memberRegistRequest2.setAccount("account2");
+        memberRegistRequest2.setPassword("password2");
+        memberRegistRequest2.setUserName("user2");
+        memberRegistRequest2.setPhoneNumber("010-2222-2222");
+        memberRegistRequest2.setHeight(160.0);
+        memberRegistRequest2.setWeight(55.0);
+        memberRegistRequest2.setGender(kb.health.domain.Gender.FEMALE);
+        memberRegistRequest2.setAge(24);
+
+        Member member3 = Member.create(memberRegistRequest2);
+
+        MemberRegistRequest memberRegistRequest3 = new MemberRegistRequest();
+        memberRegistRequest3.setAccount("account3");
+        memberRegistRequest3.setPassword("password3");
+        memberRegistRequest3.setUserName("user3");
+        memberRegistRequest3.setPhoneNumber("010-3333-3333");
+        memberRegistRequest3.setHeight(175.0);
+        memberRegistRequest3.setWeight(70.0);
+        memberRegistRequest3.setGender(kb.health.domain.Gender.MALE);
+        memberRegistRequest3.setAge(30);
+
+        Member member4 = Member.create(memberRegistRequest3);
+
+        MemberRegistRequest memberRegistRequest4 = new MemberRegistRequest();
+        memberRegistRequest4.setAccount("account4");
+        memberRegistRequest4.setPassword("password4");
+        memberRegistRequest4.setUserName("user4");
+        memberRegistRequest4.setPhoneNumber("010-4444-4444");
+        memberRegistRequest4.setHeight(165.0);
+        memberRegistRequest4.setWeight(65.0);
+        memberRegistRequest4.setGender(kb.health.domain.Gender.FEMALE);
+        memberRegistRequest4.setAge(28);
+
+        Member member5 = Member.create(memberRegistRequest4);
+
+        Long memId2 = memberService.save(member2);
+        Long memId3 = memberService.save(member3);
+        Long memId4 = memberService.save(member4);
+        Long memId5 = memberService.save(member5);
+
+        memberService.follow(savedMemberId, memId2);
+        memberService.follow(savedMemberId, memId3);
+        memberService.follow(savedMemberId, memId4);
+        memberService.follow(memId5, savedMemberId);
+
+        recordService.saveDietRecord(new DietRecordRequest(1L, MealType.BREAKFAST), savedMemberId, LocalDate.of(2025, 4, 30));
+        recordService.saveDietRecord(new DietRecordRequest(2L, MealType.LUNCH), savedMemberId, LocalDate.of(2025, 4, 30));
+        recordService.saveDietRecord(new DietRecordRequest(3L, MealType.DINNER), savedMemberId, LocalDate.of(2025, 4, 30));
 
         scoreService.updateDailyScoresForAllMembers(LocalDate.of(2025, 5, 1));
 
-        Long d4 = addDiet("피자", 200);
-        Long d5 = addDiet("햄버거", 500);
-        Long d6 = addDiet("돈가스", 350);
-
-        recordService.saveDietRecord(new DietRecordRequest(d4, MealType.BREAKFAST), savedMemberId, LocalDate.of(2025, 5, 1));
-        recordService.saveDietRecord(new DietRecordRequest(d5, MealType.LUNCH), savedMemberId, LocalDate.of(2025, 5, 1));
-        recordService.saveDietRecord(new DietRecordRequest(d6, MealType.DINNER), savedMemberId, LocalDate.of(2025, 5, 1));
+        recordService.saveDietRecord(new DietRecordRequest(4L, MealType.BREAKFAST), savedMemberId, LocalDate.of(2025, 5, 1));
+        recordService.saveDietRecord(new DietRecordRequest(5L, MealType.LUNCH), savedMemberId, LocalDate.of(2025, 5, 1));
+        recordService.saveDietRecord(new DietRecordRequest(6L, MealType.DINNER), savedMemberId, LocalDate.of(2025, 5, 1));
 
         // 운동 기록 추가
 
@@ -95,11 +145,9 @@ class ScoreTest {
         /**
          * 오늘 영양소 체크
          */
-        Long d7 = addDiet("국밥", 900);
-        Long d8 = addDiet("타코", 700);
 
-        recordService.saveDietRecord(new DietRecordRequest(d7, MealType.BREAKFAST), savedMemberId, LocalDate.of(2025, 5, 7));
-        recordService.saveDietRecord(new DietRecordRequest(d8, MealType.LUNCH), savedMemberId, LocalDate.of(2025, 5, 7));
+        recordService.saveDietRecord(new DietRecordRequest(7L, MealType.BREAKFAST), savedMemberId, LocalDate.of(2025, 5, 7));
+        recordService.saveDietRecord(new DietRecordRequest(8L, MealType.LUNCH), savedMemberId, LocalDate.of(2025, 5, 7));
     }
 
     private Member createMember() {
@@ -113,29 +161,13 @@ class ScoreTest {
         return member;
     }
 
-    private Long addDiet(String menu, int calories) {
-        Diet diet = new Diet();
-        diet.setMenu(menu);
-        diet.setCategory("일반식");        // 카테고리 예시
-        diet.setStandardAmount(100);       // 기준 섭취량 (예: 100g)
-        diet.setCalories(calories);
-        diet.setProtein(25.0);             // 단백질 (g)
-        diet.setFat(10.0);                 // 지방 (g)
-        diet.setCarbohydrates(30.0);       // 탄수화물 (g)
-        diet.setSugars(5.0);               // 당류 (g)
-        diet.setFiber(3.0);                // 식이섬유 (g)
-        diet.setSodium(500.0);             // 나트륨 (mg)
-
-        return dietRepository.save(diet);
-    }
-
     @Test
-    @Rollback(value = false)
+//    @Rollback(false)
     void testDailyScore() {
         Member member = memberService.findById(savedMemberId);
 
-        ResponseEntity<MemberResponse> response = profileController.getProfile(member.getAccount());
-        MemberResponse profile = response.getBody();
+        ResponseEntity<MemberProfileResponse> response = profileController.getProfile(member.getAccount());
+        MemberProfileResponse profile = response.getBody();
 
         System.out.println("== [프로필 정보] ==");
         System.out.printf("회원 ID: %d%n", profile.getMemberId());
@@ -143,6 +175,10 @@ class ScoreTest {
         System.out.printf("총점: %.2f%n", profile.getTotalScore());
         System.out.printf("기본점수: %.2f%n", profile.getBaseScore());
         System.out.printf("프로필 이미지 URL: %s%n", profile.getProfileImageUrl());
+
+        System.out.println("\n== [팔로잉/팔로워 수] ==");
+        System.out.printf("팔로잉 수: %d%n", profile.getFollowingCount());
+        System.out.printf("팔로워 수: %d%n", profile.getFollowerCount());
 
         System.out.println("\n== [오늘의 영양소 목표 달성률] ==");
         NutritionAchievementResponse nutrition = profile.getTodayAchievement();
