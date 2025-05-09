@@ -62,6 +62,5 @@ public class FeedService {
     }
 
     //게시글 작성 메서드
-    public
 
 }
