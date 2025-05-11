@@ -14,13 +14,12 @@ import kb.health.domain.DailyScore;
 import kb.health.domain.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/profile")
 public class ProfileController {
@@ -32,6 +31,7 @@ public class ProfileController {
     //프로필 조회
     @GetMapping("/{member_account}")
     public ResponseEntity<MemberProfileResponse> getProfile(@PathVariable("member_account") String member_account) {
+        System.out.println("프로필 조회");
         // 1. 멤버 가져오기
         Member member = memberService.findMemberByAccount(member_account);
 

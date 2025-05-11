@@ -146,8 +146,8 @@ class ScoreTest {
          * 오늘 영양소 체크
          */
 
-        recordService.saveDietRecord(new DietRecordRequest(7L, MealType.BREAKFAST), savedMemberId, LocalDate.of(2025, 5, 7));
-        recordService.saveDietRecord(new DietRecordRequest(8L, MealType.LUNCH), savedMemberId, LocalDate.of(2025, 5, 7));
+        recordService.saveDietRecord(new DietRecordRequest(7L, MealType.BREAKFAST), savedMemberId, LocalDate.of(2025, 5, 9));
+        recordService.saveDietRecord(new DietRecordRequest(8L, MealType.LUNCH), savedMemberId, LocalDate.of(2025, 5, 9));
     }
 
     private Member createMember() {
@@ -162,7 +162,7 @@ class ScoreTest {
     }
 
     @Test
-//    @Rollback(false)
+    @Rollback(false)
     void testDailyScore() {
         Member member = memberService.findById(savedMemberId);
 

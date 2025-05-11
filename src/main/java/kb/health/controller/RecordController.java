@@ -34,6 +34,10 @@ public class RecordController {
         List<DietRecordResponse> response = records.stream()
                 .map(DietRecordResponse::create)
                 .collect(Collectors.toList());
+
+        for(DietRecordResponse dietRecordResponse : response) {
+            System.out.println(dietRecordResponse);
+        }
         return ResponseEntity.ok(response); // 200 OK와 함께 응답
     }
 

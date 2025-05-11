@@ -2,13 +2,11 @@ package kb.health.controller.response;
 
 import kb.health.domain.record.DietRecord;
 import kb.health.domain.record.MealType;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @AllArgsConstructor
+@ToString
 public class DietRecordResponse {
     private Long id;
     private Long dietId;

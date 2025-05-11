@@ -9,15 +9,16 @@ import lombok.Getter;
 public class FollowResponse {
     private Long followId;  // Follow 엔티티의 PK
     private String userName;
-    private double dayScore;
     private double baseScore;
+    private double totalScore;
+
     private String profileImageUrl;
 
     public static FollowResponse create(Member member) {
         return FollowResponse.builder()
                 .followId(member.getId())
                 .userName(member.getUserName())
-                .dayScore(member.getTotalScore())
+                .totalScore(member.getTotalScore())
                 .baseScore(member.getBaseScore())
                 .profileImageUrl(member.getProfileImageUrl())
                 .build();
