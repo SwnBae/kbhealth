@@ -25,7 +25,13 @@ public class PostLike {
     private Post post;
 
     public static PostLike create(Member member, Post post) {
-        return PostLike.builder().member(member).post(post).build();
+        PostLike like = new PostLike();
+        like.setMember(member);
+        like.setPost(post);
+        member.addPostLike(like);
+        post.addLike(like);
+        return like;
     }
+
 
 }
