@@ -128,8 +128,4 @@ public class FeedService {
     }
 
     //좋아요 추가 메서드
-    @Transactional
-    public Long likePost(Long memberId, Long postId) {
-        postLikeRepository.
-    }
 }
