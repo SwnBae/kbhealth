@@ -35,6 +35,13 @@ public class FollowRepository {
                 .findFirst();  // 없을 경우 Optional.empty() 반환
     }
 
+    public List<Long> findFollowings(Long memberId) {
+        return em.createQuery(
+                        "SELECT f.to.id FROM Follow f WHERE f.from.id = :memberId", Long.class)
+                .setParameter("memberId", memberId)
+                .getResultList();
+    }
+
     /**
      * 아래 메서드들은 안쓸거 같음, 예비 메서드
      */
