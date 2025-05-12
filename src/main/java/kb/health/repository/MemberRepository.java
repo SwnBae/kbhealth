@@ -49,6 +49,13 @@ public class MemberRepository {
                 .findFirst();
     }
 
+    // 유저 검색 (Account, userName)
+    public List<Member> findByUserNameOrAccountLike(String keyword) {
+        return em.createQuery("select m from Member m where m.userName like :kw or m.account like :kw", Member.class)
+                .setParameter("kw", "%" + keyword + "%")
+                .getResultList();
+    }
+
     public List<Member> findAll() {
         return em.createQuery("select m from Member m", Member.class)
                 .getResultList();

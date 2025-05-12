@@ -45,4 +45,13 @@ public class DietRepository {
             em.remove(diet);
         }
     }
+
+    // 메뉴 키워드로 음식 검색
+    public List<Diet> findByMenuKeyword(String keyword) {
+        return em.createQuery(
+                        "SELECT d FROM Diet d WHERE d.menu LIKE :keyword", Diet.class)
+                .setParameter("keyword", "%" + keyword + "%")
+                .getResultList();
+    }
+
 }

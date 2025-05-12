@@ -10,9 +10,11 @@ import kb.health.domain.record.DietRecord;
 import kb.health.controller.response.DietRecordResponse;
 import kb.health.domain.record.ExerciseRecord;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,6 +71,20 @@ public class RecordController {
         return ResponseEntity.ok("식단 삭제 성공"); // 삭제 성공 메시지
     }
 
+    // 기록 검색
+    // 식단 기록 동적 검색
+    @GetMapping("/diet/search")
+    public ResponseEntity<List<DietRecordResponse>> searchDietRecords(@LoginMember CurrentMember currentMember,
+                                                                      @RequestParam(required = false) String menuKeyword,
+                                                                      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                                                      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        List<DietRecord> records = recordService.searchDietRecordsDynamic(currentMember.getId(), menuKeyword, startDate, endDate);
+        List<DietRecordResponse> response = records.stream()
+                .map(DietRecordResponse::create)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(response);
+    }
+
     /**
      * 운동
      */
@@ -110,4 +126,40 @@ public class RecordController {
         recordService.deleteExerciseRecord(currentMember.getId(), exId);
         return ResponseEntity.ok("운동 삭제 성공"); // 삭제 성공 메시지
     }
+
+    // 운동 기록 동적 검색
+    @GetMapping("/exercise/search")
+    public ResponseEntity<List<ExerciseRecordResponse>> searchExerciseRecords(@LoginMember CurrentMember currentMember,
+                                                                              @RequestParam(required = false) String exerciseName,
+                                                                              @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                                                              @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        List<ExerciseRecord> records = recordService.searchExerciseRecordsDynamic(currentMember.getId(), exerciseName, startDate, endDate);
+        List<ExerciseRecordResponse> response = records.stream()
+                .map(ExerciseRecordResponse::create)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(response);
+    }
+
+    // 운동 완료 표기
+    @PutMapping("/exercise/{exId}/complete")
+    public ResponseEntity<String> markExerciseAsCompleted(@LoginMember CurrentMember currentMember, @PathVariable Long exId) {
+        try {
+            recordService.markExerciseAsCompleted(currentMember.getId(), exId);
+            return ResponseEntity.ok("운동 완료 처리 성공");
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage()); // 예외 메시지를 클라이언트에 전달
+        }
+    }
+
+    // 운동 완료 해제
+    @PutMapping("/exercise/{exId}/uncomplete")
+    public ResponseEntity<String> unmarkExerciseAsCompleted(@LoginMember CurrentMember currentMember, @PathVariable Long exId) {
+        try {
+            recordService.unmarkExerciseAsCompleted(currentMember.getId(), exId);
+            return ResponseEntity.ok("운동 완료 해제 성공");
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage()); // 예외 메시지를 클라이언트에 전달
+        }
+    }
+
 }

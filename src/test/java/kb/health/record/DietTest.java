@@ -86,7 +86,7 @@ class DietTest {
         Long dietId = recordService.addDiet(dietRequest);
         Diet diet = dietRepository.findById(dietId);
 
-        DietRecordRequest recordRequest = new DietRecordRequest(dietId,MealType.LUNCH);
+        DietRecordRequest recordRequest = new DietRecordRequest(dietId,500, MealType.LUNCH);
 
         //when
         recordService.saveDietRecord(recordRequest, savedMemberId);
@@ -103,8 +103,8 @@ class DietTest {
         Long dietId1 = recordService.addDiet(new DietRequest("샐러드", 150));
         Long dietId2 = recordService.addDiet(new DietRequest("스테이크", 600));
 
-        recordService.saveDietRecord(new DietRecordRequest(dietId1, MealType.BREAKFAST), savedMemberId);
-        recordService.saveDietRecord(new DietRecordRequest(dietId2, MealType.DINNER), savedMemberId);
+        recordService.saveDietRecord(new DietRecordRequest(dietId1, 500, MealType.BREAKFAST), savedMemberId);
+        recordService.saveDietRecord(new DietRecordRequest(dietId2, 600, MealType.DINNER), savedMemberId);
 
         // when
         List<DietRecord> records = recordService.getDietRecords(savedMemberId);
@@ -123,11 +123,11 @@ class DietTest {
         Long dietId2 = recordService.addDiet(new DietRequest("닭가슴살", 300));
 
         // 처음에는 dietId1 (계란후라이)로 기록
-        recordService.saveDietRecord(new DietRecordRequest(dietId1, MealType.BREAKFAST), savedMemberId);
+        recordService.saveDietRecord(new DietRecordRequest(dietId1, 500, MealType.BREAKFAST), savedMemberId);
         Long recordId = recordService.getDietRecords(savedMemberId).get(0).getId();
 
         // when: 메뉴를 dietId2(닭가슴살)로, 식사시간을 DINNER로 수정
-        DietRecordRequest updateRequest = new DietRecordRequest(dietId2, MealType.DINNER);
+        DietRecordRequest updateRequest = new DietRecordRequest(dietId2, 600, MealType.DINNER);
         recordService.updateDietRecord(savedMemberId, recordId, updateRequest);
 
         // then
@@ -141,7 +141,7 @@ class DietTest {
     void 식단_기록_삭제() {
         // given
         Long dietId = recordService.addDiet(new DietRequest("라면", 500));
-        recordService.saveDietRecord(new DietRecordRequest(dietId, MealType.LUNCH), savedMemberId);
+        recordService.saveDietRecord(new DietRecordRequest(dietId, 600, MealType.LUNCH), savedMemberId);
 
         List<DietRecord> before = recordService.getDietRecords(savedMemberId);
         Long recordId = before.get(0).getId();

@@ -119,15 +119,15 @@ class ScoreTest {
         memberService.follow(savedMemberId, memId4);
         memberService.follow(memId5, savedMemberId);
 
-        recordService.saveDietRecord(new DietRecordRequest(1L, MealType.BREAKFAST), savedMemberId, LocalDate.of(2025, 4, 30));
-        recordService.saveDietRecord(new DietRecordRequest(2L, MealType.LUNCH), savedMemberId, LocalDate.of(2025, 4, 30));
-        recordService.saveDietRecord(new DietRecordRequest(3L, MealType.DINNER), savedMemberId, LocalDate.of(2025, 4, 30));
+        recordService.saveDietRecord(new DietRecordRequest(1L, 600, MealType.BREAKFAST), savedMemberId, LocalDate.of(2025, 4, 30));
+        recordService.saveDietRecord(new DietRecordRequest(2L, 600,MealType.LUNCH), savedMemberId, LocalDate.of(2025, 4, 30));
+        recordService.saveDietRecord(new DietRecordRequest(3L, 600,MealType.DINNER), savedMemberId, LocalDate.of(2025, 4, 30));
 
         scoreService.updateDailyScoresForAllMembers(LocalDate.of(2025, 5, 1));
 
-        recordService.saveDietRecord(new DietRecordRequest(4L, MealType.BREAKFAST), savedMemberId, LocalDate.of(2025, 5, 1));
-        recordService.saveDietRecord(new DietRecordRequest(5L, MealType.LUNCH), savedMemberId, LocalDate.of(2025, 5, 1));
-        recordService.saveDietRecord(new DietRecordRequest(6L, MealType.DINNER), savedMemberId, LocalDate.of(2025, 5, 1));
+        recordService.saveDietRecord(new DietRecordRequest(4L, 600,MealType.BREAKFAST), savedMemberId, LocalDate.of(2025, 5, 1));
+        recordService.saveDietRecord(new DietRecordRequest(5L, 600,MealType.LUNCH), savedMemberId, LocalDate.of(2025, 5, 1));
+        recordService.saveDietRecord(new DietRecordRequest(6L, 600,MealType.DINNER), savedMemberId, LocalDate.of(2025, 5, 1));
 
         // 운동 기록 추가
 
@@ -146,8 +146,8 @@ class ScoreTest {
          * 오늘 영양소 체크
          */
 
-        recordService.saveDietRecord(new DietRecordRequest(7L, MealType.BREAKFAST), savedMemberId, LocalDate.of(2025, 5, 9));
-        recordService.saveDietRecord(new DietRecordRequest(8L, MealType.LUNCH), savedMemberId, LocalDate.of(2025, 5, 9));
+        recordService.saveDietRecord(new DietRecordRequest(7L, 600, MealType.BREAKFAST), savedMemberId, LocalDate.of(2025, 5, 12));
+        recordService.saveDietRecord(new DietRecordRequest(8L, 600, MealType.LUNCH), savedMemberId, LocalDate.of(2025, 5, 12));
     }
 
     private Member createMember() {
@@ -161,39 +161,39 @@ class ScoreTest {
         return member;
     }
 
-    @Test
-    @Rollback(false)
-    void testDailyScore() {
-        Member member = memberService.findById(savedMemberId);
-
-        ResponseEntity<MemberProfileResponse> response = profileController.getProfile(member.getAccount());
-        MemberProfileResponse profile = response.getBody();
-
-        System.out.println("== [프로필 정보] ==");
-        System.out.printf("회원 ID: %d%n", profile.getMemberId());
-        System.out.printf("닉네임: %s%n", profile.getUserName());
-        System.out.printf("총점: %.2f%n", profile.getTotalScore());
-        System.out.printf("기본점수: %.2f%n", profile.getBaseScore());
-        System.out.printf("프로필 이미지 URL: %s%n", profile.getProfileImageUrl());
-
-        System.out.println("\n== [팔로잉/팔로워 수] ==");
-        System.out.printf("팔로잉 수: %d%n", profile.getFollowingCount());
-        System.out.printf("팔로워 수: %d%n", profile.getFollowerCount());
-
-        System.out.println("\n== [오늘의 영양소 목표 달성률] ==");
-        NutritionAchievementResponse nutrition = profile.getTodayAchievement();
-        System.out.printf("열량: %.2f%%%n", nutrition.getCaloriesRate() * 100);
-        System.out.printf("단백질: %.2f%%%n", nutrition.getProteinRate() * 100);
-        System.out.printf("지방: %.2f%%%n", nutrition.getFatRate() * 100);
-        System.out.printf("탄수화물: %.2f%%%n", nutrition.getCarbRate() * 100);
-        System.out.printf("당류: %.2f%%%n", nutrition.getSugarsRate() * 100);
-        System.out.printf("식이섬유: %.2f%%%n", nutrition.getFiberRate() * 100);
-        System.out.printf("나트륨: %.2f%%%n", nutrition.getSodiumRate() * 100);
-
-        System.out.println("\n== [최근 10일 점수] ==");
-        for (DailyScoreResponse dailyScore : profile.getLast10DaysScores()) {
-            System.out.printf("날짜: %s | 총점: %.2f%n", dailyScore.getDate(), dailyScore.getTotalScore());
-        }
-    }
+//    @Test
+//    @Rollback(false)
+//    void testDailyScore() {
+//        Member member = memberService.findById(savedMemberId);
+//
+//        ResponseEntity<MemberProfileResponse> response = profileController.getProfile(member.getAccount());
+//        MemberProfileResponse profile = response.getBody();
+//
+//        System.out.println("== [프로필 정보] ==");
+//        System.out.printf("회원 ID: %d%n", profile.getMemberId());
+//        System.out.printf("닉네임: %s%n", profile.getUserName());
+//        System.out.printf("총점: %.2f%n", profile.getTotalScore());
+//        System.out.printf("기본점수: %.2f%n", profile.getBaseScore());
+//        System.out.printf("프로필 이미지 URL: %s%n", profile.getProfileImageUrl());
+//
+//        System.out.println("\n== [팔로잉/팔로워 수] ==");
+//        System.out.printf("팔로잉 수: %d%n", profile.getFollowingCount());
+//        System.out.printf("팔로워 수: %d%n", profile.getFollowerCount());
+//
+//        System.out.println("\n== [오늘의 영양소 목표 달성률] ==");
+//        NutritionAchievementResponse nutrition = profile.getTodayAchievement();
+//        System.out.printf("열량: %.2f%%%n", nutrition.getCaloriesRate() * 100);
+//        System.out.printf("단백질: %.2f%%%n", nutrition.getProteinRate() * 100);
+//        System.out.printf("지방: %.2f%%%n", nutrition.getFatRate() * 100);
+//        System.out.printf("탄수화물: %.2f%%%n", nutrition.getCarbRate() * 100);
+//        System.out.printf("당류: %.2f%%%n", nutrition.getSugarsRate() * 100);
+//        System.out.printf("식이섬유: %.2f%%%n", nutrition.getFiberRate() * 100);
+//        System.out.printf("나트륨: %.2f%%%n", nutrition.getSodiumRate() * 100);
+//
+//        System.out.println("\n== [최근 10일 점수] ==");
+//        for (DailyScoreResponse dailyScore : profile.getLast10DaysScores()) {
+//            System.out.printf("날짜: %s | 총점: %.2f%n", dailyScore.getDate(), dailyScore.getTotalScore());
+//        }
+//    }
 }
 

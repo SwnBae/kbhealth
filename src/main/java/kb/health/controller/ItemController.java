@@ -45,4 +45,11 @@ public class ItemController {
         recordService.deleteDiet(dietId);
         return ResponseEntity.ok("음식 삭제 성공");
     }
+
+    // 검색
+    @GetMapping("/search")
+    public ResponseEntity<List<Diet>> searchItemsByMenu(@RequestParam String menu) {
+        List<Diet> diets = recordService.searchDietsByMenu(menu);
+        return ResponseEntity.ok(diets);
+    }
 }

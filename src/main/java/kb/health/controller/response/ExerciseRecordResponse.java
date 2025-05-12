@@ -1,12 +1,11 @@
 package kb.health.controller.response;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import kb.health.domain.record.ExerciseRecord;
 import kb.health.domain.record.ExerciseType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
@@ -15,7 +14,9 @@ public class ExerciseRecordResponse {
     private String exerciseName;
     private int durationMinutes;
     private int caloriesBurned;
+    private LocalDateTime lastModifyDate;
     private ExerciseType exerciseType;
+    private boolean isExercised;
 
     public static ExerciseRecordResponse create(ExerciseRecord record) {
         return new ExerciseRecordResponse(
@@ -23,7 +24,9 @@ public class ExerciseRecordResponse {
                 record.getExerciseName(),
                 record.getDurationMinutes(),
                 record.getCaloriesBurned(),
-                record.getExerciseType()
+                record.getLastModifyDate(),
+                record.getExerciseType(),
+                record.isExercised()
         );
     }
 }

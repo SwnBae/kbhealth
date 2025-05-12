@@ -41,13 +41,15 @@ public class NutritionAchievementResponse {
             Diet diet = record.getDiet();
             if (diet == null) continue;
 
-            totalCalories += diet.getCalories();
-            totalProtein += diet.getProtein();
-            totalFat += diet.getFat();
-            totalCarbs += diet.getCarbohydrates();
-            totalSugars += diet.getSugars();
-            totalFiber += diet.getFiber();
-            totalSodium += diet.getSodium();
+            double factor = record.getAmount() / 100.0; // 100g 기준으로 비례 계산
+
+            totalCalories += diet.getCalories() * factor;
+            totalProtein += diet.getProtein() * factor;
+            totalFat += diet.getFat() * factor;
+            totalCarbs += diet.getCarbohydrates() * factor;
+            totalSugars += diet.getSugars() * factor;
+            totalFiber += diet.getFiber() * factor;
+            totalSodium += diet.getSodium() * factor;
         }
 
         return new NutritionAchievementResponse(

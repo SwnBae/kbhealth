@@ -1,6 +1,7 @@
 package kb.health.controller;
 
 import kb.health.controller.request.MemberBodyInfoEditRequest;
+import kb.health.controller.response.MemberSearchResponse;
 import kb.health.service.MemberService;
 import kb.health.service.RecordService;
 import kb.health.service.ScoreService;
@@ -30,7 +31,7 @@ public class ProfileController {
 
     //프로필 조회
     @GetMapping("/{member_account}")
-    public ResponseEntity<MemberProfileResponse> getProfile(@PathVariable("member_account") String member_account) {
+    public ResponseEntity<MemberProfileResponse> getProfile(@LoginMember CurrentMember currentMember, @PathVariable("member_account") String member_account) {
         System.out.println("프로필 조회");
         // 1. 멤버 가져오기
         Member member = memberService.findMemberByAccount(member_account);
@@ -49,6 +50,10 @@ public class ProfileController {
 
         // 4. MemberResponse 생성
         MemberProfileResponse memberProfileResponse = MemberProfileResponse.create(member, nutritionAchievementResponse, last10ScoreResponses,followingCount,followerCount);
+
+        Member follow = memberService.getMemberByAccount(member_account);
+
+        memberProfileResponse.setFollowing(memberService.isFollowing(currentMember.getId(), follow.getId()));
 
         return ResponseEntity.ok(memberProfileResponse);
     }
@@ -71,4 +76,16 @@ public class ProfileController {
         memberService.updateMemberBodyInfo(currentMember.getId(), memberBodyInfoEditRequest);
         return ResponseEntity.ok("신체정보 수정 성공");
     }
+
+    // 유저 검색
+    @GetMapping("/members/search")
+    public ResponseEntity<List<MemberSearchResponse>> searchMembers(@RequestParam String keyword) {
+        List<Member> members = memberService.searchByUserNameOrAccountLike(keyword);
+        List<MemberSearchResponse> searchList = members.stream()
+                .map(MemberSearchResponse::create)
+                .toList();
+
+        return ResponseEntity.ok(searchList);
+    }
+
 }

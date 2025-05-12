@@ -18,11 +18,15 @@ public class DietRecordRequest {
     @NotEmpty(message = "메뉴는 필수항목 입니다.")
     private Long dietId;
 
+    @NotEmpty(message = "식사량은 필수항목 입니다.")
+    private double amount;
+
     @NotEmpty(message = "식사 시간은 필수항목 입니다.")
     private MealType mealType;
 
-    public DietRecordRequest(Long dietId, MealType mealType) {
+    public DietRecordRequest(Long dietId, double amount, MealType mealType) {
         this.dietId = dietId;
+        this.amount = amount;
         this.mealType = mealType;
     }
 }

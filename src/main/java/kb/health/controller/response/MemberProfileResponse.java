@@ -3,10 +3,12 @@ package kb.health.controller.response;
 import kb.health.domain.Member;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
 @Getter
+@Setter
 @Builder
 public class MemberProfileResponse {
     private Long memberId;
@@ -17,6 +19,8 @@ public class MemberProfileResponse {
 
     private int followingCount;
     private int followerCount;
+
+    private boolean following;
 
     private NutritionAchievementResponse todayAchievement;
     private List<DailyScoreResponse> last10DaysScores;

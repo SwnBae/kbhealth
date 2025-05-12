@@ -80,8 +80,6 @@ public class RecordRepository {
         }
     }
 
-
-
     public List<DietRecord> findDietRecordsByDiet(Diet diet) {
         return em.createQuery("SELECT d FROM DietRecord d WHERE d.diet = :diet", DietRecord.class)
                 .setParameter("diet", diet)
@@ -149,6 +147,81 @@ public class RecordRepository {
                 .setParameter("start", start)
                 .setParameter("end", end)
                 .getResultList();
+    }
+
+    /**
+     * 식단 검색
+     */
+    public List<DietRecord> searchDietRecordsDynamic(Long memberId, String menuKeyword, LocalDate startDate, LocalDate endDate) {
+        StringBuilder jpql = new StringBuilder("SELECT d FROM DietRecord d WHERE d.member.id = :memberId");
+        boolean hasKeyword = (menuKeyword != null && !menuKeyword.isBlank());
+        boolean hasStart = startDate != null;
+        boolean hasEnd = endDate != null;
+
+        if (hasKeyword) {
+            jpql.append(" AND LOWER(d.diet.menu) LIKE LOWER(CONCAT('%', :menuKeyword, '%'))");
+        }
+        if (hasStart) {
+            jpql.append(" AND d.lastModifyDate >= :start");
+        }
+        if (hasEnd) {
+            jpql.append(" AND d.lastModifyDate < :end");
+        }
+
+        var query = em.createQuery(jpql.toString(), DietRecord.class)
+                .setParameter("memberId", memberId);
+
+        if (hasKeyword) {
+            query.setParameter("menuKeyword", menuKeyword);
+        }
+        if (hasStart) {
+            query.setParameter("start", startDate.atStartOfDay());
+        }
+        if (hasEnd) {
+            query.setParameter("end", endDate.plusDays(1).atStartOfDay());
+        }
+
+        return query.getResultList();
+    }
+
+    public List<ExerciseRecord> searchExerciseRecordsDynamic(Long memberId, String exerciseName, LocalDate startDate, LocalDate endDate) {
+        StringBuilder jpql = new StringBuilder("SELECT e FROM ExerciseRecord e WHERE e.member.id = :memberId");
+
+        // 검색 조건이 있는지 확인
+        boolean hasExerciseName = (exerciseName != null && !exerciseName.isBlank());
+        boolean hasStart = startDate != null;
+        boolean hasEnd = endDate != null;
+
+        // exerciseName 조건 추가
+        if (hasExerciseName) {
+            jpql.append(" AND LOWER(e.exerciseName) LIKE LOWER(CONCAT('%', :exerciseName, '%'))");
+        }
+
+        // 날짜 조건 추가
+        if (hasStart) {
+            jpql.append(" AND e.lastModifyDate >= :start");
+        }
+        if (hasEnd) {
+            jpql.append(" AND e.lastModifyDate < :end");
+        }
+
+        // JPQL 쿼리 생성
+        var query = em.createQuery(jpql.toString(), ExerciseRecord.class)
+                .setParameter("memberId", memberId);
+
+        // 조건에 따라 파라미터 설정
+        if (hasExerciseName) {
+            query.setParameter("exerciseName", exerciseName);
+        }
+        if (hasStart) {
+            query.setParameter("start", startDate.atStartOfDay());
+        }
+        if (hasEnd) {
+            query.setParameter("end", endDate.plusDays(1).atStartOfDay());
+        }
+
+        // 결과 반환
+        return query.getResultList();
     }
 
 

@@ -20,13 +20,16 @@ public class DietRecord extends BaseRecord {
     @JoinColumn(name = "diet_id")
     private Diet diet;
 
+    private double amount;
+
     @Enumerated(EnumType.STRING)
     private MealType mealType; // 아침/점심/저녁/간식
 
     /* 빌더 */
-    public static DietRecord create(Diet diet, MealType mealType) {
+    public static DietRecord create(Diet diet, double amount, MealType mealType) {
         DietRecord record = new DietRecord();
         record.setDiet(diet);
+        record.setAmount(amount);
         record.setMealType(mealType);
 
         return record;

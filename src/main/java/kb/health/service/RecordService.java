@@ -81,7 +81,7 @@ public class RecordService {
         Member member = memberRepository.findMemberById(memberId);
         Diet diet = dietRepository.findById(dietRecordRequest.getDietId());
 
-        DietRecord dietRecord = DietRecord.create(diet, dietRecordRequest.getMealType());
+        DietRecord dietRecord = DietRecord.create(diet, dietRecordRequest.getAmount(), dietRecordRequest.getMealType());
         dietRecord.assignMember(member);
 
         recordRepository.saveDietRecord(dietRecord);
@@ -109,7 +109,7 @@ public class RecordService {
         Member member = memberRepository.findMemberById(memberId);
         Diet diet = dietRepository.findById(dietRecordRequest.getDietId());
 
-        DietRecord dietRecord = DietRecord.create(diet, dietRecordRequest.getMealType());
+        DietRecord dietRecord = DietRecord.create(diet, dietRecordRequest.getAmount(), dietRecordRequest.getMealType());
         dietRecord.assignMember(member);
 
         // Set custom date
@@ -221,6 +221,65 @@ public class RecordService {
         exerciseRecord.setDurationMinutes(exerciseRecordRequest.getDurationMinutes());
         exerciseRecord.setCaloriesBurned(exerciseRecordRequest.getCaloriesBurned());
         exerciseRecord.setExerciseType(exerciseRecordRequest.getExerciseType());
+    }
+
+    /**
+     * 운동 완료 표시
+     */
+    @Transactional
+    public void markExerciseAsCompleted(Long memberId, Long exId) {
+        Member member = memberRepository.findMemberById(memberId);
+        ExerciseRecord record = recordRepository.findExerciseRecordById(exId);
+        if (record == null) {
+            throw new IllegalArgumentException("운동 기록을 찾을 수 없습니다.");
+        }
+
+        if (!record.getMember().getId().equals(member.getId())) {
+            throw new IllegalStateException("현재 사용자와 기록의 소유자가 일치하지 않습니다.");
+        }
+
+        if (record.isExercised()) {
+            throw new IllegalStateException("이미 완료된 운동입니다.");
+        }
+
+        record.setExercised(true);
+    }
+
+    @Transactional
+    public void unmarkExerciseAsCompleted(Long memberId, Long exId) {
+        Member member = memberRepository.findMemberById(memberId);
+        ExerciseRecord record = recordRepository.findExerciseRecordById(exId);
+
+        if (record == null) {
+            throw new IllegalArgumentException("운동 기록을 찾을 수 없습니다.");
+        }
+
+        if (!record.getMember().getId().equals(member.getId())) {
+            throw new IllegalStateException("현재 사용자와 기록의 소유자가 일치하지 않습니다.");
+        }
+
+        if (!record.isExercised()) {
+            throw new IllegalStateException("아직 완료되지 않은 운동입니다.");
+        }
+
+        record.setExercised(false);
+    }
+
+
+
+    /**
+     * 검색
+     */
+    public List<DietRecord> searchDietRecordsDynamic(Long memberId, String menuKeyword, LocalDate startDate, LocalDate endDate) {
+        return recordRepository.searchDietRecordsDynamic(memberId, menuKeyword, startDate, endDate);
+    }
+
+    public List<ExerciseRecord> searchExerciseRecordsDynamic(Long memberId, String exerciseName, LocalDate startDate, LocalDate endDate) {
+        return recordRepository.searchExerciseRecordsDynamic(memberId, exerciseName, startDate, endDate);
+    }
+
+    public List<Diet> searchDietsByMenu(String keyword) {
+        return dietRepository.findByMenuKeyword(keyword);
     }
 
     /**

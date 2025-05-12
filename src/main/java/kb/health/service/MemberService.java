@@ -128,7 +128,7 @@ public class MemberService {
                 .orElseThrow(() -> MemberException.memberNotFoundByPhoneNumber());
     }
 
-    // 이름으로 찾기
+    // 닉네임으로 찾기
     public Member findMemberByUserName(String userName) {
         return memberRepository.findMemberByName(userName)
                 .orElseThrow(() -> MemberException.memberNotFoundByUserName());
@@ -145,6 +145,11 @@ public class MemberService {
         return memberRepository.findMemberByAccount(account)
                 .map(Member::getPhoneNumber)
                 .orElseThrow(() -> MemberException.memberNotFoundByPhoneNumber());
+    }
+
+    // 유저 검색 (Account, userName)
+    public List<Member> searchByUserNameOrAccountLike(String keyword) {
+        return memberRepository.findByUserNameOrAccountLike(keyword);
     }
 
     /**
@@ -213,5 +218,9 @@ public class MemberService {
         return member.getFollowers().stream()
                 .map(follow -> FollowResponse.create(follow.getFrom()))
                 .toList();
+    }
+
+    public boolean isFollowing(Long myId, Long targetId) {
+        return followRepository.findFollow(myId, targetId).isPresent();
     }
 }
