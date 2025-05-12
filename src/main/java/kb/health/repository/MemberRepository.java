@@ -3,6 +3,8 @@ package kb.health.repository;
 import jakarta.persistence.EntityManager;
 import kb.health.domain.Member;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -60,4 +62,19 @@ public class MemberRepository {
         return em.createQuery("select m from Member m", Member.class)
                 .getResultList();
     }
+
+    public List<Member> findTopByTotalScore(Pageable pageable) {
+        return em.createQuery("select m from Member m order by m.totalScore desc", Member.class)
+                .setFirstResult(pageable.getPageNumber() * pageable.getPageSize()) // 페이지 번호에 맞는 시작 인덱스 설정
+                .setMaxResults(pageable.getPageSize()) // 한 페이지에 출력할 최대 결과 개수
+                .getResultList();
+    }
+
+    public List<Member> findTopByBaseScore(Pageable pageable) {
+        return em.createQuery("select m from Member m order by m.baseScore desc", Member.class)
+                .setFirstResult(pageable.getPageNumber() * pageable.getPageSize()) // 페이지 번호에 맞는 시작 인덱스 설정
+                .setMaxResults(pageable.getPageSize()) // 한 페이지에 출력할 최대 결과 개수
+                .getResultList();
+    }
+
 }

@@ -1,5 +1,6 @@
 package kb.health.service;
 
+import kb.health.controller.response.RankingResponse;
 import kb.health.exception.FollowException;
 import kb.health.exception.LoginException;
 import kb.health.exception.MemberException;
@@ -12,9 +13,12 @@ import kb.health.domain.Member;
 import kb.health.controller.request.MemberEditRequest;
 import kb.health.controller.response.FollowResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -222,5 +226,29 @@ public class MemberService {
 
     public boolean isFollowing(Long myId, Long targetId) {
         return followRepository.findFollow(myId, targetId).isPresent();
+    }
+
+
+    /**
+     * 랭킹
+     */
+
+    public List<RankingResponse> getRanking(String type, int limit) {
+        Pageable pageable = PageRequest.of(0, limit);
+        List<Member> members;
+
+        if (type.equalsIgnoreCase("total")) {
+            members = memberRepository.findTopByTotalScore(pageable);
+        } else {
+            members = memberRepository.findTopByBaseScore(pageable);
+        }
+
+        List<RankingResponse> response = new ArrayList<>();
+        int rank = 1;
+        for (Member member : members) {
+            response.add(RankingResponse.create(rank++, member));
+        }
+
+        return response;
     }
 }
