@@ -3,6 +3,8 @@ package kb.health.domain;
 import jakarta.persistence.*;
 import kb.health.controller.request.MemberBodyInfoEditRequest;
 import kb.health.controller.request.MemberEditRequest;
+import kb.health.domain.feed.Comment;
+import kb.health.domain.feed.PostLike;
 import kb.health.domain.record.DietRecord;
 import kb.health.domain.record.ExerciseRecord;
 import kb.health.controller.request.MemberRegistRequest;
@@ -81,6 +83,21 @@ public class Member extends BaseEntity{
      */
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DailyScore> dailyScores = new ArrayList<>();
+
+    //좋아요 누른 게시글 확인 및 편의 메서드
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostLike> postLikes = new ArrayList<>();
+
+    public void addPostLike(PostLike postLike) {
+        this.postLikes.add(postLike);
+        postLike.setMember(this);
+    }
+
+    public void removePostLike(PostLike postLike) {
+        this.postLikes.remove(postLike);
+        postLike.setMember(null);
+    }
+
 
     /* 빌더 */
     // 테스트용
