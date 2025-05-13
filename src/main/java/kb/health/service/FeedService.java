@@ -160,4 +160,22 @@ public class FeedService {
             return true;
         }
     }
+
+    //더미 생성 메서드
+    @Transactional
+    public void createDummyPosts(Long memberId, int count) {
+        Member writer = memberRepository.findMemberById(memberId);
+
+        for (int i = 1; i <= count; i++) {
+            Post post = Post.builder()
+                    .title("더미 게시글 " + i)
+                    .content("이것은 자동 생성된 테스트 게시글입니다. 번호: " + i)
+                    .imageUrl("https://via.placeholder.com/300?text=Dummy+" + i)
+                    .writer(writer)
+                    .build();
+
+            postRepository.save(post);
+        }
+    }
+
 }

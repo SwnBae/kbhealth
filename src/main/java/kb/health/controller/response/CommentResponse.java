@@ -14,6 +14,7 @@ public class CommentResponse {
     private Long commentId;
     private String writer;
     private String writerProfileImage;
+    private String writerAccount;
     private String comment;
     private LocalDateTime createdAt;
 
@@ -22,6 +23,7 @@ public class CommentResponse {
                 comment.getId(),
                 comment.getWriter().getUserName(),
                 comment.getWriter().getProfileImageUrl(),
+                comment.getWriter().getAccount(),
                 comment.getText(),
                 comment.getCreatedDate()
         );

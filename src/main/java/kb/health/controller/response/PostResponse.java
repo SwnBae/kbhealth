@@ -14,16 +14,16 @@ public class PostResponse {
     private String title;
     private String content;
     private String imageUrl;
-
     private Long writerId;
     private String writerName;
     private String writerProfileImage;
-
+    private String writerAccount;
+    private double healthScore;
     private int likeCount;
     private int commentCount;
     private boolean liked;
-
     private LocalDateTime createdAt;
+
 
     public static PostResponse from(Post post, boolean liked, int likeCount, int commentCount) {
         return new PostResponse(
@@ -34,11 +34,14 @@ public class PostResponse {
                 post.getWriter().getId(),
                 post.getWriter().getUserName(),
                 post.getWriter().getProfileImageUrl(),
+                post.getWriter().getAccount(),
+                post.getWriter().getBaseScore(),
                 likeCount,
                 commentCount,
                 liked,
                 post.getCreatedDate()
         );
     }
+
 
 }
