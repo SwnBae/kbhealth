@@ -16,3 +16,5 @@ spring:
   api:
     food:
       service-key: "BcbiMs4jqpSBNZDnJX7zIB9Jv1hsF3z7tV5SixMjUlkMba0eUIDr4Gd5pxRaNQKbLoDiyVf26xUWtWghhLA2BQ%3D%3D"
+  file:
+    upload-dir: uploads/images
