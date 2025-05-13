@@ -75,7 +75,7 @@ public class FeedController {
     }
 
     //좋아요 토글
-    @GetMapping("/{post_id}/like")
+    @PutMapping("/{post_id}/like")
     public ResponseEntity<Boolean> likePost(@LoginMember CurrentMember currentMember, @PathVariable Long post_id) {
         return ResponseEntity.ok(feedService.postLikeToggle(currentMember.getId(), post_id));
     }

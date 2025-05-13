@@ -21,8 +21,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.Writer;
 import java.util.*;
 
 @Service
@@ -158,7 +156,7 @@ public class FeedService {
             return false;
         } else {
             PostLike postLikeAdd = PostLike.create(member, post);
-            postRepository.save(post);
+            postLikeRepository.save(postLikeAdd);
             return true;
         }
     }
