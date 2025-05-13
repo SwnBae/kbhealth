@@ -17,5 +17,9 @@ spring:
   api:
     food:
       service-key: "BcbiMs4jqpSBNZDnJX7zIB9Jv1hsF3z7tV5SixMjUlkMba0eUIDr4Gd5pxRaNQKbLoDiyVf26xUWtWghhLA2BQ%3D%3D"
+  file:
+    upload-dir: uploads/images
+jwt:
+  secret: "snyyDePsHkl0X/ZrKIOLCo+GWuGK4HdhaDNESHufeUU="
   #    org.hibernate.type: trace #스프링 부트 2.x, hibernate5
   #  org.hibernate.orm.jdbc.bind: trace #스프링 부트 3.x, hibernate6
