@@ -11,6 +11,7 @@ import lombok.ToString;
 public class RankingResponse {
     private int rank; // 순위
     private Long memberId; // 회원 ID
+    private String account;
     private String userName; // 사용자 이름
     private String profileImageUrl;
     private double totalScore; // 총 점수
@@ -21,6 +22,7 @@ public class RankingResponse {
         return new RankingResponse(
                 rank,
                 member.getId(),
+                member.getAccount(),
                 member.getUserName(),
                 member.getProfileImageUrl(),
                 member.getTotalScore(),

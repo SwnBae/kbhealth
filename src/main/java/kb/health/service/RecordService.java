@@ -206,6 +206,7 @@ public class RecordService {
         Diet diet = dietRepository.findById(dietRecordRequest.getDietId());
 
         dietRecord.setDiet(diet);
+        dietRecord.setAmount(dietRecordRequest.getAmount());
         dietRecord.setMealType(dietRecordRequest.getMealType());
     }
 

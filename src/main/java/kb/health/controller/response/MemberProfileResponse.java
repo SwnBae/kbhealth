@@ -1,5 +1,6 @@
 package kb.health.controller.response;
 
+import kb.health.domain.Gender;
 import kb.health.domain.Member;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,6 +23,11 @@ public class MemberProfileResponse {
 
     private boolean following;
 
+    private double height; // cm
+    private double weight; // kg
+    private Gender gender;
+    private int age;
+
     private NutritionAchievementResponse todayAchievement;
     private List<DailyScoreResponse> last10DaysScores;
 
@@ -37,6 +43,10 @@ public class MemberProfileResponse {
                 .followerCount(followerCount)
                 .todayAchievement(todayAchievement)
                 .last10DaysScores(last10DaysScores)
+                .height(member.getBodyInfo().getHeight())
+                .weight(member.getBodyInfo().getWeight())
+                .gender(member.getBodyInfo().getGender())
+                .age(member.getBodyInfo().getAge())
                 .build();
     }
 }
