@@ -158,7 +158,7 @@ public class FeedService {
             return false;
         } else {
             PostLike postLikeAdd = PostLike.create(member, post);
-            postRepository.save(post);
+            postLikeRepository.save(postLikeAdd);
             return true;
         }
     }

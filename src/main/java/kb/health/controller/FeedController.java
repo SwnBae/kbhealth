@@ -41,7 +41,7 @@ public class FeedController {
     }
 
     //포스트 수정
-    @PutMapping("/{post_id")
+    @PutMapping("/{post_id}")
     public ResponseEntity<?> editPost(@LoginMember CurrentMember currentMember, @PathVariable Long post_id, @RequestBody PostEditRequest postEditRequest) {
         feedService.editPost(currentMember.getId() , post_id , postEditRequest);
         return ResponseEntity.ok("게시글 수정 완료");
@@ -75,7 +75,7 @@ public class FeedController {
     }
 
     //좋아요 토글
-    @GetMapping("/{post_id}/like")
+    @PutMapping("/{post_id}/like")
     public ResponseEntity<Boolean> likePost(@LoginMember CurrentMember currentMember, @PathVariable Long post_id) {
         return ResponseEntity.ok(feedService.postLikeToggle(currentMember.getId(), post_id));
     }
