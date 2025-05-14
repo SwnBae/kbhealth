@@ -8,8 +8,10 @@ import kb.health.controller.request.PostCreateRequest;
 import kb.health.controller.request.PostEditRequest;
 import kb.health.controller.response.CommentResponse;
 import kb.health.controller.response.PostResponse;
+import kb.health.domain.Member;
 import kb.health.exception.ImageException;
 import kb.health.service.FeedService;
+import kb.health.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +29,7 @@ import java.util.UUID;
 @RequestMapping("/api/feed")
 public class FeedController {
     private final FeedService feedService;
+    private final MemberService memberService;
     private final JwtUtil jwtUtil;
 
     //피드 조회
@@ -35,10 +38,10 @@ public class FeedController {
         return ResponseEntity.ok(feedService.getPosts(currentMember.getId() , page, size));
     }
 
-    //개인 피드 조회
-    @GetMapping("/my")
-    public ResponseEntity<Page<PostResponse>> getMyFeed(@LoginMember CurrentMember currentMember, @RequestParam int page, @RequestParam int size) {
-        return ResponseEntity.ok(feedService.getPostsBySelf(currentMember.getId() , page, size));
+    //개별 피드 조회
+    @GetMapping("/{member_account}/feed")
+    public ResponseEntity<Page<PostResponse>> getMyFeed(@PathVariable("member_account") Long memberId, @RequestParam int page, @RequestParam int size) {
+        return ResponseEntity.ok(feedService.getPostsBySelf(memberId , page, size));
     }
 
     //포스트 작성
