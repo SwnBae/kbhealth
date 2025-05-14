@@ -54,10 +54,6 @@ public class ScoreService {
                 System.out.println(exerciseRecord.getExerciseType());
             }
 
-            if (dietRecordList.isEmpty() && exerciseRecordList.isEmpty()) {
-                continue;
-            }
-
             // 3. DailyScore 생성 및 저장
             DailyScore dailyScore = DailyScore.create(member, dietRecordList, exerciseRecordList);
             System.out.println("점수");
