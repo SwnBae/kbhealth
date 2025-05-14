@@ -8,11 +8,19 @@ import kb.health.controller.request.PostCreateRequest;
 import kb.health.controller.request.PostEditRequest;
 import kb.health.controller.response.CommentResponse;
 import kb.health.controller.response.PostResponse;
+import kb.health.exception.ImageException;
 import kb.health.service.FeedService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,8 +43,23 @@ public class FeedController {
 
     //포스트 작성
     @PostMapping
-    public ResponseEntity<?> createPost(@LoginMember CurrentMember currentMember, @RequestBody PostCreateRequest postCreateRequest) {
-        feedService.savePost(currentMember.getId() , postCreateRequest);
+    public ResponseEntity<?> createPost(@LoginMember CurrentMember currentMember,
+                                        @RequestPart("post") PostCreateRequest postCreateRequest,
+                                        @RequestPart(value = "image",required = false) MultipartFile image) {
+        String imageUrl = null;
+        if (image != null && !image.isEmpty()) {
+            try{
+                String uploadPath = "images";
+                String imageName = UUID.randomUUID()+"_"+image.getOriginalFilename();
+                Path filePath = Paths.get(uploadPath, imageName);
+                Files.createDirectories(filePath.getParent());
+                Files.write(filePath, image.getBytes());
+                imageUrl = String.format("/images/%s", imageName);
+            } catch (Exception e){
+                throw ImageException.imageUploadFail();
+            }
+        }
+        feedService.savePost(currentMember.getId() , postCreateRequest, imageUrl);
         return ResponseEntity.ok("게시글 작성 완료");
     }
 
@@ -80,6 +103,7 @@ public class FeedController {
         return ResponseEntity.ok(feedService.postLikeToggle(currentMember.getId(), post_id));
     }
 
+    //더미 포스트 만들기
     @GetMapping("/dummy")
     public ResponseEntity<?> createDummy(@LoginMember CurrentMember currentMember) {
         feedService.createDummyPosts(currentMember.getId(), 100);

@@ -94,12 +94,12 @@ public class FeedService {
 
     //게시글 작성 메서드
     @Transactional
-    public void savePost(Long memberId, PostCreateRequest postCreateRequest ) {
+    public void savePost(Long memberId, PostCreateRequest postCreateRequest , String imageUrl) {
         Member writer = memberRepository.findMemberById(memberId);
         Post post = Post.builder()
                 .title(postCreateRequest.getTitle())
                 .writer(writer).content(postCreateRequest.getContent())
-                .imageUrl(postCreateRequest.getImageUrl())
+                .imageUrl(imageUrl)
                 .build();
         postRepository.save(post);
     }
@@ -170,7 +170,7 @@ public class FeedService {
             Post post = Post.builder()
                     .title("더미 게시글 " + i)
                     .content("이것은 자동 생성된 테스트 게시글입니다. 번호: " + i)
-                    .imageUrl("https://via.placeholder.com/300?text=Dummy+" + i)
+                    .imageUrl(null)
                     .writer(writer)
                     .build();
 
