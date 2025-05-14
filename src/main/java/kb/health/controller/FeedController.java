@@ -103,6 +103,7 @@ public class FeedController {
         return ResponseEntity.ok(feedService.postLikeToggle(currentMember.getId(), post_id));
     }
 
+    //더미 포스트 만들기
     @GetMapping("/dummy")
     public ResponseEntity<?> createDummy(@LoginMember CurrentMember currentMember) {
         feedService.createDummyPosts(currentMember.getId(), 100);

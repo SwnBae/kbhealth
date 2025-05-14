@@ -170,7 +170,7 @@ public class FeedService {
             Post post = Post.builder()
                     .title("더미 게시글 " + i)
                     .content("이것은 자동 생성된 테스트 게시글입니다. 번호: " + i)
-                    .imageUrl("https://via.placeholder.com/300?text=Dummy+" + i)
+                    .imageUrl(null)
                     .writer(writer)
                     .build();
 
