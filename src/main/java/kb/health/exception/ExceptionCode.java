@@ -27,7 +27,10 @@ public enum ExceptionCode {
     // ==== Feed 관련 ====
     CANNOT_FIND_FEED(4001, "게시글을 찾을 수 없습니다.", HttpStatus.NOT_FOUND, "/feed"),
     CANNOT_FIND_COMMENT(4002, "댓글을 찾을 수 없습니다.", HttpStatus.NOT_FOUND, "/feed"),
-    UNAUTHORIZED_ACCESS_TO_RESOURCE(4003, "접근 권한이 없습니다.", HttpStatus.FORBIDDEN, "/");
+    UNAUTHORIZED_ACCESS_TO_RESOURCE(4003, "접근 권한이 없습니다.", HttpStatus.FORBIDDEN, "/"),
+
+    // ==== File 관련 ====
+    Image_Upload_Failed(4005, "이미지 업로드에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR, null);
 
     private final int code;
     private final String message;

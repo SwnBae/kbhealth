@@ -94,12 +94,12 @@ public class FeedService {
 
     //게시글 작성 메서드
     @Transactional
-    public void savePost(Long memberId, PostCreateRequest postCreateRequest ) {
+    public void savePost(Long memberId, PostCreateRequest postCreateRequest , String imageUrl) {
         Member writer = memberRepository.findMemberById(memberId);
         Post post = Post.builder()
                 .title(postCreateRequest.getTitle())
                 .writer(writer).content(postCreateRequest.getContent())
-                .imageUrl(postCreateRequest.getImageUrl())
+                .imageUrl(imageUrl)
                 .build();
         postRepository.save(post);
     }

@@ -29,6 +29,7 @@ public class Post extends BaseEntity {
     @Column(nullable = false , length = 10000)
     private String content;
 
+
     private String imageUrl;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL , orphanRemoval = true)
