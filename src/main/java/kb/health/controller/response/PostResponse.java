@@ -18,7 +18,7 @@ public class PostResponse {
     private String writerName;
     private String writerProfileImage;
     private String writerAccount;
-    private double healthScore;
+    private double baseScore;
     private int likeCount;
     private int commentCount;
     private boolean liked;
