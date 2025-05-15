@@ -1,5 +1,8 @@
 package kb.health.controller;
 
+import kb.health.controller.response.NutritionStandardResponse;
+import kb.health.domain.Member;
+import kb.health.service.MemberService;
 import kb.health.service.RecordService;
 import kb.health.authentication.CurrentMember;
 import kb.health.authentication.LoginMember;
@@ -13,9 +16,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -24,6 +32,7 @@ import java.util.stream.Collectors;
 public class RecordController {
 
     private final RecordService recordService;
+    private final MemberService memberService;
 
     /**
      * 식단
@@ -43,11 +52,30 @@ public class RecordController {
         return ResponseEntity.ok(response); // 200 OK와 함께 응답
     }
 
-    // 기록 생성
+    // 기록 생성 - 이미지 업로드 포함
     @PostMapping("/diet")
-    public ResponseEntity<String> createDietRecord(@LoginMember CurrentMember currentMember, @RequestBody DietRecordRequest request) {
+    public ResponseEntity<String> createDietRecord(
+            @LoginMember CurrentMember currentMember,
+            @RequestPart("record") DietRecordRequest request,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
+
+        String imageUrl = null;
+        if (image != null && !image.isEmpty()) {
+            try {
+                String uploadPath = "images";
+                String imageName = UUID.randomUUID() + "_" + image.getOriginalFilename();
+                Path filePath = Paths.get(uploadPath, imageName);
+                Files.createDirectories(filePath.getParent());
+                Files.write(filePath, image.getBytes());
+                imageUrl = String.format("/images/%s", imageName);
+                request.setDrImgUrl(imageUrl);
+            } catch (Exception e) {
+                return ResponseEntity.badRequest().body("이미지 업로드 실패");
+            }
+        }
+
         recordService.saveDietRecord(request, currentMember.getId());
-        return ResponseEntity.ok("식단 추가 성공"); // 성공 메시지와 함께 응답
+        return ResponseEntity.ok("식단 추가 성공");
     }
 
     // 특정 기록 조회
@@ -57,11 +85,31 @@ public class RecordController {
         return ResponseEntity.ok(DietRecordResponse.create(dietRecord)); // 200 OK와 함께 응답
     }
 
-    // 기록 수정
+    // 기록 수정 - 이미지 업로드 포함
     @PutMapping("/diet/{drId}")
-    public ResponseEntity<String> updateDietRecord(@LoginMember CurrentMember currentMember, @PathVariable Long drId, @RequestBody DietRecordRequest request) {
+    public ResponseEntity<String> updateDietRecord(
+            @LoginMember CurrentMember currentMember,
+            @PathVariable Long drId,
+            @RequestPart("record") DietRecordRequest request,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
+
+        String imageUrl = null;
+        if (image != null && !image.isEmpty()) {
+            try {
+                String uploadPath = "images";
+                String imageName = UUID.randomUUID() + "_" + image.getOriginalFilename();
+                Path filePath = Paths.get(uploadPath, imageName);
+                Files.createDirectories(filePath.getParent());
+                Files.write(filePath, image.getBytes());
+                imageUrl = String.format("/images/%s", imageName);
+                request.setDrImgUrl(imageUrl);
+            } catch (Exception e) {
+                return ResponseEntity.badRequest().body("이미지 업로드 실패");
+            }
+        }
+
         recordService.updateDietRecord(currentMember.getId(), drId, request);
-        return ResponseEntity.ok("식단 수정 성공"); // 수정 성공 메시지
+        return ResponseEntity.ok("식단 수정 성공");
     }
 
     // 기록 삭제
@@ -85,6 +133,16 @@ public class RecordController {
         return ResponseEntity.ok(response);
     }
 
+    // 일일 권장 영양소 받아오기
+    @GetMapping("/ns/{member_account}")
+    public ResponseEntity<NutritionStandardResponse> getNS(@LoginMember CurrentMember currentMember) {
+        Member member = memberService.findById(currentMember.getId());
+
+        NutritionStandardResponse nutritionStandardResponse = NutritionStandardResponse.create(member.getDailyNutritionStandard());
+
+        return ResponseEntity.ok(nutritionStandardResponse);
+    }
+
     /**
      * 운동
      */
@@ -99,11 +157,30 @@ public class RecordController {
         return ResponseEntity.ok(response); // 200 OK와 함께 응답
     }
 
-    // 기록 생성
+    // 기록 생성 - 이미지 업로드 포함
     @PostMapping("/exercise")
-    public ResponseEntity<String> createExerciseRecord(@LoginMember CurrentMember currentMember, @RequestBody ExerciseRecordRequest request) {
+    public ResponseEntity<String> createExerciseRecord(
+            @LoginMember CurrentMember currentMember,
+            @RequestPart("record") ExerciseRecordRequest request,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
+
+        String imageUrl = null;
+        if (image != null && !image.isEmpty()) {
+            try {
+                String uploadPath = "images";
+                String imageName = UUID.randomUUID() + "_" + image.getOriginalFilename();
+                Path filePath = Paths.get(uploadPath, imageName);
+                Files.createDirectories(filePath.getParent());
+                Files.write(filePath, image.getBytes());
+                imageUrl = String.format("/images/%s", imageName);
+                request.setErImgUrl(imageUrl);
+            } catch (Exception e) {
+                return ResponseEntity.badRequest().body("이미지 업로드 실패");
+            }
+        }
+
         recordService.saveExerciseRecord(request, currentMember.getId());
-        return ResponseEntity.ok("운동 추가 성공"); // 성공 메시지와 함께 응답
+        return ResponseEntity.ok("운동 추가 성공");
     }
 
     // 특정 기록 조회
@@ -113,11 +190,33 @@ public class RecordController {
         return ResponseEntity.ok(ExerciseRecordResponse.create(exerciseRecord)); // 200 OK와 함께 응답
     }
 
-    // 기록 수정
+    // 기록 수정 - 이미지 업로드 포함
     @PutMapping("/exercise/{exId}")
-    public ResponseEntity<String> updateExerciseRecord(@LoginMember CurrentMember currentMember, @PathVariable Long exId, @RequestBody ExerciseRecordRequest request) {
+    public ResponseEntity<String> updateExerciseRecord(
+            @LoginMember CurrentMember currentMember,
+            @PathVariable Long exId,
+            @RequestPart("record") ExerciseRecordRequest request,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
+
+        String imageUrl = null;
+        if (image != null && !image.isEmpty()) {
+            try {
+                String uploadPath = "images";
+                String imageName = UUID.randomUUID() + "_" + image.getOriginalFilename();
+                Path filePath = Paths.get(uploadPath, imageName);
+                Files.createDirectories(filePath.getParent());
+                Files.write(filePath, image.getBytes());
+                imageUrl = String.format("/images/%s", imageName);
+                request.setErImgUrl(imageUrl);
+            } catch (Exception e) {
+                return ResponseEntity.badRequest().body("이미지 업로드 실패");
+            }
+        }
+        System.out.println("이미지 주소");
+        System.out.println(imageUrl);
+
         recordService.updateExerciseRecord(currentMember.getId(), exId, request);
-        return ResponseEntity.ok("운동 수정 성공"); // 수정 성공 메시지
+        return ResponseEntity.ok("운동 수정 성공");
     }
 
     // 기록 삭제
@@ -161,5 +260,6 @@ public class RecordController {
             return ResponseEntity.badRequest().body(e.getMessage()); // 예외 메시지를 클라이언트에 전달
         }
     }
+
 
 }

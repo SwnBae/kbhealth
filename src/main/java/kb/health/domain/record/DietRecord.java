@@ -25,12 +25,15 @@ public class DietRecord extends BaseRecord {
     @Enumerated(EnumType.STRING)
     private MealType mealType; // 아침/점심/저녁/간식
 
+    private String drImgUrl;
+
     /* 빌더 */
-    public static DietRecord create(Diet diet, double amount, MealType mealType) {
+    public static DietRecord create(Diet diet, double amount, String drImgUrl, MealType mealType) {
         DietRecord record = new DietRecord();
         record.setDiet(diet);
         record.setAmount(amount);
         record.setMealType(mealType);
+        record.setDrImgUrl(drImgUrl);
 
         return record;
     }

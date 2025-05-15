@@ -17,6 +17,7 @@ public class ExerciseRecordResponse {
     private LocalDateTime lastModifyDate;
     private ExerciseType exerciseType;
     private boolean isExercised;
+    private String erImgUrl;
 
     public static ExerciseRecordResponse create(ExerciseRecord record) {
         return new ExerciseRecordResponse(
@@ -26,7 +27,8 @@ public class ExerciseRecordResponse {
                 record.getCaloriesBurned(),
                 record.getLastModifyDate(),
                 record.getExerciseType(),
-                record.isExercised()
+                record.isExercised(),
+                record.getErImgUrl()
         );
     }
 }

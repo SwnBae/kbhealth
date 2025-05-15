@@ -119,20 +119,20 @@ class ScoreTest {
         memberService.follow(savedMemberId, memId4);
         memberService.follow(memId5, savedMemberId);
 
-        recordService.saveDietRecord(new DietRecordRequest(1L, 600, MealType.BREAKFAST), savedMemberId, LocalDate.of(2025, 4, 30));
-        recordService.saveDietRecord(new DietRecordRequest(2L, 600,MealType.LUNCH), savedMemberId, LocalDate.of(2025, 4, 30));
-        recordService.saveDietRecord(new DietRecordRequest(3L, 600,MealType.DINNER), savedMemberId, LocalDate.of(2025, 4, 30));
+        recordService.saveDietRecord(new DietRecordRequest(1L, 600, null, MealType.BREAKFAST), savedMemberId, LocalDate.of(2025, 4, 30));
+        recordService.saveDietRecord(new DietRecordRequest(2L, 600, null, MealType.LUNCH), savedMemberId, LocalDate.of(2025, 4, 30));
+        recordService.saveDietRecord(new DietRecordRequest(3L, 600, null, MealType.DINNER), savedMemberId, LocalDate.of(2025, 4, 30));
 
         scoreService.updateDailyScoresForAllMembers(LocalDate.of(2025, 5, 1));
 
-        recordService.saveDietRecord(new DietRecordRequest(4L, 600,MealType.BREAKFAST), savedMemberId, LocalDate.of(2025, 5, 1));
-        recordService.saveDietRecord(new DietRecordRequest(5L, 600,MealType.LUNCH), savedMemberId, LocalDate.of(2025, 5, 1));
-        recordService.saveDietRecord(new DietRecordRequest(6L, 600,MealType.DINNER), savedMemberId, LocalDate.of(2025, 5, 1));
+        recordService.saveDietRecord(new DietRecordRequest(4L, 600, null, MealType.BREAKFAST), savedMemberId, LocalDate.of(2025, 5, 1));
+        recordService.saveDietRecord(new DietRecordRequest(5L, 600, null, MealType.LUNCH), savedMemberId, LocalDate.of(2025, 5, 1));
+        recordService.saveDietRecord(new DietRecordRequest(6L, 600, null, MealType.DINNER), savedMemberId, LocalDate.of(2025, 5, 1));
 
         // 운동 기록 추가
 
-        Long e1 = recordService.saveExerciseRecord(new ExerciseRecordRequest("근력1",30, 300, ExerciseType.CARDIO), savedMemberId, LocalDate.of(2025, 5, 1));
-        Long e2 = recordService.saveExerciseRecord(new ExerciseRecordRequest("근력2",45, 400, ExerciseType.WEIGHT), savedMemberId, LocalDate.of(2025, 5, 1));
+        Long e1 = recordService.saveExerciseRecord(new ExerciseRecordRequest("근력1",30, 300, ExerciseType.CARDIO, null), savedMemberId, LocalDate.of(2025, 5, 1));
+        Long e2 = recordService.saveExerciseRecord(new ExerciseRecordRequest("근력2",45, 400, ExerciseType.WEIGHT, null), savedMemberId, LocalDate.of(2025, 5, 1));
 
         ExerciseRecord record1 = recordService.getExerciseRecord(e1);
         ExerciseRecord record2 = recordService.getExerciseRecord(e2);
@@ -146,8 +146,8 @@ class ScoreTest {
          * 오늘 영양소 체크
          */
 
-        recordService.saveDietRecord(new DietRecordRequest(7L, 600, MealType.BREAKFAST), savedMemberId, LocalDate.of(2025, 5, 12));
-        recordService.saveDietRecord(new DietRecordRequest(8L, 600, MealType.LUNCH), savedMemberId, LocalDate.of(2025, 5, 12));
+        recordService.saveDietRecord(new DietRecordRequest(7L, 600,  null, MealType.BREAKFAST), savedMemberId, LocalDate.of(2025, 5, 15));
+        recordService.saveDietRecord(new DietRecordRequest(8L, 600,  null, MealType.LUNCH), savedMemberId, LocalDate.of(2025, 5, 15));
     }
 
     private Member createMember() {
@@ -161,11 +161,11 @@ class ScoreTest {
         return member;
     }
 
-//    @Test
-//    @Rollback(false)
-//    void testDailyScore() {
-//        Member member = memberService.findById(savedMemberId);
-//
+    @Test
+    @Rollback(false)
+    void testDailyScore() {
+        Member member = memberService.findById(savedMemberId);
+
 //        ResponseEntity<MemberProfileResponse> response = profileController.getProfile(member.getAccount());
 //        MemberProfileResponse profile = response.getBody();
 //
@@ -194,6 +194,6 @@ class ScoreTest {
 //        for (DailyScoreResponse dailyScore : profile.getLast10DaysScores()) {
 //            System.out.printf("날짜: %s | 총점: %.2f%n", dailyScore.getDate(), dailyScore.getTotalScore());
 //        }
-//    }
+    }
 }
 

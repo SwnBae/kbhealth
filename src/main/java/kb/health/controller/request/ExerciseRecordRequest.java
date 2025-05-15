@@ -26,10 +26,13 @@ public class ExerciseRecordRequest {
     @NotEmpty(message = "운동 타입은 필수 입니다.")
     private ExerciseType exerciseType;
 
-    public ExerciseRecordRequest(String exerciseName, int durationMinutes, int caloriesBurned, ExerciseType exerciseType) {
+    private String erImgUrl;
+
+    public ExerciseRecordRequest(String exerciseName, int durationMinutes, int caloriesBurned, ExerciseType exerciseType, String erImgUrl) {
         this.exerciseName = exerciseName;
         this.durationMinutes = durationMinutes;
         this.caloriesBurned = caloriesBurned;
         this.exerciseType = exerciseType;
+        this.erImgUrl = erImgUrl;
     }
 }

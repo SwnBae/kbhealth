@@ -29,12 +29,15 @@ public class ExerciseRecord extends BaseRecord {
 
     private boolean exercised;
 
+    private String erImgUrl;
+
     /* 빌더 */
-    public static ExerciseRecord create(int durationMinutes, int caloriesBurned, ExerciseType exerciseType) {
+    public static ExerciseRecord create(int durationMinutes, int caloriesBurned, String erImgUrl, ExerciseType exerciseType) {
         ExerciseRecord record = new ExerciseRecord();
         record.setDurationMinutes(durationMinutes);
         record.setCaloriesBurned(caloriesBurned);
         record.setExerciseType(exerciseType);
+        record.setErImgUrl(erImgUrl);
 
         return record;
     }
@@ -45,6 +48,7 @@ public class ExerciseRecord extends BaseRecord {
         record.setDurationMinutes(request.getDurationMinutes());
         record.setCaloriesBurned(request.getCaloriesBurned());
         record.setExerciseType(request.getExerciseType());
+        record.setErImgUrl(request.getErImgUrl());
 
         return record;
     }
