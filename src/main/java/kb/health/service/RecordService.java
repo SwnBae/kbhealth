@@ -208,7 +208,12 @@ public class RecordService {
         dietRecord.setDiet(diet);
         dietRecord.setAmount(dietRecordRequest.getAmount());
         dietRecord.setMealType(dietRecordRequest.getMealType());
-        dietRecord.setDrImgUrl(dietRecordRequest.getDrImgUrl());
+
+        if(dietRecordRequest.getDrImgUrl() != null) {
+            dietRecord.setDrImgUrl(dietRecordRequest.getDrImgUrl());
+        } else{
+            dietRecord.setDrImgUrl("/images/default_food.png");
+        }
     }
 
     @Transactional
@@ -222,8 +227,25 @@ public class RecordService {
         exerciseRecord.setExerciseName(exerciseRecordRequest.getExerciseName());
         exerciseRecord.setDurationMinutes(exerciseRecordRequest.getDurationMinutes());
         exerciseRecord.setCaloriesBurned(exerciseRecordRequest.getCaloriesBurned());
-        exerciseRecord.setExerciseType(exerciseRecordRequest.getExerciseType());
-        exerciseRecord.setErImgUrl(exerciseRecordRequest.getErImgUrl());
+
+        if (exerciseRecordRequest.getErImgUrl() != null) {
+            exerciseRecord.setErImgUrl(exerciseRecordRequest.getErImgUrl());
+        } else {
+            switch (exerciseRecordRequest.getExerciseType()) {
+                case CARDIO:
+                    exerciseRecord.setErImgUrl("/images/default_cardio.png");
+                    break;
+                case WEIGHT:
+                    exerciseRecord.setErImgUrl("/images/default_weight.png");
+                    break;
+                case YOGA:
+                    exerciseRecord.setErImgUrl("/images/default_yoga.png");
+                    break;
+                case SWIMMING:
+                    exerciseRecord.setErImgUrl("/images/default_swim.png");
+                    break;
+            }
+        }
     }
 
     /**

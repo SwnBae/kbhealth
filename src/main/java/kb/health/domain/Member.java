@@ -140,7 +140,12 @@ public class Member extends BaseEntity{
     public void updateAccountInfo(MemberEditRequest memberEditRequest) {
         this.password = memberEditRequest.getPassword();
         this.userName = memberEditRequest.getUserName();
-        this.profileImageUrl = memberEditRequest.getProfileImageUrl();
+
+        if(memberEditRequest.getProfileImageUrl() != null){
+            this.profileImageUrl = memberEditRequest.getProfileImageUrl();
+        } else {
+            this.profileImageUrl = "/images/default_profile.png";
+        }
     }
 
     //신체정보 수정

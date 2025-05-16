@@ -48,7 +48,25 @@ public class ExerciseRecord extends BaseRecord {
         record.setDurationMinutes(request.getDurationMinutes());
         record.setCaloriesBurned(request.getCaloriesBurned());
         record.setExerciseType(request.getExerciseType());
-        record.setErImgUrl(request.getErImgUrl());
+
+        if (request.getErImgUrl() != null) {
+            record.setErImgUrl(request.getErImgUrl());
+        } else {
+            switch (request.getExerciseType()) {
+                case CARDIO:
+                    record.setErImgUrl("/images/default_cardio.png");
+                    break;
+                case WEIGHT:
+                    record.setErImgUrl("/images/default_weight.png");
+                    break;
+                case YOGA:
+                    record.setErImgUrl("/images/default_yoga.png");
+                    break;
+                case SWIMMING:
+                    record.setErImgUrl("/images/default_swim.png");
+                    break;
+            }
+        }
 
         return record;
     }
