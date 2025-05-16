@@ -32,9 +32,11 @@ public class Post extends BaseEntity {
 
     private String imageUrl;
 
+    @Builder.Default
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL , orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL , orphanRemoval = true)
     private List<PostLike> likes = new ArrayList<>();
 
