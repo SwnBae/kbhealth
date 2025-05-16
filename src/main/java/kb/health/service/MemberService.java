@@ -13,6 +13,8 @@ import kb.health.domain.Member;
 import kb.health.controller.request.MemberEditRequest;
 import kb.health.controller.response.FollowResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -233,22 +235,43 @@ public class MemberService {
      * 랭킹
      */
 
-    public List<RankingResponse> getRanking(String type, int limit) {
-        Pageable pageable = PageRequest.of(0, limit);
+    public Page<RankingResponse> getRanking(String type, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
         List<Member> members;
+        long totalCount;
 
         if (type.equalsIgnoreCase("total")) {
             members = memberRepository.findTopByTotalScore(pageable);
+            totalCount = memberRepository.countMembers(); // 전체 회원 수 조회
         } else {
             members = memberRepository.findTopByBaseScore(pageable);
+            totalCount = memberRepository.countMembers(); // 전체 회원 수 조회
         }
 
-        List<RankingResponse> response = new ArrayList<>();
-        int rank = 1;
+        List<RankingResponse> content = new ArrayList<>();
+        int rank = page * size + 1; // 페이지에 따른 시작 랭킹 계산
         for (Member member : members) {
-            response.add(RankingResponse.create(rank++, member));
+            content.add(RankingResponse.create(rank++, member));
         }
 
-        return response;
+        return new PageImpl<>(content, pageable, totalCount);
+    }
+
+    public Page<RankingResponse> getFollowingRanking(Long memberId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        // 현재 회원이 팔로우한 사용자들의 ID 목록 조회
+        List<Long> followingIds = followRepository.findFollowings(memberId);
+
+        // 자신도 랭킹에 포함 (선택사항, 원하는 경우 포함)
+        followingIds.add(memberId);
+        long totalCount = memberRepository.countFollowings(followingIds);
+        List<Member> members = memberRepository.findFollowingsByBaseScore(followingIds, pageable);
+        List<RankingResponse> content = new ArrayList<>();
+        int rank = page * size + 1; // 페이지에 따른 시작 랭킹 계산
+        for (Member member : members) {
+            content.add(RankingResponse.create(rank++, member));
+        }
+        return new PageImpl<>(content, pageable, totalCount);
     }
 }

@@ -77,4 +77,33 @@ public class MemberRepository {
                 .getResultList();
     }
 
+    public long countMembers() {
+        return em.createQuery("select count(m) from Member m", Long.class)
+                .getSingleResult();
+    }
+
+    // 팔로우한 사용자들의 랭킹 (baseScore 기준)
+    public List<Member> findFollowingsByBaseScore(List<Long> followingIds, Pageable pageable) {
+        if (followingIds.isEmpty()) {
+            return List.of(); // 팔로우한 사용자가 없으면 빈 리스트 반환
+        }
+
+        return em.createQuery("select m from Member m where m.id in :ids order by m.baseScore desc", Member.class)
+                .setParameter("ids", followingIds)
+                .setFirstResult(pageable.getPageNumber() * pageable.getPageSize())
+                .setMaxResults(pageable.getPageSize())
+                .getResultList();
+    }
+
+    // 팔로우한 사용자들의 총 수
+    public long countFollowings(List<Long> followingIds) {
+        if (followingIds.isEmpty()) {
+            return 0;
+        }
+
+        return em.createQuery("select count(m) from Member m where m.id in :ids", Long.class)
+                .setParameter("ids", followingIds)
+                .getSingleResult();
+    }
+
 }
