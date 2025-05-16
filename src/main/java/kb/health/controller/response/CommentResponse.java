@@ -15,6 +15,7 @@ public class CommentResponse {
     private String writer;
     private String writerProfileImage;
     private String writerAccount;
+    private double writerBaseScore;
     private String comment;
     private LocalDateTime createdAt;
 
@@ -24,6 +25,7 @@ public class CommentResponse {
                 comment.getWriter().getUserName(),
                 comment.getWriter().getProfileImageUrl(),
                 comment.getWriter().getAccount(),
+                comment.getWriter().getBaseScore(),
                 comment.getText(),
                 comment.getCreatedDate()
         );
