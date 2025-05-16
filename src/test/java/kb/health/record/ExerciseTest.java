@@ -51,7 +51,7 @@ class ExerciseTest {
     @Test
     void 운동_기록_삽입() {
         // given
-        ExerciseRecordRequest request = new ExerciseRecordRequest("근력1", 30, 300, ExerciseType.CARDIO);
+        ExerciseRecordRequest request = new ExerciseRecordRequest("근력1", 30, 300, ExerciseType.CARDIO, null);
 
         // when
         Long savedId = recordService.saveExerciseRecord(request, savedMemberId);
@@ -71,7 +71,7 @@ class ExerciseTest {
     @Test
     void 운동_기록_수정() {
         // given
-        ExerciseRecordRequest request = new ExerciseRecordRequest("근력1",30, 300, ExerciseType.CARDIO);
+        ExerciseRecordRequest request = new ExerciseRecordRequest("근력1",30, 300, ExerciseType.CARDIO, null);
 
         Long savedId = recordService.saveExerciseRecord(request, savedMemberId);
         ExerciseRecord savedRecord = recordRepository.findExerciseRecordById(savedId);
@@ -99,7 +99,7 @@ class ExerciseTest {
     @Test
     void 운동_기록_삭제() {
         // given
-        ExerciseRecordRequest request = new ExerciseRecordRequest("근력1",30, 300, ExerciseType.CARDIO);
+        ExerciseRecordRequest request = new ExerciseRecordRequest("근력1",30, 300, ExerciseType.CARDIO, null);
 
         Long savedId = recordService.saveExerciseRecord(request, savedMemberId);
 

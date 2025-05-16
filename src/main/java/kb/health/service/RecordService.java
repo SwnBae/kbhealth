@@ -81,7 +81,7 @@ public class RecordService {
         Member member = memberRepository.findMemberById(memberId);
         Diet diet = dietRepository.findById(dietRecordRequest.getDietId());
 
-        DietRecord dietRecord = DietRecord.create(diet, dietRecordRequest.getAmount(), dietRecordRequest.getMealType());
+        DietRecord dietRecord = DietRecord.create(diet, dietRecordRequest.getAmount(), dietRecordRequest.getDrImgUrl(), dietRecordRequest.getMealType());
         dietRecord.assignMember(member);
 
         recordRepository.saveDietRecord(dietRecord);
@@ -109,7 +109,7 @@ public class RecordService {
         Member member = memberRepository.findMemberById(memberId);
         Diet diet = dietRepository.findById(dietRecordRequest.getDietId());
 
-        DietRecord dietRecord = DietRecord.create(diet, dietRecordRequest.getAmount(), dietRecordRequest.getMealType());
+        DietRecord dietRecord = DietRecord.create(diet, dietRecordRequest.getAmount(), dietRecordRequest.getDrImgUrl(), dietRecordRequest.getMealType());
         dietRecord.assignMember(member);
 
         // Set custom date
@@ -208,6 +208,7 @@ public class RecordService {
         dietRecord.setDiet(diet);
         dietRecord.setAmount(dietRecordRequest.getAmount());
         dietRecord.setMealType(dietRecordRequest.getMealType());
+        dietRecord.setDrImgUrl(dietRecordRequest.getDrImgUrl());
     }
 
     @Transactional
@@ -222,6 +223,7 @@ public class RecordService {
         exerciseRecord.setDurationMinutes(exerciseRecordRequest.getDurationMinutes());
         exerciseRecord.setCaloriesBurned(exerciseRecordRequest.getCaloriesBurned());
         exerciseRecord.setExerciseType(exerciseRecordRequest.getExerciseType());
+        exerciseRecord.setErImgUrl(exerciseRecordRequest.getErImgUrl());
     }
 
     /**
