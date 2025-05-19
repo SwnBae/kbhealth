@@ -106,4 +106,16 @@ public class MemberRepository {
                 .getSingleResult();
     }
 
+    /**
+     * 점수 업데이트 ->
+     */
+    public List<Member> findAllOrderByTotalScoreDesc() {
+        return em.createQuery("select m from Member m order by m.totalScore desc", Member.class)
+                .getResultList();
+    }
+
+    public List<Member> findAllOrderByBaseScoreDesc() {
+        return em.createQuery("select m from Member m order by m.baseScore desc", Member.class)
+                .getResultList();
+    }
 }

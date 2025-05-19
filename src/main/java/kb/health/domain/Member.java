@@ -50,6 +50,11 @@ public class Member extends BaseEntity{
     @Column(name = "base_score", scale = 2)
     private double baseScore;
 
+    private int previousTotalRank;  // 이전 총점 기준 순위
+    private int previousBaseRank;   // 이전 최근 10일 점수 기준 순위
+//    private LocalDate rankUpdatedAt; // 랭킹 업데이트 일자
+    private boolean isNewMember = true; // 신규 회원 여부 (기본값: true)
+
     //신체 정보
     @Embedded
     private BodyInfo bodyInfo;
@@ -157,5 +162,16 @@ public class Member extends BaseEntity{
 
         // 새로운 신체 정보에 따른 영양소 재계산
         this.dailyNutritionStandard = DailyNutritionStandard.calculate(this.bodyInfo);
+    }
+
+    /**
+     * 랭킹 업데이트
+     */
+    // 랭킹 정보 업데이트 메서드
+    public void updateRankInfo(int totalRank, int baseRank) {
+        this.previousTotalRank = totalRank;
+        this.previousBaseRank = baseRank;
+//        this.rankUpdatedAt = LocalDate.now();
+        this.isNewMember = false; // 랭킹이 업데이트되면 더 이상 신규 회원이 아님
     }
 }

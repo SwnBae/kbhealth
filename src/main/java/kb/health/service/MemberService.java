@@ -17,11 +17,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -230,11 +234,30 @@ public class MemberService {
         return followRepository.findFollow(myId, targetId).isPresent();
     }
 
-
     /**
      * 랭킹
      */
-
+//    public Page<RankingResponse> getRanking(String type, int page, int size) {
+//        Pageable pageable = PageRequest.of(page, size);
+//        List<Member> members;
+//        long totalCount;
+//
+//        if (type.equalsIgnoreCase("total")) {
+//            members = memberRepository.findTopByTotalScore(pageable);
+//            totalCount = memberRepository.countMembers(); // 전체 회원 수 조회
+//        } else {
+//            members = memberRepository.findTopByBaseScore(pageable);
+//            totalCount = memberRepository.countMembers(); // 전체 회원 수 조회
+//        }
+//
+//        List<RankingResponse> content = new ArrayList<>();
+//        int rank = page * size + 1; // 페이지에 따른 시작 랭킹 계산
+//        for (Member member : members) {
+//            content.add(RankingResponse.create(rank++, member));
+//        }
+//
+//        return new PageImpl<>(content, pageable, totalCount);
+//    }
     public Page<RankingResponse> getRanking(String type, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         List<Member> members;
@@ -242,16 +265,45 @@ public class MemberService {
 
         if (type.equalsIgnoreCase("total")) {
             members = memberRepository.findTopByTotalScore(pageable);
-            totalCount = memberRepository.countMembers(); // 전체 회원 수 조회
+            totalCount = memberRepository.countMembers();
         } else {
             members = memberRepository.findTopByBaseScore(pageable);
-            totalCount = memberRepository.countMembers(); // 전체 회원 수 조회
+            totalCount = memberRepository.countMembers();
         }
 
         List<RankingResponse> content = new ArrayList<>();
-        int rank = page * size + 1; // 페이지에 따른 시작 랭킹 계산
+        int rank = page * size + 1;
         for (Member member : members) {
-            content.add(RankingResponse.create(rank++, member));
+            int trend;
+
+            if (member.isNewMember()) {
+                // 신규 회원은 트렌드를 "NEW"로 표시하기 위해 특별한 값 설정
+                // 예: -9999를 사용하여 프론트엔드에서 "NEW"로 표시
+                trend = -9999; // 신규 회원 표시용 특별 값
+            } else {
+                // 기존 회원은 일반적인 트렌드 계산
+                int previousRank;
+                if (type.equalsIgnoreCase("total")) {
+                    previousRank = member.getPreviousTotalRank();
+                } else {
+                    previousRank = member.getPreviousBaseRank();
+                }
+
+                trend = previousRank > 0 ? previousRank - rank : 0;
+            }
+
+            content.add(new RankingResponse(
+                    rank,
+                    member.getId(),
+                    member.getAccount(),
+                    member.getUserName(),
+                    member.getProfileImageUrl(),
+                    member.getTotalScore(),
+                    member.getBaseScore(),
+                    trend
+            ));
+
+            rank++;
         }
 
         return new PageImpl<>(content, pageable, totalCount);
@@ -273,5 +325,78 @@ public class MemberService {
             content.add(RankingResponse.create(rank++, member));
         }
         return new PageImpl<>(content, pageable, totalCount);
+    }
+
+    /**
+     * 이전 랭킹 업데이트 0시 0분
+     */
+    @Transactional
+    @Scheduled(cron = "0 0 0 * * *")
+    public void updateMemberRankings() {
+        // 전체 회원을 랭킹별로 조회
+        List<Member> membersByTotalScore = memberRepository.findAllOrderByTotalScoreDesc();
+        List<Member> membersByBaseScore = memberRepository.findAllOrderByBaseScoreDesc();
+
+        // 각 멤버의 현재 랭킹 정보 저장
+        Map<Long, Integer> totalRankMap = new HashMap<>();
+        Map<Long, Integer> baseRankMap = new HashMap<>();
+
+        // 총점 기준 순위 맵 생성
+        for (int i = 0; i < membersByTotalScore.size(); i++) {
+            Member member = membersByTotalScore.get(i);
+            totalRankMap.put(member.getId(), i + 1);
+        }
+
+        // 기본 점수 기준 순위 맵 생성
+        for (int i = 0; i < membersByBaseScore.size(); i++) {
+            Member member = membersByBaseScore.get(i);
+            baseRankMap.put(member.getId(), i + 1);
+        }
+
+        // 각 멤버의 랭킹 정보 업데이트
+        for (Member member : membersByTotalScore) {
+            int totalRank = totalRankMap.getOrDefault(member.getId(), 0);
+            int baseRank = baseRankMap.getOrDefault(member.getId(), 0);
+            member.updateRankInfo(totalRank, baseRank);
+            memberRepository.save(member);
+        }
+    }
+
+    //테스트
+    /**
+     * 특정 날짜의 점수 갱신 이전에 이전 랭킹 정보 갱신
+     * @param date 처리할 날짜
+     */
+    @Transactional
+    public void updateMemberRankingsForDate(LocalDate date) {
+        System.out.println("날짜 " + date + " 기준으로 랭킹 정보 업데이트 시작");
+
+        // 1. 점수 기준으로 회원 목록 조회
+        List<Member> membersByTotalScore = memberRepository.findAllOrderByTotalScoreDesc();
+        List<Member> membersByBaseScore = memberRepository.findAllOrderByBaseScoreDesc();
+
+        // 2. 순위 맵 생성
+        Map<Long, Integer> totalRankMap = new HashMap<>();
+        Map<Long, Integer> baseRankMap = new HashMap<>();
+
+        for (int i = 0; i < membersByTotalScore.size(); i++) {
+            Member member = membersByTotalScore.get(i);
+            totalRankMap.put(member.getId(), i + 1);
+        }
+
+        for (int i = 0; i < membersByBaseScore.size(); i++) {
+            Member member = membersByBaseScore.get(i);
+            baseRankMap.put(member.getId(), i + 1);
+        }
+
+        // 3. 각 멤버의 랭킹 정보 업데이트
+        for (Member member : membersByTotalScore) {
+            int totalRank = totalRankMap.getOrDefault(member.getId(), 0);
+            int baseRank = baseRankMap.getOrDefault(member.getId(), 0);
+            member.updateRankInfo(totalRank, baseRank);
+            memberRepository.save(member);
+        }
+
+        System.out.println("날짜 " + date + " 기준 랭킹 정보 업데이트 완료");
     }
 }

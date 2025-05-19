@@ -30,7 +30,7 @@ public class ScoreService {
 
     // 모든 멤버에 대해 일일 점수를 계산하고 저장 및 총점, 10일 점수 갱신
     @Transactional
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 5 0 * * *")
     public void updateDailyScoresForAllMembers() {
         // 1. 모든 멤버를 조회
         List<Member> members = memberRepository.findAll();

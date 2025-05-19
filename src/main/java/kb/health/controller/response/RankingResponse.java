@@ -16,6 +16,7 @@ public class RankingResponse {
     private String profileImageUrl;
     private double totalScore; // 총 점수
     private double baseScore; // 기본 점수
+    private int trend;
 
     // Member 객체를 사용하여 RankingResponse 객체를 생성하는 팩토리 메서드
     public static RankingResponse create(int rank, Member member) {
@@ -26,7 +27,22 @@ public class RankingResponse {
                 member.getUserName(),
                 member.getProfileImageUrl(),
                 member.getTotalScore(),
-                member.getBaseScore()
+                member.getBaseScore(),
+                0
+        );
+    }
+
+    // 트렌드 정보를 포함한 생성 메서드
+    public static RankingResponse create(int rank, Member member, int trend) {
+        return new RankingResponse(
+                rank,
+                member.getId(),
+                member.getAccount(),
+                member.getUserName(),
+                member.getProfileImageUrl(),
+                member.getTotalScore(),
+                member.getBaseScore(),
+                trend
         );
     }
 }

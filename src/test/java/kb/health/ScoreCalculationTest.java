@@ -5,6 +5,7 @@ import kb.health.domain.record.DietRecord;
 import kb.health.domain.record.ExerciseRecord;
 import kb.health.repository.MemberRepository;
 import kb.health.repository.RecordRepository;
+import kb.health.service.MemberService;
 import kb.health.service.ScoreService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,16 +14,15 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
- * 이미 저장된 테스트 데이터의 점수를 계산하는 테스트 클래스
- * 이 테스트는 데이터베이스에 있는 모든 기록에 대해 점수를 새로 계산합니다.
+ * 이미 저장된 테스트 데이터의 점수와 랭킹을 계산하는 테스트 클래스
+ * 이 테스트는 데이터베이스에 있는 모든 기록에 대해 점수와 랭킹을 새로 계산합니다.
+ * 중요: 각 날짜에 대해 점수 계산 전에 랭킹 정보를 먼저 업데이트합니다.
  */
 @SpringBootTest
 @Transactional
@@ -32,18 +32,22 @@ public class ScoreCalculationTest {
     private ScoreService scoreService;
 
     @Autowired
+    private MemberService memberService;
+
+    @Autowired
     private RecordRepository recordRepository;
 
     @Autowired
     private MemberRepository memberRepository;
 
     /**
-     * 모든 기록 데이터에 대해 점수를 계산합니다.
+     * 모든 기록 데이터에 대해 점수와 랭킹을 계산합니다.
+     * 각 날짜마다 랭킹 갱신 후 점수를 계산합니다.
      */
     @Test
     @Rollback(false) // 변경사항을 데이터베이스에 저장
-    public void calculateScoresForAllExistingData() {
-        System.out.println("=== 모든 기존 데이터에 대한 점수 계산 시작 ===");
+    public void calculateRankingsAndScoresForAllExistingData() {
+        System.out.println("=== 모든 기존 데이터에 대한 랭킹 및 점수 계산 시작 ===");
 
         // 1. 데이터베이스에서 모든 회원 조회
         List<Member> allMembers = memberRepository.findAll();
@@ -53,19 +57,19 @@ public class ScoreCalculationTest {
         DateRange dateRange = findDateRangeOfAllRecords(allMembers);
         System.out.println("기록 날짜 범위: " + dateRange.getStartDate() + " ~ " + dateRange.getEndDate());
 
-        // 3. 날짜 범위 내의 모든 날짜에 대해 점수 계산
-        calculateScoresForDateRange(dateRange);
+        // 3. 날짜 범위 내의 모든 날짜에 대해 랭킹 먼저 갱신 후 점수 계산
+        calculateRankingsAndScoresForDateRange(dateRange);
 
-        System.out.println("=== 점수 계산 완료 ===");
+        System.out.println("=== 랭킹 및 점수 계산 완료 ===");
     }
 
     /**
-     * 최근 30일간의 데이터에 대해서만 점수를 계산합니다.
+     * 최근 30일간의 데이터에 대해서만 랭킹과 점수를 계산합니다.
      */
     @Test
     @Rollback(false)
-    public void calculateScoresForLast30Days() {
-        System.out.println("=== 최근 30일 데이터에 대한 점수 계산 시작 ===");
+    public void calculateRankingsAndScoresForLast30Days() {
+        System.out.println("=== 최근 30일 데이터에 대한 랭킹 및 점수 계산 시작 ===");
 
         LocalDate endDate = LocalDate.now();
         LocalDate startDate = endDate.minusDays(30);
@@ -73,22 +77,28 @@ public class ScoreCalculationTest {
 
         System.out.println("기록 날짜 범위: " + dateRange.getStartDate() + " ~ " + dateRange.getEndDate());
 
-        // 날짜 범위 내의 모든 날짜에 대해 점수 계산
-        calculateScoresForDateRange(dateRange);
+        // 날짜 범위 내의 모든 날짜에 대해 랭킹 먼저 갱신 후 점수 계산
+        calculateRankingsAndScoresForDateRange(dateRange);
 
-        System.out.println("=== 점수 계산 완료 ===");
+        System.out.println("=== 랭킹 및 점수 계산 완료 ===");
     }
 
     /**
-     * 특정 날짜 범위 내의 모든 날짜에 대해 점수를 계산합니다.
+     * 특정 날짜 범위 내의 모든 날짜에 대해 랭킹 먼저 갱신 후 점수를 계산합니다.
      */
-    private void calculateScoresForDateRange(DateRange dateRange) {
+    private void calculateRankingsAndScoresForDateRange(DateRange dateRange) {
         LocalDate currentDate = dateRange.getStartDate();
         int processedDays = 0;
         int daysWithData = 0;
 
         while (!currentDate.isAfter(dateRange.getEndDate())) {
-            System.out.println("날짜 " + currentDate + " 처리 중...");
+            System.out.println("\n날짜 " + currentDate + " 처리 중...");
+
+            // 1. 먼저 랭킹 갱신
+            System.out.println("  - " + currentDate + " 기준 랭킹 정보 업데이트 중...");
+            memberService.updateMemberRankingsForDate(currentDate);
+
+            // 2. 그 다음 점수 계산
             boolean hasData = calculateScoreForDate(currentDate);
             processedDays++;
 
