@@ -8,7 +8,6 @@ import kb.health.controller.request.PostCreateRequest;
 import kb.health.controller.request.PostEditRequest;
 import kb.health.controller.response.CommentResponse;
 import kb.health.controller.response.PostResponse;
-import kb.health.domain.Member;
 import kb.health.exception.ImageException;
 import kb.health.service.FeedService;
 import kb.health.service.MemberService;
@@ -18,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;

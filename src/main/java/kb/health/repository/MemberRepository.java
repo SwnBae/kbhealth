@@ -4,7 +4,6 @@ import jakarta.persistence.EntityManager;
 import kb.health.domain.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

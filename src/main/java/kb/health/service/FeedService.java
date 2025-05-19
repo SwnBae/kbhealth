@@ -111,8 +111,8 @@ public class FeedService {
         if (!post.getWriter().getId().equals(memberId)) {
             throw FeedException.unauthorizeAccess();
         }
+        post.setTitle(postEditRequest.getTitle());
         post.setContent(postEditRequest.getContent());
-        post.setImageUrl(postEditRequest.getImageUrl());
     }
 
     //게시글 삭제 메서드

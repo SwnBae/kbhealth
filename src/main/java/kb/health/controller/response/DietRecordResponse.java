@@ -1,6 +1,5 @@
 package kb.health.controller.response;
 
-import jakarta.persistence.Column;
 import kb.health.domain.record.DietRecord;
 import kb.health.domain.record.MealType;
 import lombok.*;

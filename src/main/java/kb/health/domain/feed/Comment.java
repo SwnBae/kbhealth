@@ -5,8 +5,6 @@ import kb.health.domain.BaseEntity;
 import kb.health.domain.Member;
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Getter
 @Setter
