@@ -20,5 +20,5 @@ jwt:
   secret: "snyyDePsHkl0X/ZrKIOLCo+GWuGK4HdhaDNESHufeUU="
 openai:
   api-key: ""
-  model: "gpt-3.5-turbo"
+  model: "gpt-4-turbo"
   url: "https://api.openai.com/v1/chat/completions"

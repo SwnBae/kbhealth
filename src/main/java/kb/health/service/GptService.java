@@ -39,7 +39,7 @@ public class GptService {
         - 섬유질: %.1f%%
         - 나트륨: %.1f%%
 
-        부족하거나 과다 섭취된 영양소를 기준으로, 2~3가지 실제 요리 이름(구체적으로: ex. 피자, 파스타, 김치찌개)으로 추천해줘. 그리고 추천 이유도 함께 알려줘.
+        부족하거나 과다 섭취된 영양소를 기준으로, 2~3가지 실제 요리 이름(구체적으로: ex. 피자, 파스타, 김치찌개)으로 추천해줘. 그리고 추천 이유도 함께 알려줘. (200자 이내)
         """,
                 req.getHeight(), req.getWeight(), req.getAge(), formatGender(req.getGender()),
                 req.getCalories() * 100, req.getProtein() * 100, req.getFat() * 100, req.getCarbohydrate() * 100,

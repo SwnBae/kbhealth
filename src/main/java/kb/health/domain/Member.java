@@ -43,11 +43,11 @@ public class Member extends BaseEntity{
     private String profileImageUrl = "/images/default_profile.png";
 
     //일일 점수
-    @Column(name = "total_score")
+    @Column(name = "total_score", scale = 2)
     private double totalScore;
 
     //기본 점수 (10일 기준)
-    @Column(name = "base_score")
+    @Column(name = "base_score", scale = 2)
     private double baseScore;
 
     //신체 정보

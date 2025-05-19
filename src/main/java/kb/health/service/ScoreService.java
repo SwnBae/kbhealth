@@ -107,6 +107,7 @@ public class ScoreService {
     private void updateMemberScores(Member member) {
         // 1. 총점 갱신: 모든 일일 점수의 합
         double totalScore = dailyScoreRepository.sumTotalScoreByMember(member);
+        totalScore = Math.floor(totalScore * 100.0) / 100.0;
         member.setTotalScore(totalScore);
 
         // 2. 최근 10일 점수 갱신: 최근 10일의 점수 합산
@@ -115,6 +116,7 @@ public class ScoreService {
                 .mapToDouble(DailyScore::getTotalScore)
                 .sum();
 
+        last10DaysScore = Math.floor(last10DaysScore * 100.0) / 100.0;
         member.setBaseScore(last10DaysScore);
 
         // 3. 멤버 저장 (점수 갱신)

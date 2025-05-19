@@ -14,6 +14,7 @@ import java.util.List;
 public class MemberProfileResponse {
     private Long memberId;
     private String userName;
+    private String account;
     private double totalScore;
     private double baseScore;
     private String profileImageUrl;
@@ -36,6 +37,7 @@ public class MemberProfileResponse {
         return MemberProfileResponse.builder()
                 .memberId(member.getId())
                 .userName(member.getUserName())
+                .account(member.getAccount())
                 .totalScore(member.getTotalScore())
                 .baseScore(member.getBaseScore())
                 .profileImageUrl(member.getProfileImageUrl())
