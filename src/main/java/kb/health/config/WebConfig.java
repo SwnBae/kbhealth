@@ -1,4 +1,4 @@
-package kb.health;
+package kb.health.config;
 
 import kb.health.service.MemberService;
 import kb.health.authentication.JwtUtil;
