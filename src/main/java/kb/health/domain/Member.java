@@ -3,8 +3,8 @@ package kb.health.domain;
 import jakarta.persistence.*;
 import kb.health.controller.request.MemberBodyInfoEditRequest;
 import kb.health.controller.request.MemberEditRequest;
-import kb.health.domain.feed.Comment;
 import kb.health.domain.feed.PostLike;
+import kb.health.domain.notification.Notification;
 import kb.health.domain.record.DietRecord;
 import kb.health.domain.record.ExerciseRecord;
 import kb.health.controller.request.MemberRegistRequest;
@@ -62,6 +62,9 @@ public class Member extends BaseEntity{
     //필요 영양소
     @Embedded
     private DailyNutritionStandard dailyNutritionStandard;
+
+    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notification> notifications = new ArrayList<>();
 
     /**
      * FOLLOW
@@ -173,5 +176,19 @@ public class Member extends BaseEntity{
         this.previousBaseRank = baseRank;
 //        this.rankUpdatedAt = LocalDate.now();
         this.isNewMember = false; // 랭킹이 업데이트되면 더 이상 신규 회원이 아님
+    }
+
+    /**
+     * 알림
+     */
+    // 알림 추가 메서드
+
+    // 알림 읽음 처리 메서드는 서비스에서 체킹
+
+    // 읽지 않은 알림 개수 조회
+    public long getUnreadNotificationCount() {
+        return this.notifications.stream()
+                .filter(notification -> !notification.isRead())
+                .count();
     }
 }

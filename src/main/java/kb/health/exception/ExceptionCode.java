@@ -30,7 +30,11 @@ public enum ExceptionCode {
     UNAUTHORIZED_ACCESS_TO_RESOURCE(4003, "접근 권한이 없습니다.", HttpStatus.FORBIDDEN, "/"),
 
     // ==== File 관련 ====
-    Image_Upload_Failed(4005, "이미지 업로드에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR, null);
+    Image_Upload_Failed(4005, "이미지 업로드에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR, null),
+
+    // ==== Notification 관련 ====
+    NOTIFICATION_NOT_FOUND(5001, "알림을 찾을 수 없습니다.", HttpStatus.NOT_FOUND, null),
+    UNAUTHORIZED_NOTIFICATION_ACCESS(5002, "본인의 알림만 접근할 수 있습니다.", HttpStatus.FORBIDDEN, null);
 
     private final int code;
     private final String message;

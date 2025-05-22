@@ -8,9 +8,14 @@ import kb.health.controller.request.PostCreateRequest;
 import kb.health.controller.request.PostEditRequest;
 import kb.health.controller.response.CommentResponse;
 import kb.health.controller.response.PostResponse;
+import kb.health.domain.feed.Post;
+import kb.health.domain.notification.NotificationType;
+import kb.health.exception.FeedException;
 import kb.health.exception.ImageException;
+import kb.health.exception.NotificationException;
 import kb.health.service.FeedService;
 import kb.health.service.MemberService;
+import kb.health.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +32,7 @@ import java.util.UUID;
 @RequestMapping("/api/feed")
 public class FeedController {
     private final FeedService feedService;
+    private final NotificationService notificationService;
     private final MemberService memberService;
     private final JwtUtil jwtUtil;
 
@@ -86,8 +92,23 @@ public class FeedController {
 
     //댓글 작성
     @PostMapping("/{post_id}/comment")
-    public ResponseEntity<?> createComment(@LoginMember CurrentMember currentMember,@PathVariable Long post_id , @RequestBody CommentCreateRequest commentCreateRequest) {
-        feedService.saveComment(currentMember.getId(), post_id , commentCreateRequest);
+    public ResponseEntity<?> createComment(@LoginMember CurrentMember currentMember, @PathVariable Long post_id , @RequestBody CommentCreateRequest commentCreateRequest) {
+        Long commentId = feedService.saveComment(currentMember.getId(), post_id , commentCreateRequest);
+
+        // 알림 생성: 게시글 작성자에게 댓글 알림
+        Post post = feedService.getPost(post_id)
+                .orElseThrow(FeedException::canNotFindPost);
+        Long postWriterId = post.getWriter().getId();
+
+
+        notificationService.createCommentNotification(
+                currentMember.getId(),
+                postWriterId,
+                commentId,
+                post.getTitle(),
+                commentCreateRequest.getComment()
+        );
+
         return ResponseEntity.ok("댓글 작성 완료");
     }
 
@@ -95,13 +116,38 @@ public class FeedController {
     @DeleteMapping("/{post_id}/comment/{comment_id}")
     public ResponseEntity<?> deleteComment(@LoginMember CurrentMember currentMember, @PathVariable Long post_id, @PathVariable Long comment_id) {
         feedService.deleteComment(currentMember.getId(), comment_id);
+
+        Post post = feedService.getPost(post_id)
+                .orElseThrow(FeedException::canNotFindPost);
+
+        Long postWriterId = post.getWriter().getId();
+
+        notificationService.deleteNotification(currentMember.getId(), postWriterId, NotificationType.COMMENT, comment_id);
+
         return ResponseEntity.ok("댓글 삭제 완료");
     }
 
     //좋아요 토글
     @PutMapping("/{post_id}/like")
     public ResponseEntity<Boolean> likePost(@LoginMember CurrentMember currentMember, @PathVariable Long post_id) {
-        return ResponseEntity.ok(feedService.postLikeToggle(currentMember.getId(), post_id));
+        Boolean isLiked = feedService.postLikeToggle(currentMember.getId(), post_id);
+
+        Post post = feedService.getPost(post_id)
+                .orElseThrow(FeedException::canNotFindPost);
+        Long postWriterId = post.getWriter().getId();
+
+        if(isLiked) {
+            notificationService.createLikeNotification(
+                    currentMember.getId(),
+                    postWriterId,
+                    post_id,
+                    post.getTitle()
+            );
+        } else {
+            notificationService.deleteNotification(currentMember.getId(), postWriterId, NotificationType.LIKE,post_id);
+        }
+
+        return ResponseEntity.ok(isLiked);
     }
 
     //더미 포스트 만들기
@@ -110,6 +156,4 @@ public class FeedController {
         feedService.createDummyPosts(currentMember.getId(), 100);
         return ResponseEntity.ok("100개의 더미 게시글이 생성되었습니다.");
     }
-
-
 }

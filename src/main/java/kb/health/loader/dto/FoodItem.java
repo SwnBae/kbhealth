@@ -11,5 +11,6 @@ public record FoodItem(
         String sugar,          // 당류
         String fibtg,          // 식이섬유
         String nat             // 나트륨
-) {}
+) {
+}
 

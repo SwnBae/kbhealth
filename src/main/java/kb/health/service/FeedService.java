@@ -33,6 +33,10 @@ public class FeedService {
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
 
+    public Optional<Post> getPost(Long postId) {
+        return postRepository.findById(postId);
+    }
+
     //피드 갱신 메서드
     public Page<PostResponse> getPosts(Long memberId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -94,7 +98,7 @@ public class FeedService {
 
     //게시글 작성 메서드
     @Transactional
-    public void savePost(Long memberId, PostCreateRequest postCreateRequest , String imageUrl) {
+    public Long savePost(Long memberId, PostCreateRequest postCreateRequest , String imageUrl) {
         Member writer = memberRepository.findMemberById(memberId);
         Post post = Post.builder()
                 .title(postCreateRequest.getTitle())
@@ -102,6 +106,8 @@ public class FeedService {
                 .imageUrl(imageUrl)
                 .build();
         postRepository.save(post);
+
+        return post.getId();
     }
 
     //게시글 수정 메서드
@@ -128,11 +134,13 @@ public class FeedService {
 
     //댓글 작성 메서드
     @Transactional
-    public void saveComment(Long memberId, Long postId, CommentCreateRequest createCommentRequest ) {
+    public Long saveComment(Long memberId, Long postId, CommentCreateRequest createCommentRequest ) {
         Member writer = memberRepository.findMemberById(memberId);
         Post post = postRepository.findById(postId).orElseThrow(FeedException::canNotFindPost);
         Comment comment = Comment.builder().writer(writer).post(post).text(createCommentRequest.getComment()).build();
         commentRepository.save(comment);
+
+        return comment.getId();
     }
 
     //댓글 삭제 메서드

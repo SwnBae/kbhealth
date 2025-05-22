@@ -1,6 +1,7 @@
 package kb.health.loader.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 public record FoodResponse(
@@ -17,7 +18,8 @@ public record FoodResponse(
                 String resultMsg,
 
                 String type
-        ) {}
+        ) {
+        }
 
         public record Body(
                 List<FoodItem> items,
@@ -27,6 +29,7 @@ public record FoodResponse(
                 String numOfRows,
 
                 String pageNo
-        ) {}
+        ) {
+        }
     }
 }
