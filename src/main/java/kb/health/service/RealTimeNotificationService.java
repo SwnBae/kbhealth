@@ -13,27 +13,36 @@ public class RealTimeNotificationService {
     private final SimpMessagingTemplate messagingTemplate;
 
     public void sendNotificationToUser(Long userId, Object notification) {
-        String destination = "/user/" + userId + "/queue/notifications";
-        messagingTemplate.convertAndSend(destination, notification);
+        messagingTemplate.convertAndSendToUser(
+                userId.toString(),
+                "/queue/notifications",
+                notification
+        );
     }
 
     public void sendNotificationCountToUser(Long userId, Long count) {
-        String destination = "/user/" + userId + "/queue/notification-count";
-        messagingTemplate.convertAndSend(destination, count);
+        messagingTemplate.convertAndSendToUser(
+                userId.toString(),
+                "/queue/notification-count",
+                count
+        );
     }
 
     public void sendNotificationListUpdate(Long userId, Map<String, Object> updateData) {
-        String destination = "/user/" + userId + "/queue/notification-list-update";
-        messagingTemplate.convertAndSend(destination, updateData);
+        messagingTemplate.convertAndSendToUser(
+                userId.toString(),
+                "/queue/notification-list-update",
+                updateData
+        );
     }
 
+    // 전역 알림 - 현재 방식이 올바름
     public void sendGlobalNotification(Object notification) {
-        String destination = "/topic/global-notifications";
-        messagingTemplate.convertAndSend(destination, notification);
+        messagingTemplate.convertAndSend("/topic/global-notifications", notification);
     }
 
+    // 그룹 알림 - 현재 방식이 올바름
     public void sendGroupNotification(String groupId, Object notification) {
-        String destination = "/topic/group/" + groupId;
-        messagingTemplate.convertAndSend(destination, notification);
+        messagingTemplate.convertAndSend("/topic/group/" + groupId, notification);
     }
 }
