@@ -9,7 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 @RequiredArgsConstructor
@@ -19,9 +22,9 @@ public class NotificationEventListener {
     private final RealTimeNotificationService realTimeNotificationService;
     private final NotificationService notificationService;
 
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Async("notificationTaskExecutor") // 비동기 처리
-    @Transactional(readOnly = true) // 🔥 트랜잭션 추가로 Lazy Loading 해결
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     public void handleNotificationCreated(NotificationCreatedEvent event) {
         try {
             log.info("🔔 알림 이벤트 수신: notificationId={}, receiverId={}",
