@@ -8,7 +8,6 @@ import kb.health.exception.NotificationException;
 import kb.health.repository.MemberRepository;
 import kb.health.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,12 +15,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-@Slf4j
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
@@ -29,9 +29,6 @@ public class NotificationService {
     private final ApplicationEventPublisher eventPublisher;
     private final RealTimeNotificationService realTimeNotificationService;
 
-    /**
-     * 알림 조회 관련
-     */
     public Notification getNotificationById(Long notificationId) {
         return notificationRepository.findById(notificationId)
                 .orElseThrow(NotificationException::notificationNotFound);
@@ -54,9 +51,6 @@ public class NotificationService {
         return notificationRepository.countByReceiverIdAndIsReadFalse(memberId);
     }
 
-    /**
-     * 알림 생성 관련
-     */
     @Transactional
     public Notification createFollowNotification(Long actorId, Long receiverId) {
         if (isSelf(actorId, receiverId)) {
@@ -130,23 +124,19 @@ public class NotificationService {
         return savedNotification;
     }
 
-    /**
-     * 알림 상태 관리 - 🔥 실시간 개수 업데이트 추가
-     */
     @Transactional
     public void readNotification(Long notificationId) {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(NotificationException::notificationNotFound);
 
-        // 🔥 이미 읽은 알림이면 개수 업데이트 불필요
         if (notification.isRead()) {
             return;
         }
 
         notification.markAsRead();
-
-        // 🔥 읽음 처리 후 개수 실시간 업데이트
         Long receiverId = notification.getReceiver().getId();
+
+        sendListUpdate(receiverId, "READ", notificationId, null);
         sendNotificationCountUpdate(receiverId);
     }
 
@@ -162,10 +152,11 @@ public class NotificationService {
                 notification.markAsRead();
                 receiverId = notification.getReceiver().getId();
                 hasUpdates = true;
+
+                sendListUpdate(receiverId, "READ", notification.getId(), null);
             }
         }
 
-        // 🔥 변경사항이 있으면 개수 업데이트
         if (hasUpdates && receiverId != null) {
             sendNotificationCountUpdate(receiverId);
         }
@@ -175,8 +166,8 @@ public class NotificationService {
     public int readAllNotifications(Long memberId) {
         int count = notificationRepository.markAllAsReadByReceiverId(memberId);
 
-        // 🔥 읽음 처리된 알림이 있으면 개수 업데이트
         if (count > 0) {
+            sendListUpdate(memberId, "READ_ALL", null, null);
             sendNotificationCountUpdate(memberId);
         }
 
@@ -194,7 +185,8 @@ public class NotificationService {
         notification.removeReceiver();
         notificationRepository.delete(notification);
 
-        // 🔥 읽지 않은 알림이 삭제되었으면 개수 업데이트
+        sendListUpdate(receiverId, "DELETE", notificationId, null);
+
         if (wasUnread) {
             sendNotificationCountUpdate(receiverId);
         }
@@ -209,10 +201,13 @@ public class NotificationService {
         notificationRepository.findByActorIdAndReceiverIdAndTypeAndRelatedId(actorId, receiverId, notificationType, relativeId)
                 .ifPresent(notification -> {
                     boolean wasUnread = !notification.isRead();
+                    Long notificationId = notification.getId();
+
                     notification.removeReceiver();
                     notificationRepository.delete(notification);
 
-                    // 🔥 읽지 않은 알림이 삭제되었으면 개수 업데이트
+                    sendListUpdate(receiverId, "DELETE", notificationId, null);
+
                     if (wasUnread) {
                         sendNotificationCountUpdate(receiverId);
                     }
@@ -221,33 +216,31 @@ public class NotificationService {
 
     @Transactional
     public void deleteAllNotifications(Long memberId) {
-        // 🔥 삭제 전 읽지 않은 알림이 있는지 확인
         long unreadCount = countUnreadNotifications(memberId);
 
         notificationRepository.deleteAllByReceiverId(memberId);
 
-        // 🔥 읽지 않은 알림이 있었으면 개수 업데이트
+        sendListUpdate(memberId, "DELETE_ALL", null, null);
+
         if (unreadCount > 0) {
             sendNotificationCountUpdate(memberId);
         }
     }
 
-    /**
-     * 🔥 실시간 알림 개수 업데이트 전송
-     */
-    private void sendNotificationCountUpdate(Long userId) {
-        try {
-            long unreadCount = countUnreadNotifications(userId);
-            realTimeNotificationService.sendNotificationCountToUser(userId, unreadCount);
-            log.info("🔢 알림 개수 업데이트 전송: userId={}, count={}", userId, unreadCount);
-        } catch (Exception e) {
-            log.warn("⚠️ 알림 개수 업데이트 전송 실패: userId={}, error={}", userId, e.getMessage());
-        }
+    private void sendListUpdate(Long userId, String updateType, Long notificationId, Object notification) {
+        Map<String, Object> updateData = new HashMap<>();
+        updateData.put("type", updateType);
+        updateData.put("notificationId", notificationId);
+        updateData.put("notification", notification);
+
+        realTimeNotificationService.sendNotificationListUpdate(userId, updateData);
     }
 
-    /**
-     * 내부 메서드
-     */
+    private void sendNotificationCountUpdate(Long userId) {
+        long unreadCount = countUnreadNotifications(userId);
+        realTimeNotificationService.sendNotificationCountToUser(userId, unreadCount);
+    }
+
     private static boolean isSelf(Long currentMemberId, Long targetId) {
         return currentMemberId.equals(targetId);
     }

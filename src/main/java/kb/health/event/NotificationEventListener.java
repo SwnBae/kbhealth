@@ -33,7 +33,7 @@ public class NotificationEventListener {
             // 1. 알림 정보 조회 (트랜잭션 내에서 연관 엔티티까지 로딩)
             Notification notification = notificationService.getNotificationById(event.getNotificationId());
 
-            // 🔥 Lazy Loading 강제 실행 (트랜잭션 내에서)
+            // Lazy Loading 강제 실행 (트랜잭션 내에서)
             String actorName = notification.getActor().getUserName(); // 강제 로딩
             String receiverName = notification.getReceiver().getUserName(); // 강제 로딩
             log.debug("알림 당사자: {} -> {}", actorName, receiverName);
