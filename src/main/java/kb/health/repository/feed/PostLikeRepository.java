@@ -21,5 +21,7 @@ public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
 
     Optional<PostLike> findByMemberAndPost(Member member, Post post);
 
+    int countByPost(Post post);
+
 
 }

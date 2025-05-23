@@ -96,6 +96,24 @@ public class FeedService {
         );
     }
 
+    // 게시글 단건 호출
+    public PostResponse getPostDetail(Long memberId, Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(FeedException::canNotFindPost);
+
+        boolean liked = false;
+        if (memberId != null) {
+            Member member = memberRepository.findMemberById(memberId);
+            liked = postLikeRepository.findByMemberAndPost(member, post).isPresent();
+        }
+
+        // 간단하게 호출
+        int likeCount = postLikeRepository.countByPost(post);
+        int commentCount = commentRepository.countByPost(post);
+
+        return PostResponse.from(post, liked, likeCount, commentCount);
+    }
+
     //게시글 작성 메서드
     @Transactional
     public Long savePost(Long memberId, PostCreateRequest postCreateRequest , String imageUrl) {
@@ -169,21 +187,5 @@ public class FeedService {
         }
     }
 
-    //더미 생성 메서드
-    @Transactional
-    public void createDummyPosts(Long memberId, int count) {
-        Member writer = memberRepository.findMemberById(memberId);
-
-        for (int i = 1; i <= count; i++) {
-            Post post = Post.builder()
-                    .title("더미 게시글 " + i)
-                    .content("이것은 자동 생성된 테스트 게시글입니다. 번호: " + i)
-                    .imageUrl(null)
-                    .writer(writer)
-                    .build();
-
-            postRepository.save(post);
-        }
-    }
 
 }

@@ -104,7 +104,7 @@ public class FeedController {
         notificationService.createCommentNotification(
                 currentMember.getId(),
                 postWriterId,
-                commentId,
+                post_id,
                 post.getTitle(),
                 commentCreateRequest.getComment()
         );
@@ -150,10 +150,13 @@ public class FeedController {
         return ResponseEntity.ok(isLiked);
     }
 
-    //더미 포스트 만들기
-    @GetMapping("/dummy")
-    public ResponseEntity<?> createDummy(@LoginMember CurrentMember currentMember) {
-        feedService.createDummyPosts(currentMember.getId(), 100);
-        return ResponseEntity.ok("100개의 더미 게시글이 생성되었습니다.");
+    //단건 게시글 상세 조회
+    @GetMapping("/post/{post_id}")
+    public ResponseEntity<PostResponse> getPostDetail(
+            @LoginMember CurrentMember currentMember,
+            @PathVariable Long post_id) {
+
+        PostResponse postDetail = feedService.getPostDetail(currentMember.getId(), post_id);
+        return ResponseEntity.ok(postDetail);
     }
 }

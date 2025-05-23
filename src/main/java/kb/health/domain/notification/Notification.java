@@ -70,13 +70,13 @@ public class Notification extends BaseEntity {
     }
 
 
-    public static Notification createCommentNotification(Member actor, Member receiver, Long commentId, String postTitle, String comment) {
+    public static Notification createCommentNotification(Member actor, Member receiver, Long postId, String postTitle, String comment) {
         Notification notification = Notification.builder()
                 .actor(actor)
                 .type(NotificationType.COMMENT)
                 .content(actor.getUserName() + "님이 회원님의 게시글 \"" + postTitle + "\"에 댓글을 남겼습니다." + "\n" + comment)
                 .isRead(false)
-                .relatedId(commentId)
+                .relatedId(postId)
                 .build();
 
         // 연관관계 설정 (양방향)

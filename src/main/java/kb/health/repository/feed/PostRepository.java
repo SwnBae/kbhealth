@@ -14,4 +14,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     Page<Post> findByWriterIdOrderByCreatedDateDesc(Long writerId, Pageable pageable);
 
+
+
 }
