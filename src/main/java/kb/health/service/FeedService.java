@@ -37,6 +37,11 @@ public class FeedService {
         return postRepository.findById(postId);
     }
 
+    public Optional<Comment> getCommentWithPost(Long commentId) {
+        // fetch join을 사용해서 Post도 함께 조회
+        return commentRepository.findByIdWithPost(commentId);
+    }
+
     //피드 갱신 메서드
     public Page<PostResponse> getPosts(Long memberId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);

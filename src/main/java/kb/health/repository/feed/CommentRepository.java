@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CommentRepository extends CrudRepository<Comment, Long> {
@@ -20,6 +21,7 @@ public interface CommentRepository extends CrudRepository<Comment, Long> {
 
     int countByPost(Post post);
 
-
-
+    // fetch join을 사용해서 Comment와 Post를 함께 조회
+    @Query("SELECT c FROM Comment c JOIN FETCH c.post WHERE c.id = :commentId")
+    Optional<Comment> findByIdWithPost(@Param("commentId") Long commentId);
 }

@@ -21,6 +21,7 @@ public class NotificationResponse {
     private String actorAccount;
     private String actorProfileImage;
     private Long relatedId;
+    private Long relatedPostId;
 
     // 엔티티를 Response DTO로 변환하는 정적 팩토리 메서드
     public static NotificationResponse create(Notification notification) {
@@ -36,5 +37,11 @@ public class NotificationResponse {
                 .actorProfileImage(notification.getActor() != null ? notification.getActor().getProfileImageUrl() : null)
                 .relatedId(notification.getRelatedId())
                 .build();
+    }
+
+    public static NotificationResponse create(Notification notification, Long relatedPostId){
+        NotificationResponse notificationResponse = create(notification);
+        notificationResponse.relatedPostId = relatedPostId;
+        return notificationResponse;
     }
 }

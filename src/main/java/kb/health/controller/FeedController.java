@@ -100,11 +100,10 @@ public class FeedController {
                 .orElseThrow(FeedException::canNotFindPost);
         Long postWriterId = post.getWriter().getId();
 
-
         notificationService.createCommentNotification(
                 currentMember.getId(),
                 postWriterId,
-                post_id,
+                commentId,
                 post.getTitle(),
                 commentCreateRequest.getComment()
         );

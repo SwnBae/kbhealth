@@ -3,7 +3,11 @@ package kb.health.controller;
 import kb.health.authentication.CurrentMember;
 import kb.health.authentication.LoginMember;
 import kb.health.controller.response.NotificationResponse;
+import kb.health.domain.feed.Comment;
+import kb.health.domain.feed.Post;
 import kb.health.domain.notification.Notification;
+import kb.health.domain.notification.NotificationType;
+import kb.health.service.FeedService;
 import kb.health.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -11,6 +15,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,6 +25,7 @@ import java.util.stream.Collectors;
 public class NotificationController {
 
     private final NotificationService notificationService;
+    private final FeedService feedService;
 
     // 페이징된 알림 조회 - NotificationResponse로 반환 타입 변경
     @GetMapping("/paged")
@@ -30,9 +36,24 @@ public class NotificationController {
         Page<Notification> notifications = notificationService.getPagedNotifications(currentMember.getId(), page, size);
 
         // 엔티티를 DTO로 변환
-        List<NotificationResponse> responseList = notifications.getContent().stream()
-                .map(NotificationResponse::create)
-                .collect(Collectors.toList());
+        List<NotificationResponse> responseList = new ArrayList<>();
+
+        for(Notification notification : notifications.getContent()) {
+            if(notification.getType().equals(NotificationType.COMMENT)){
+                Comment comment = feedService.getCommentWithPost(notification.getRelatedId())
+                        .orElseThrow(() -> new IllegalArgumentException("댓글 찾지 못함"));
+                Post post = comment.getPost();
+
+                NotificationResponse notificationResponse = NotificationResponse.create(notification,post.getId());
+                responseList.add(notificationResponse);
+            } else{
+                NotificationResponse notificationResponse = NotificationResponse.create(notification);
+                responseList.add(notificationResponse);
+            }
+        }
+//        List<NotificationResponse> responseList = notifications.getContent().stream()
+//                .map(NotificationResponse::create)
+//                .collect(Collectors.toList());
 
         // 새로운 Page 객체 생성
         Page<NotificationResponse> responsePage = new PageImpl<>(
