@@ -16,6 +16,10 @@ spring:
   api:
     food:
       service-key: "BcbiMs4jqpSBNZDnJX7zIB9Jv1hsF3z7tV5SixMjUlkMba0eUIDr4Gd5pxRaNQKbLoDiyVf26xUWtWghhLA2BQ%3D%3D"
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
 jwt:
   secret: "snyyDePsHkl0X/ZrKIOLCo+GWuGK4HdhaDNESHufeUU="
 openai:
