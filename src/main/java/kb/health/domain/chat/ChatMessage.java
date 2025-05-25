@@ -3,112 +3,54 @@ package kb.health.domain.chat;
 import jakarta.persistence.*;
 import kb.health.domain.BaseEntity;
 import kb.health.domain.Member;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import lombok.*;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ChatMessage extends BaseEntity {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "chat_message_id")
     private Long id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chat_room_id")
-    private ChatRoom chatRoom;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id")
     private Member sender;
 
-    @Column(columnDefinition = "TEXT")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "receiver_id")
+    private Member receiver;
+
+    @Column(nullable = false, length = 1000)
     private String content;
 
-    @Enumerated(EnumType.STRING)
-    private ChatMessageType messageType = ChatMessageType.TEXT;
+    private boolean isRead = false;
 
-    private String fileUrl;
+    // 채팅방 ID (두 사용자의 ID를 조합하여 생성)
+    @Column(name = "chat_room_id", nullable = false)
+    private String chatRoomId;
 
-    private String fileName;
+    public static ChatMessage create(Member sender, Member receiver, String content) {
+        String chatRoomId = generateChatRoomId(sender.getId(), receiver.getId());
 
-    private boolean isDeleted = false;
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.sender = sender;
+        chatMessage.receiver = receiver;
+        chatMessage.content = content;
+        chatMessage.chatRoomId = chatRoomId;
 
-    private LocalDateTime deletedAt;
-
-    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL)
-    private List<ChatMessageRead> readStatuses = new ArrayList<>();
-
-    /**
-     * 메시지 생성
-     */
-    public static ChatMessage createTextMessage(ChatRoom chatRoom, Member sender, String content) {
-        ChatMessage message = new ChatMessage();
-        message.chatRoom = chatRoom;
-        message.sender = sender;
-        message.content = content;
-        message.messageType = ChatMessageType.TEXT;
-
-        return message;
+        return chatMessage;
     }
 
-    public static ChatMessage createFileMessage(ChatRoom chatRoom, Member sender,
-                                                String fileName, String fileUrl) {
-        ChatMessage message = new ChatMessage();
-        message.chatRoom = chatRoom;
-        message.sender = sender;
-        message.content = fileName;
-        message.messageType = ChatMessageType.FILE;
-        message.fileName = fileName;
-        message.fileUrl = fileUrl;
-
-        return message;
+    // 채팅방 ID 생성 (작은 ID가 앞에 오도록)
+    public static String generateChatRoomId(Long userId1, Long userId2) {
+        long smallerId = Math.min(userId1, userId2);
+        long largerId = Math.max(userId1, userId2);
+        return smallerId + "_" + largerId;
     }
 
-    public static ChatMessage createImageMessage(ChatRoom chatRoom, Member sender, String fileName,String fileUrl) {
-        ChatMessage message = createFileMessage(chatRoom, sender, fileName, fileUrl);
-        message.messageType = ChatMessageType.IMAGE;
-
-        return message;
-    }
-
-    // 시스템 메시지 (입장, 퇴장 등)
-    public static ChatMessage createSystemMessage(ChatRoom chatRoom, String content) {
-        ChatMessage message = new ChatMessage();
-        message.chatRoom = chatRoom;
-        message.content = content;
-        message.messageType = ChatMessageType.SYSTEM;
-        return message;
-    }
-
-    /**
-     * 비즈니스 로직
-     */
-    // 읽음 처리 확인
-    public boolean isReadBy(Long memberId) {
-        return readStatuses.stream()
-                .anyMatch(r -> r.getReader().getId().equals(memberId));
-    }
-
-    // 삭제 처리
-    public void markAsDeleted() {
-        this.isDeleted = true;
-        this.deletedAt = LocalDateTime.now();
-    }
-
-    /**
-     * 읽음 처리, 연관관계 메서드
-     */
-    public void addReadStatus(Member reader){
-        if(!isReadBy(reader.getId())) {
-            ChatMessageRead read = ChatMessageRead.create(this,reader);
-            this.readStatuses.add(read);
-        }
+    public void markAsRead() {
+        this.isRead = true;
     }
 }

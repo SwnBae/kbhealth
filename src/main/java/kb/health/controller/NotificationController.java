@@ -51,9 +51,6 @@ public class NotificationController {
                 responseList.add(notificationResponse);
             }
         }
-//        List<NotificationResponse> responseList = notifications.getContent().stream()
-//                .map(NotificationResponse::create)
-//                .collect(Collectors.toList());
 
         // 새로운 Page 객체 생성
         Page<NotificationResponse> responsePage = new PageImpl<>(

@@ -1,5 +1,7 @@
 package kb.health.service;
 
+import kb.health.controller.response.ChatMessageResponse;
+import kb.health.domain.chat.ChatMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -12,6 +14,7 @@ public class RealTimeNotificationService {
 
     private final SimpMessagingTemplate messagingTemplate;
 
+    // 알림 관련 메서드들
     public void sendNotificationToUser(Long userId, Object notification) {
         messagingTemplate.convertAndSendToUser(
                 userId.toString(),
@@ -36,6 +39,36 @@ public class RealTimeNotificationService {
         );
     }
 
+    // 채팅 관련 메서드들
+    public void sendChatMessage(Long userId, ChatMessage message) {
+        ChatMessageResponse response = ChatMessageResponse.create(message);
+        messagingTemplate.convertAndSendToUser(
+                userId.toString(),
+                "/queue/chat-messages",
+                response  // Response 객체로 전송
+        );
+    }
+
+    public void sendChatRoomUpdate(Long userId) {
+        messagingTemplate.convertAndSendToUser(
+                userId.toString(),
+                "/queue/chat-room-update",
+                "UPDATE"
+        );
+    }
+
+    // 채팅 개수 전용 메서드
+    public void sendChatUnreadCount(Long userId, Long count) {
+        messagingTemplate.convertAndSendToUser(
+                userId.toString(),
+                "/queue/chat-unread-count",
+                count
+        );
+    }
+
+    /**
+     * 예비 공지 메서드
+     */
     // 전역 알림 - 현재 방식이 올바름
     public void sendGlobalNotification(Object notification) {
         messagingTemplate.convertAndSend("/topic/global-notifications", notification);
