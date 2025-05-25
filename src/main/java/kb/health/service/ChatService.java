@@ -98,6 +98,10 @@ public class ChatService {
             // 🆕 채팅 개수 업데이트 전송
             long unreadCount = getTotalUnreadCount(userId);
             realTimeNotificationService.sendChatUnreadCount(userId, unreadCount);
+
+            // 🆕 메시지 보낸 사람에게 읽음 알림 전송
+            Long partnerId = getPartnerId(chatRoomId, userId);
+            realTimeNotificationService.sendMessageReadStatus(partnerId, chatRoomId);
         }
     }
 
@@ -113,5 +117,13 @@ public class ChatService {
         return message.getSender().getId().equals(currentUserId)
                 ? message.getReceiver()
                 : message.getSender();
+    }
+
+    private Long getPartnerId(String chatRoomId, Long currentUserId) {
+        String[] userIds = chatRoomId.split("_");
+        Long userId1 = Long.parseLong(userIds[0]);
+        Long userId2 = Long.parseLong(userIds[1]);
+
+        return userId1.equals(currentUserId) ? userId2 : userId1;
     }
 }

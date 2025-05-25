@@ -66,6 +66,19 @@ public class RealTimeNotificationService {
         );
     }
 
+    public void sendMessageReadStatus(Long senderId, String chatRoomId) {
+        Map<String, Object> readStatus = Map.of(
+                "chatRoomId", chatRoomId,
+                "isRead", true
+        );
+
+        messagingTemplate.convertAndSendToUser(
+                senderId.toString(),
+                "/queue/message-read-status",
+                readStatus
+        );
+    }
+
     /**
      * 예비 공지 메서드
      */
