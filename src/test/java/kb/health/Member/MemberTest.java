@@ -30,7 +30,7 @@ public class MemberTest {
 
         //when
         memberService.save(member);
-        Member findMember = memberRepository.findMemberById(member.getId());
+        Member findMember = memberRepository.findById(member.getId()).orElseThrow();
 
         //then
         assertEquals(member.getId(), findMember.getId());
@@ -199,7 +199,7 @@ public class MemberTest {
 
         // when
         memberService.updateMember(memberId, form);
-        Member updatedMember = memberRepository.findMemberById(memberId);
+        Member updatedMember = memberRepository.findById(memberId).orElseThrow();;
 
         // then
         assertEquals("new_password", updatedMember.getPassword());

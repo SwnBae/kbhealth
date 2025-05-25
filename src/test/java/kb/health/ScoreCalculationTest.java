@@ -1,10 +1,13 @@
 package kb.health;
 
+import kb.health.controller.response.NutritionAchievementResponse;
+import kb.health.domain.DailyNutritionStandard;
 import kb.health.domain.Member;
 import kb.health.domain.record.DietRecord;
 import kb.health.domain.record.ExerciseRecord;
 import kb.health.repository.MemberRepository;
-import kb.health.repository.RecordRepository;
+import kb.health.repository.record.DietRecordRepository;
+import kb.health.repository.record.ExerciseRecordRepository;
 import kb.health.service.MemberService;
 import kb.health.service.ScoreService;
 import org.junit.jupiter.api.Test;
@@ -14,6 +17,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.List;
@@ -35,7 +39,10 @@ public class ScoreCalculationTest {
     private MemberService memberService;
 
     @Autowired
-    private RecordRepository recordRepository;
+    DietRecordRepository dietRecordRepository;
+
+    @Autowired
+    ExerciseRecordRepository exerciseRecordRepository;
 
     @Autowired
     private MemberRepository memberRepository;
@@ -141,14 +148,27 @@ public class ScoreCalculationTest {
     private boolean checkIfDateHasRecords(LocalDate date) {
         List<Member> members = memberRepository.findAll();
         for (Member member : members) {
-            List<DietRecord> dietRecords = recordRepository.findDietRecordsByMemberAndDate(member, date);
-            List<ExerciseRecord> exerciseRecords = recordRepository.findExerciseRecordsByMemberAndDate(member, date);
+            List<DietRecord> dietRecords = findDietRecordsByMemberAndDate(member, date);
+            List<ExerciseRecord> exerciseRecords = findExerciseRecordsByMemberAndDate(member, date);
 
             if (!dietRecords.isEmpty() || !exerciseRecords.isEmpty()) {
                 return true;
             }
         }
         return false;
+    }
+
+    // 날짜 범위 조회 헬퍼 메서드들
+    private List<DietRecord> findDietRecordsByMemberAndDate(Member member, LocalDate date) {
+        LocalDateTime start = date.atStartOfDay().minusDays(1);
+        LocalDateTime end = date.atStartOfDay();
+        return dietRecordRepository.findByMemberAndDateRange(member, start, end);
+    }
+
+    private List<ExerciseRecord> findExerciseRecordsByMemberAndDate(Member member, LocalDate date) {
+        LocalDateTime start = date.atStartOfDay().minusDays(1);
+        LocalDateTime end = date.atStartOfDay();
+        return exerciseRecordRepository.findByMemberAndDateRange(member, start, end);
     }
 
     /**
@@ -163,7 +183,7 @@ public class ScoreCalculationTest {
         // 모든 회원의 모든 기록 날짜 수집
         for (Member member : members) {
             // 식단 기록 날짜 수집
-            List<DietRecord> dietRecords = recordRepository.findDietRecordsByMember(member.getId());
+            List<DietRecord> dietRecords = dietRecordRepository.findByMemberId(member.getId());
             for (DietRecord record : dietRecords) {
                 LocalDate recordDate = record.getCreatedDate().toLocalDate();
                 allDates.add(recordDate);
@@ -177,7 +197,7 @@ public class ScoreCalculationTest {
             }
 
             // 운동 기록 날짜 수집
-            List<ExerciseRecord> exerciseRecords = recordRepository.findExerciseRecordsByMember(member.getId());
+            List<ExerciseRecord> exerciseRecords = exerciseRecordRepository.findByMemberId(member.getId());
             for (ExerciseRecord record : exerciseRecords) {
                 LocalDate recordDate = record.getCreatedDate().toLocalDate();
                 allDates.add(recordDate);

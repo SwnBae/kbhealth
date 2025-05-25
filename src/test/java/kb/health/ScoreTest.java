@@ -1,19 +1,16 @@
 package kb.health;
 
 import kb.health.controller.request.MemberRegistRequest;
-import kb.health.repository.DietRepository;
-import kb.health.repository.RecordRepository;
+import kb.health.repository.record.DietRecordRepository;
+import kb.health.repository.record.DietRepository;
+import kb.health.repository.record.ExerciseRecordRepository;
 import kb.health.service.MemberService;
 import kb.health.service.RecordService;
 import kb.health.service.ScoreService;
 import kb.health.controller.ProfileController;
 import kb.health.controller.request.DietRecordRequest;
 import kb.health.controller.request.ExerciseRecordRequest;
-import kb.health.controller.response.DailyScoreResponse;
-import kb.health.controller.response.MemberProfileResponse;
-import kb.health.controller.response.NutritionAchievementResponse;
 import kb.health.domain.*;
-import kb.health.domain.record.Diet;
 import kb.health.domain.record.ExerciseRecord;
 import kb.health.domain.record.ExerciseType;
 import kb.health.domain.record.MealType;
@@ -21,7 +18,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,8 +35,12 @@ class ScoreTest {
     ScoreService scoreService;  // 일일점수 계산을 위한 서비스
     @Autowired
     DietRepository dietRepository;
+
     @Autowired
-    RecordRepository recordRepository;
+    DietRecordRepository dietRecordRepository;
+
+    @Autowired
+    ExerciseRecordRepository exerciseRecordRepository;
 
     @Autowired
     ProfileController profileController;

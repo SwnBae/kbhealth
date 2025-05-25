@@ -1,6 +1,6 @@
 package kb.health.record;
 
-import kb.health.repository.DietRepository;
+import kb.health.repository.record.DietRepository;
 import kb.health.service.*;
 import kb.health.domain.BodyInfo;
 import kb.health.domain.DailyNutritionStandard;
@@ -53,7 +53,7 @@ class DietTest {
 
         // when
         Long savedId = recordService.addDiet(request);
-        Diet savedDiet = dietRepository.findById(savedId);
+        Diet savedDiet = dietRepository.findById(savedId).orElseThrow();;
 
         // then
         assertThat(savedDiet).isNotNull();
@@ -71,7 +71,7 @@ class DietTest {
         recordService.deleteDiet(savedId);
 
         // then
-        Diet deletedDiet = dietRepository.findById(savedId);
+        Diet deletedDiet = dietRepository.findById(savedId).orElseThrow();;
         assertThat(deletedDiet).isNull();
     }
 
@@ -84,7 +84,7 @@ class DietTest {
         DietRequest dietRequest = new DietRequest("닭가슴살+샐러드", 350);
 
         Long dietId = recordService.addDiet(dietRequest);
-        Diet diet = dietRepository.findById(dietId);
+        Diet diet = dietRepository.findById(dietId).orElseThrow();;
 
         DietRecordRequest recordRequest = new DietRecordRequest(dietId, 500, null, MealType.LUNCH);
 

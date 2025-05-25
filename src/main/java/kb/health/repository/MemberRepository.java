@@ -1,120 +1,46 @@
 package kb.health.repository;
 
-import jakarta.persistence.EntityManager;
 import kb.health.domain.Member;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-@RequiredArgsConstructor
-public class MemberRepository {
+public interface MemberRepository extends JpaRepository<Member, Long> {
 
-    private final EntityManager em;
+    // 휴대폰 번호로 멤버 찾기
+    Optional<Member> findByPhoneNumber(String phoneNumber);
 
-    public Long save(Member member) {
-        em.persist(member);
+    // 닉네임으로 멤버 찾기
+    Optional<Member> findByUserName(String userName);
 
-        return member.getId();
-    }
+    // 유저 Account로 멤버 찾기
+    Optional<Member> findByAccount(String account);
 
-    //내부 로직에서만 사용할 메서드
-    public Member findMemberById(Long id) {
-        return em.find(Member.class, id);
-    }
+    // 유저 검색 (Account, userName) - 복합 조건이므로 @Query 사용
+    @Query("SELECT m FROM Member m WHERE m.userName LIKE %:keyword% OR m.account LIKE %:keyword%")
+    List<Member> findByUserNameOrAccountContaining(@Param("keyword") String keyword);
 
-    //휴대폰 번호로 멤버 찾기
-    public Optional<Member> findMemberByPN(String phoneNumber) {
-        return em.createQuery("select m from Member m where m.phoneNumber = :phoneNumber", Member.class)
-                .setParameter("phoneNumber", phoneNumber)
-                .getResultStream()
-                .findFirst();
-    }
+    // totalScore 기준 상위 랭킹 조회
+    List<Member> findAllByOrderByTotalScoreDesc(Pageable pageable);
 
-    //닉네임으로 멤버 찾기
-    public Optional<Member> findMemberByName(String userName) {
-        return em.createQuery("select m from Member m where m.userName = :userName", Member.class)
-                .setParameter("userName", userName)
-                .getResultStream()
-                .findFirst();
-    }
-
-    //유저 Account로 멤버 찾기
-    public Optional<Member> findMemberByAccount(String account) {
-        return em.createQuery("select m from Member m where m.account = :account", Member.class)
-                .setParameter("account", account)
-                .getResultStream()
-                .findFirst();
-    }
-
-    // 유저 검색 (Account, userName)
-    public List<Member> findByUserNameOrAccountLike(String keyword) {
-        return em.createQuery("select m from Member m where m.userName like :kw or m.account like :kw", Member.class)
-                .setParameter("kw", "%" + keyword + "%")
-                .getResultList();
-    }
-
-    public List<Member> findAll() {
-        return em.createQuery("select m from Member m", Member.class)
-                .getResultList();
-    }
-
-    public List<Member> findTopByTotalScore(Pageable pageable) {
-        return em.createQuery("select m from Member m order by m.totalScore desc", Member.class)
-                .setFirstResult(pageable.getPageNumber() * pageable.getPageSize()) // 페이지 번호에 맞는 시작 인덱스 설정
-                .setMaxResults(pageable.getPageSize()) // 한 페이지에 출력할 최대 결과 개수
-                .getResultList();
-    }
-
-    public List<Member> findTopByBaseScore(Pageable pageable) {
-        return em.createQuery("select m from Member m order by m.baseScore desc", Member.class)
-                .setFirstResult(pageable.getPageNumber() * pageable.getPageSize()) // 페이지 번호에 맞는 시작 인덱스 설정
-                .setMaxResults(pageable.getPageSize()) // 한 페이지에 출력할 최대 결과 개수
-                .getResultList();
-    }
-
-    public long countMembers() {
-        return em.createQuery("select count(m) from Member m", Long.class)
-                .getSingleResult();
-    }
+    // baseScore 기준 상위 랭킹 조회
+    List<Member> findAllByOrderByBaseScoreDesc(Pageable pageable);
 
     // 팔로우한 사용자들의 랭킹 (baseScore 기준)
-    public List<Member> findFollowingsByBaseScore(List<Long> followingIds, Pageable pageable) {
-        if (followingIds.isEmpty()) {
-            return List.of(); // 팔로우한 사용자가 없으면 빈 리스트 반환
-        }
-
-        return em.createQuery("select m from Member m where m.id in :ids order by m.baseScore desc", Member.class)
-                .setParameter("ids", followingIds)
-                .setFirstResult(pageable.getPageNumber() * pageable.getPageSize())
-                .setMaxResults(pageable.getPageSize())
-                .getResultList();
-    }
+    @Query("SELECT m FROM Member m WHERE m.id IN :ids ORDER BY m.baseScore DESC")
+    List<Member> findByIdInOrderByBaseScoreDesc(@Param("ids") List<Long> followingIds, Pageable pageable);
 
     // 팔로우한 사용자들의 총 수
-    public long countFollowings(List<Long> followingIds) {
-        if (followingIds.isEmpty()) {
-            return 0;
-        }
+    long countByIdIn(List<Long> followingIds);
 
-        return em.createQuery("select count(m) from Member m where m.id in :ids", Long.class)
-                .setParameter("ids", followingIds)
-                .getSingleResult();
-    }
+    // 점수 업데이트용 전체 조회 메서드들
+    List<Member> findAllByOrderByTotalScoreDesc();
 
-    /**
-     * 점수 업데이트 ->
-     */
-    public List<Member> findAllOrderByTotalScoreDesc() {
-        return em.createQuery("select m from Member m order by m.totalScore desc", Member.class)
-                .getResultList();
-    }
-
-    public List<Member> findAllOrderByBaseScoreDesc() {
-        return em.createQuery("select m from Member m order by m.baseScore desc", Member.class)
-                .getResultList();
-    }
+    List<Member> findAllByOrderByBaseScoreDesc();
 }

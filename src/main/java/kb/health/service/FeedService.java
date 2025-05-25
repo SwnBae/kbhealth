@@ -47,7 +47,7 @@ public class FeedService {
         Pageable pageable = PageRequest.of(page, size);
 
         //내가 팔로우한 유저들의 ID
-        List<Long> followingIds = followRepository.findFollowings(memberId);
+        List<Long> followingIds = followRepository.findFollowingIds(memberId);
 
         //게시글 페이징 조회
         Page<Post> postPage = postRepository.findByWriterIdInOrderByCreatedDateDesc(followingIds, pageable);
@@ -108,7 +108,8 @@ public class FeedService {
 
         boolean liked = false;
         if (memberId != null) {
-            Member member = memberRepository.findMemberById(memberId);
+            Member member = memberRepository.findById(memberId)
+                    .orElseThrow(() -> new IllegalArgumentException("Member not found"));
             liked = postLikeRepository.findByMemberAndPost(member, post).isPresent();
         }
 
@@ -122,7 +123,8 @@ public class FeedService {
     //게시글 작성 메서드
     @Transactional
     public Long savePost(Long memberId, PostCreateRequest postCreateRequest , String imageUrl) {
-        Member writer = memberRepository.findMemberById(memberId);
+        Member writer = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
         Post post = Post.builder()
                 .title(postCreateRequest.getTitle())
                 .writer(writer).content(postCreateRequest.getContent())
@@ -158,7 +160,8 @@ public class FeedService {
     //댓글 작성 메서드
     @Transactional
     public Long saveComment(Long memberId, Long postId, CommentCreateRequest createCommentRequest ) {
-        Member writer = memberRepository.findMemberById(memberId);
+        Member writer = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
         Post post = postRepository.findById(postId).orElseThrow(FeedException::canNotFindPost);
         Comment comment = Comment.builder().writer(writer).post(post).text(createCommentRequest.getComment()).build();
         commentRepository.save(comment);
@@ -179,9 +182,12 @@ public class FeedService {
     //좋아요 추가 메서드
     @Transactional
     public Boolean postLikeToggle(Long memberId, Long postId) {
-        Member member = memberRepository.findMemberById(memberId);
-        Post post = postRepository.findById(postId).orElseThrow(FeedException::canNotFindPost);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+        Post post = postRepository.findById(postId)
+                .orElseThrow(FeedException::canNotFindPost);
         Optional<PostLike> postLike = postLikeRepository.findByMemberAndPost(member, post);
+
         if (postLike.isPresent()) {
             postLikeRepository.delete(postLike.get());
             return false;
@@ -191,6 +197,4 @@ public class FeedService {
             return true;
         }
     }
-
-
 }

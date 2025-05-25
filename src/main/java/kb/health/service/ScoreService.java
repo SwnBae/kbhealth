@@ -2,17 +2,19 @@ package kb.health.service;
 
 import kb.health.repository.DailyScoreRepository;
 import kb.health.repository.MemberRepository;
-import kb.health.repository.RecordRepository;
 import kb.health.domain.DailyScore;
 import kb.health.domain.Member;
 import kb.health.domain.record.DietRecord;
 import kb.health.domain.record.ExerciseRecord;
+import kb.health.repository.record.DietRecordRepository;
+import kb.health.repository.record.ExerciseRecordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 
@@ -23,7 +25,8 @@ public class ScoreService {
 
     private final DailyScoreRepository dailyScoreRepository;
     private final MemberRepository memberRepository;
-    private final RecordRepository recordRepository;
+    private final DietRecordRepository dietRecordRepository;
+    private final ExerciseRecordRepository exerciseRecordRepository;
 
     // 모든 멤버에 대해 일일 점수를 계산하고 저장 및 총점, 10일 점수 갱신
     @Transactional
@@ -39,8 +42,8 @@ public class ScoreService {
             System.out.println("=============================");
             System.out.println(member.getUserName());
             // 해당 날짜의 다이어트 기록과 운동 기록을 가져옵니다.
-            List<DietRecord> dietRecordList = recordRepository.findDietRecordsByMemberAndDate(member, date);
-            List<ExerciseRecord> exerciseRecordList = recordRepository.findExerciseRecordsByMemberAndDate(member, date);
+            List<DietRecord> dietRecordList = findDietRecordsByMemberAndDate(member, date);
+            List<ExerciseRecord> exerciseRecordList = findExerciseRecordsByMemberAndDate(member, date);
 
             System.out.println("기록");
             for (DietRecord dietRecord : dietRecordList) {
@@ -73,8 +76,8 @@ public class ScoreService {
             System.out.println("=============================");
             System.out.println(member.getUserName());
             // 해당 날짜의 다이어트 기록과 운동 기록을 가져옵니다.
-            List<DietRecord> dietRecordList = recordRepository.findDietRecordsByMemberAndDate(member, date);
-            List<ExerciseRecord> exerciseRecordList = recordRepository.findExerciseRecordsByMemberAndDate(member, date);
+            List<DietRecord> dietRecordList = findDietRecordsByMemberAndDate(member, date);
+            List<ExerciseRecord> exerciseRecordList = findExerciseRecordsByMemberAndDate(member, date);
 
             System.out.println("기록");
             for (DietRecord dietRecord : dietRecordList) {
@@ -127,5 +130,17 @@ public class ScoreService {
         return scores;
     }
 
+    // 날짜 범위 조회 헬퍼 메서드들
+    private List<DietRecord> findDietRecordsByMemberAndDate(Member member, LocalDate date) {
+        LocalDateTime start = date.atStartOfDay().minusDays(1);
+        LocalDateTime end = date.atStartOfDay();
+        return dietRecordRepository.findByMemberAndDateRange(member, start, end);
+    }
+
+    private List<ExerciseRecord> findExerciseRecordsByMemberAndDate(Member member, LocalDate date) {
+        LocalDateTime start = date.atStartOfDay().minusDays(1);
+        LocalDateTime end = date.atStartOfDay();
+        return exerciseRecordRepository.findByMemberAndDateRange(member, start, end);
+    }
 }
 

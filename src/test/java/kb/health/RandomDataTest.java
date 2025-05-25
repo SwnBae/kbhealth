@@ -10,9 +10,10 @@ import kb.health.domain.feed.Post;
 import kb.health.domain.record.ExerciseRecord;
 import kb.health.domain.record.ExerciseType;
 import kb.health.domain.record.MealType;
-import kb.health.repository.DietRepository;
-import kb.health.repository.RecordRepository;
+import kb.health.repository.record.DietRecordRepository;
+import kb.health.repository.record.DietRepository;
 import kb.health.repository.feed.PostRepository;
+import kb.health.repository.record.ExerciseRecordRepository;
 import kb.health.service.FeedService;
 import kb.health.service.MemberService;
 import kb.health.service.RecordService;
@@ -53,7 +54,10 @@ public class RandomDataTest {
     DietRepository dietRepository;
 
     @Autowired
-    RecordRepository recordRepository;
+    DietRecordRepository dietRecordRepository;
+
+    @Autowired
+    ExerciseRecordRepository exerciseRecordRepository;
 
     @Autowired
     PostRepository postRepository;

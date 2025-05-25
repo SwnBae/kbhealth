@@ -1,6 +1,6 @@
 package kb.health.record;
 
-import kb.health.repository.RecordRepository;
+import kb.health.repository.record.ExerciseRecordRepository;
 import kb.health.service.*;
 import kb.health.domain.BodyInfo;
 import kb.health.domain.DailyNutritionStandard;
@@ -27,7 +27,7 @@ class ExerciseTest {
     @Autowired
     MemberService memberService;
     @Autowired
-    RecordRepository recordRepository;
+    ExerciseRecordRepository exerciseRecordRepository;
 
     Long savedMemberId;
 
@@ -55,7 +55,7 @@ class ExerciseTest {
 
         // when
         Long savedId = recordService.saveExerciseRecord(request, savedMemberId);
-        ExerciseRecord savedRecord = recordRepository.findExerciseRecordById(savedId);
+        ExerciseRecord savedRecord = exerciseRecordRepository.findById(savedId).orElseThrow();
 
         // then
         assertThat(savedRecord).isNotNull();
@@ -74,7 +74,7 @@ class ExerciseTest {
         ExerciseRecordRequest request = new ExerciseRecordRequest("근력1",30, 300, ExerciseType.CARDIO, null);
 
         Long savedId = recordService.saveExerciseRecord(request, savedMemberId);
-        ExerciseRecord savedRecord = recordRepository.findExerciseRecordById(savedId);
+        ExerciseRecord savedRecord = exerciseRecordRepository.findById(savedId).orElseThrow();
 
         // when: 운동시간, 칼로리, 운동 타입 수정
         ExerciseRecordRequest updateRequest = new ExerciseRecordRequest();
@@ -107,7 +107,7 @@ class ExerciseTest {
         recordService.deleteExerciseRecord(savedMemberId, savedId);
 
         // then
-        ExerciseRecord deletedRecord = recordRepository.findExerciseRecordById(savedId);
+        ExerciseRecord deletedRecord = exerciseRecordRepository.findById(savedId).orElseThrow();
         assertThat(deletedRecord).isNull();
     }
 

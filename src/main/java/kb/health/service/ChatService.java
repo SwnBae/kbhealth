@@ -25,26 +25,28 @@ public class ChatService {
     private final MemberRepository memberRepository;
     private final RealTimeNotificationService realTimeNotificationService;
 
-    // 🆕 메시지 전송 - 개수 업데이트까지 포함
+    // 메시지 전송 - 개수 업데이트 포함
     @Transactional
     public ChatMessage sendMessage(Long senderId, Long receiverId, String content) {
-        Member sender = memberRepository.findMemberById(senderId);
-        Member receiver = memberRepository.findMemberById(receiverId);
+        Member sender = memberRepository.findById(senderId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+        Member receiver = memberRepository.findById(receiverId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
 
         ChatMessage chatMessage = ChatMessage.create(sender, receiver, content);
         ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
 
-        // 1. 수신자에게 실시간 메시지 전송
+        // 수신자에게 실시간 메시지 전송
         realTimeNotificationService.sendChatMessage(receiverId, savedMessage);
 
-        // 2. 송신자에게도 실시간 메시지 전송 (본인이 보낸 메시지 확인용)
+        // 송신자에게 실시간 메시지 전송 (본인이 보낸 메시지 확인용)
         realTimeNotificationService.sendChatMessage(senderId, savedMessage);
 
-        // 🆕 3. 채팅방 목록 업데이트를 위해 양쪽 사용자에게 알림
+        // 채팅방 목록 업데이트를 위해 양쪽 사용자에게 알림
         realTimeNotificationService.sendChatRoomUpdate(senderId);
         realTimeNotificationService.sendChatRoomUpdate(receiverId);
 
-        // 🆕 4. 채팅 개수 업데이트 전송 (수신자에게만)
+        // 채팅 개수 업데이트 전송 (수신자에게만)
         long receiverUnreadCount = getTotalUnreadCount(receiverId);
         realTimeNotificationService.sendChatUnreadCount(receiverId, receiverUnreadCount);
 
@@ -57,7 +59,7 @@ public class ChatService {
         return chatMessageRepository.findByChatRoomIdOrderByCreatedDateDesc(chatRoomId, pageable);
     }
 
-    // 사용자의 채팅방 목록 조회 (간단한 Map 형태로 반환)
+    // 사용자의 채팅방 목록 조회 (Map 형태 반환)
     public List<ChatRoomInfo> getChatRooms(Long userId) {
         List<String> chatRoomIds = chatMessageRepository.findChatRoomIdsByUserId(userId);
         List<ChatRoomInfo> chatRooms = new ArrayList<>();
@@ -86,7 +88,7 @@ public class ChatService {
                 .collect(Collectors.toList());
     }
 
-    // 🆕 메시지 읽음 처리 - 개수 업데이트 포함
+    // 메시지 읽음 처리 - 개수 업데이트 포함
     @Transactional
     public void markMessagesAsRead(String chatRoomId, Long userId) {
         int updatedCount = chatMessageRepository.markMessagesAsRead(chatRoomId, userId);
@@ -95,11 +97,11 @@ public class ChatService {
             // 채팅방 목록 업데이트 알림
             realTimeNotificationService.sendChatRoomUpdate(userId);
 
-            // 🆕 채팅 개수 업데이트 전송
+            // 채팅 개수 업데이트 전송
             long unreadCount = getTotalUnreadCount(userId);
             realTimeNotificationService.sendChatUnreadCount(userId, unreadCount);
 
-            // 🆕 메시지 보낸 사람에게 읽음 알림 전송
+            // 메시지 보낸 사람에게 읽음 알림 전송
             Long partnerId = getPartnerId(chatRoomId, userId);
             realTimeNotificationService.sendMessageReadStatus(partnerId, chatRoomId);
         }

@@ -42,19 +42,19 @@ public class MemberService {
     @Transactional
     public Long save(MemberRegistRequest request) {
         // 휴대폰 번호 중복 확인
-        memberRepository.findMemberByPN(request.getPhoneNumber())
+        memberRepository.findByPhoneNumber(request.getPhoneNumber())
                 .ifPresent(m -> {
                     throw MemberException.duplicatePhoneNumber();
                 });
 
         // 이름 중복 확인
-        memberRepository.findMemberByName(request.getUserName())
+        memberRepository.findByUserName(request.getUserName())
                 .ifPresent(m -> {
                     throw MemberException.duplicateUserName();
                 });
 
         // 계정 중복 확인
-        memberRepository.findMemberByAccount(request.getAccount())
+        memberRepository.findByAccount(request.getAccount())
                 .ifPresent(m -> {
                     throw MemberException.duplicateAccount();
                 });
@@ -69,19 +69,19 @@ public class MemberService {
     @Transactional
     public Long save(Member member) {
         // 휴대폰 번호 중복 확인
-        memberRepository.findMemberByPN(member.getPhoneNumber())
+        memberRepository.findByPhoneNumber(member.getPhoneNumber())
                 .ifPresent(m -> {
                     throw MemberException.duplicatePhoneNumber();
                 });
 
         // 이름 중복 확인
-        memberRepository.findMemberByName(member.getUserName())
+        memberRepository.findByUserName(member.getUserName())
                 .ifPresent(m -> {
                     throw MemberException.duplicateUserName();
                 });
 
         // 계정 중복 확인
-        memberRepository.findMemberByAccount(member.getAccount())
+        memberRepository.findByAccount(member.getAccount())
                 .ifPresent(m -> {
                     throw MemberException.duplicateAccount();
                 });
@@ -92,12 +92,12 @@ public class MemberService {
 
     // 아이디 중복 검사
     public boolean isAccountDuplicate(String account) {
-        return memberRepository.findMemberByAccount(account).isPresent();
+        return memberRepository.findByAccount(account).isPresent();
     }
 
     // 닉네임 중복 검사
     public boolean isUsernameDuplicate(String userName) {
-        return memberRepository.findMemberByName(userName).isPresent();
+        return memberRepository.findByUserName(userName).isPresent();
     }
 
     /**
@@ -106,7 +106,8 @@ public class MemberService {
     //계정 정보 수정
     @Transactional
     public void updateMember(Long memberId, MemberEditRequest memberEditRequest) {
-        Member member = memberRepository.findMemberById(memberId);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
 
         member.updateAccountInfo(memberEditRequest);
     }
@@ -114,16 +115,10 @@ public class MemberService {
     //신체 정보 수정
     @Transactional
     public void updateMemberBodyInfo(Long memberId, MemberBodyInfoEditRequest bodyInfoEditRequest) {
-        Member member = memberRepository.findMemberById(memberId);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
 
         member.updateBodyInfo(bodyInfoEditRequest);
-    }
-
-    //프로필 사진 수정
-    @Transactional
-    public void updateProfileImage(Long memberId, String imageUrl) {
-        Member member = memberRepository.findMemberById(memberId);
-        member.setProfileImageUrl(imageUrl);
     }
 
     /**
@@ -144,45 +139,46 @@ public class MemberService {
      */
     // 휴대폰 번호로 찾기
     public Member findMemberByPhoneNumber(String phoneNumber) {
-        return memberRepository.findMemberByPN(phoneNumber)
+        return memberRepository.findByPhoneNumber(phoneNumber)
                 .orElseThrow(() -> MemberException.memberNotFoundByPhoneNumber());
     }
 
     // 닉네임으로 찾기
     public Member findMemberByUserName(String userName) {
-        return memberRepository.findMemberByName(userName)
+        return memberRepository.findByUserName(userName)
                 .orElseThrow(() -> MemberException.memberNotFoundByUserName());
     }
 
     // 계정으로 찾기
     public Member findMemberByAccount(String account) {
-        return memberRepository.findMemberByAccount(account)
+        return memberRepository.findByAccount(account)
                 .orElseThrow(() -> MemberException.memberNotFoundByAccount());
     }
 
     //account로 휴대폰번호 찾기
     public String findPNByAccount(String account) {
-        return memberRepository.findMemberByAccount(account)
+        return memberRepository.findByAccount(account)
                 .map(Member::getPhoneNumber)
                 .orElseThrow(() -> MemberException.memberNotFoundByPhoneNumber());
     }
 
     // 유저 검색 (Account, userName)
     public List<Member> searchByUserNameOrAccountLike(String keyword) {
-        return memberRepository.findByUserNameOrAccountLike(keyword);
+        return memberRepository.findByUserNameOrAccountContaining(keyword);
     }
 
     /**
      * 아래의 멤버 찾는 메서드는 내부 로직에서 사용할 예비 메서드
      */
     public Member getMemberByAccount(String account) {
-        return memberRepository.findMemberByAccount(account)
+        return memberRepository.findByAccount(account)
                 .orElseThrow(() -> MemberException.memberNotFoundByAccount());
     }
 
     //고유 값(PK)로 찾기, 내부 로직 사용
     public Member findById(Long id) {
-        return memberRepository.findMemberById(id);
+        return memberRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
     }
 
     public List<Member> findMembers() {
@@ -200,13 +196,15 @@ public class MemberService {
         }
 
         // 이미 팔로우 중인지 확인
-        if (followRepository.findFollow(myId, targetId).isPresent()) {
+        if (followRepository.findByFromIdAndToId(myId, targetId).isPresent()) {
 //            throw FollowException.alreadyFollowing(); // 이미 팔로우 중인 경우 예외 발생
         }
 
         //영속화
-        Member me = memberRepository.findMemberById(myId);
-        Member target = memberRepository.findMemberById(targetId);
+        Member me = memberRepository.findById(myId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+        Member target = memberRepository.findById(targetId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
 
         // 팔로우 객체 생성
         Follow follow = Follow.createFollow(me, target);
@@ -218,7 +216,7 @@ public class MemberService {
     //팔로우 취소
     @Transactional
     public void unfollow(Long myId, Long targetId) {
-        Follow follow = followRepository.findFollow(myId, targetId)
+        Follow follow = followRepository.findByFromIdAndToId(myId, targetId)
                 .orElseThrow(() -> FollowException.followNotFound());
 
         follow.disconnect();
@@ -227,58 +225,39 @@ public class MemberService {
     }
 
     public List<FollowResponse> getFollowings(Long memberId) {
-        Member member = memberRepository.findMemberById(memberId);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
         return member.getFollowings().stream()
                 .map(follow -> FollowResponse.create(follow.getTo()))
                 .toList();
     }
 
     public List<FollowResponse> getFollowers(Long memberId) {
-        Member member = memberRepository.findMemberById(memberId);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
         return member.getFollowers().stream()
                 .map(follow -> FollowResponse.create(follow.getFrom()))
                 .toList();
     }
 
     public boolean isFollowing(Long myId, Long targetId) {
-        return followRepository.findFollow(myId, targetId).isPresent();
+        return followRepository.findByFromIdAndToId(myId, targetId).isPresent();
     }
 
     /**
      * 랭킹
      */
-//    public Page<RankingResponse> getRanking(String type, int page, int size) {
-//        Pageable pageable = PageRequest.of(page, size);
-//        List<Member> members;
-//        long totalCount;
-//
-//        if (type.equalsIgnoreCase("total")) {
-//            members = memberRepository.findTopByTotalScore(pageable);
-//            totalCount = memberRepository.countMembers(); // 전체 회원 수 조회
-//        } else {
-//            members = memberRepository.findTopByBaseScore(pageable);
-//            totalCount = memberRepository.countMembers(); // 전체 회원 수 조회
-//        }
-//
-//        List<RankingResponse> content = new ArrayList<>();
-//        int rank = page * size + 1; // 페이지에 따른 시작 랭킹 계산
-//        for (Member member : members) {
-//            content.add(RankingResponse.create(rank++, member));
-//        }
-//
-//        return new PageImpl<>(content, pageable, totalCount);
-//    }
     public Page<RankingResponse> getRanking(String type, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         List<Member> members;
         long totalCount;
 
         if (type.equalsIgnoreCase("total")) {
-            members = memberRepository.findTopByTotalScore(pageable);
-            totalCount = memberRepository.countMembers();
+            members = memberRepository.findAllByOrderByTotalScoreDesc(pageable);
+            totalCount = memberRepository.count();
         } else {
-            members = memberRepository.findTopByBaseScore(pageable);
-            totalCount = memberRepository.countMembers();
+            members = memberRepository.findAllByOrderByBaseScoreDesc(pageable);
+            totalCount = memberRepository.count();
         }
 
         List<RankingResponse> content = new ArrayList<>();
@@ -287,9 +266,8 @@ public class MemberService {
             int trend;
 
             if (member.isNewMember()) {
-                // 신규 회원은 트렌드를 "NEW"로 표시하기 위해 특별한 값 설정
-                // 예: -9999를 사용하여 프론트엔드에서 "NEW"로 표시
-                trend = -9999; // 신규 회원 표시용 특별 값
+                // 신규 회원은 트렌드를 "NEW"로 표시하기 위해 특별한 값(-9999) 설정
+                trend = -9999;
             } else {
                 // 기존 회원은 일반적인 트렌드 계산
                 int previousRank;
@@ -323,12 +301,12 @@ public class MemberService {
         Pageable pageable = PageRequest.of(page, size);
 
         // 현재 회원이 팔로우한 사용자들의 ID 목록 조회
-        List<Long> followingIds = followRepository.findFollowings(memberId);
+        List<Long> followingIds = followRepository.findFollowingIds(memberId);
 
         // 자신도 랭킹에 포함 (선택사항, 원하는 경우 포함)
         followingIds.add(memberId);
-        long totalCount = memberRepository.countFollowings(followingIds);
-        List<Member> members = memberRepository.findFollowingsByBaseScore(followingIds, pageable);
+        long totalCount = memberRepository.countByIdIn(followingIds);
+        List<Member> members = memberRepository.findByIdInOrderByBaseScoreDesc(followingIds, pageable);
         List<RankingResponse> content = new ArrayList<>();
         int rank = page * size + 1; // 페이지에 따른 시작 랭킹 계산
         for (Member member : members) {
@@ -344,8 +322,8 @@ public class MemberService {
     @Scheduled(cron = "0 0 0 * * *")
     public void updateMemberRankings() {
         // 전체 회원을 랭킹별로 조회
-        List<Member> membersByTotalScore = memberRepository.findAllOrderByTotalScoreDesc();
-        List<Member> membersByBaseScore = memberRepository.findAllOrderByBaseScoreDesc();
+        List<Member> membersByTotalScore = memberRepository.findAllByOrderByTotalScoreDesc();
+        List<Member> membersByBaseScore = memberRepository.findAllByOrderByBaseScoreDesc();
 
         // 각 멤버의 현재 랭킹 정보 저장
         Map<Long, Integer> totalRankMap = new HashMap<>();
@@ -382,8 +360,8 @@ public class MemberService {
         System.out.println("날짜 " + date + " 기준으로 랭킹 정보 업데이트 시작");
 
         // 1. 점수 기준으로 회원 목록 조회
-        List<Member> membersByTotalScore = memberRepository.findAllOrderByTotalScoreDesc();
-        List<Member> membersByBaseScore = memberRepository.findAllOrderByBaseScoreDesc();
+        List<Member> membersByTotalScore = memberRepository.findAllByOrderByTotalScoreDesc();
+        List<Member> membersByBaseScore = memberRepository.findAllByOrderByBaseScoreDesc();
 
         // 2. 순위 맵 생성
         Map<Long, Integer> totalRankMap = new HashMap<>();

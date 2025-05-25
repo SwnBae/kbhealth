@@ -62,8 +62,10 @@ public class NotificationService {
             return null;
         }
 
-        Member actor = memberRepository.findMemberById(actorId);
-        Member receiver = memberRepository.findMemberById(receiverId);
+        Member actor = memberRepository.findById(actorId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+        Member receiver = memberRepository.findById(receiverId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
 
         Notification notification = Notification.createFollowNotification(actor, receiver);
         Notification savedNotification = notificationRepository.save(notification);
@@ -83,8 +85,10 @@ public class NotificationService {
             return null;
         }
 
-        Member actor = memberRepository.findMemberById(actorId);
-        Member receiver = memberRepository.findMemberById(receiverId);
+        Member actor = memberRepository.findById(actorId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+        Member receiver = memberRepository.findById(receiverId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
 
         Notification notification = Notification.createCommentNotification(actor, receiver, commentId, postTitle, comment);
         Notification savedNotification = notificationRepository.save(notification);
@@ -109,8 +113,10 @@ public class NotificationService {
             return null;
         }
 
-        Member actor = memberRepository.findMemberById(actorId);
-        Member receiver = memberRepository.findMemberById(receiverId);
+        Member actor = memberRepository.findById(actorId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+        Member receiver = memberRepository.findById(receiverId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
 
         Notification notification = Notification.createLikeNotification(actor, receiver, postId, postTitle);
         Notification savedNotification = notificationRepository.save(notification);
