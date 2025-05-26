@@ -100,7 +100,6 @@ public class MemberTest {
         //닉네임만 같은 경우
         Member member2 = createMember();
         member2.setAccount("tmp");
-        member2.setPhoneNumber("011-0000-0000");
 
         //when, then
         MemberException exception = assertThrows(
@@ -120,7 +119,6 @@ public class MemberTest {
         //계정만 같은 경우
         Member member2 = createMember();
         member2.setUserName("tmpName");
-        member2.setPhoneNumber("011-0000-0000");
 
         //when, then
         MemberException exception = assertThrows(
