@@ -2,6 +2,7 @@ package kb.health.controller;
 
 import kb.health.controller.response.NutritionStandardResponse;
 import kb.health.domain.Member;
+import kb.health.service.ImageUploadService;
 import kb.health.service.MemberService;
 import kb.health.service.RecordService;
 import kb.health.authentication.CurrentMember;
@@ -18,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,6 +35,7 @@ public class RecordController {
 
     private final RecordService recordService;
     private final MemberService memberService;
+    private final ImageUploadService imageUploadService;
 
     /**
      * 식단
@@ -59,23 +62,26 @@ public class RecordController {
             @RequestPart("record") DietRecordRequest request,
             @RequestPart(value = "image", required = false) MultipartFile image) {
 
-        String imageUrl = null;
-        if (image != null && !image.isEmpty()) {
-            try {
-                String uploadPath = "images";
-                String imageName = UUID.randomUUID() + "_" + image.getOriginalFilename();
-                Path filePath = Paths.get(uploadPath, imageName);
-                Files.createDirectories(filePath.getParent());
-                Files.write(filePath, image.getBytes());
-                imageUrl = String.format("/images/%s", imageName);
+        try {
+            // ✅ 이미지 업로드 처리를 서비스로 위임
+            String imageUrl = imageUploadService.uploadImage(image);
+            if (imageUrl != null) {
                 request.setDrImgUrl(imageUrl);
-            } catch (Exception e) {
-                return ResponseEntity.badRequest().body("이미지 업로드 실패");
             }
-        }
 
-        recordService.saveDietRecord(request, currentMember.getId());
-        return ResponseEntity.ok("식단 추가 성공");
+            recordService.saveDietRecord(request, currentMember.getId());
+            return ResponseEntity.ok("식단 추가 성공");
+
+        } catch (IllegalArgumentException e) {
+            // 파일 크기, 확장자 등의 검증 오류
+            return ResponseEntity.badRequest().body("이미지 업로드 오류: " + e.getMessage());
+        } catch (IOException e) {
+            // 파일 저장 오류
+            return ResponseEntity.internalServerError().body("이미지 업로드 중 서버 오류가 발생했습니다.");
+        } catch (Exception e) {
+            // 기타 오류
+            return ResponseEntity.internalServerError().body("식단 기록 중 오류가 발생했습니다: " + e.getMessage());
+        }
     }
 
     // 특정 기록 조회
@@ -164,23 +170,26 @@ public class RecordController {
             @RequestPart("record") ExerciseRecordRequest request,
             @RequestPart(value = "image", required = false) MultipartFile image) {
 
-        String imageUrl = null;
-        if (image != null && !image.isEmpty()) {
-            try {
-                String uploadPath = "images";
-                String imageName = UUID.randomUUID() + "_" + image.getOriginalFilename();
-                Path filePath = Paths.get(uploadPath, imageName);
-                Files.createDirectories(filePath.getParent());
-                Files.write(filePath, image.getBytes());
-                imageUrl = String.format("/images/%s", imageName);
+        try {
+            // ✅ 이미지 업로드 처리를 서비스로 위임
+            String imageUrl = imageUploadService.uploadImage(image);
+            if (imageUrl != null) {
                 request.setErImgUrl(imageUrl);
-            } catch (Exception e) {
-                return ResponseEntity.badRequest().body("이미지 업로드 실패");
             }
-        }
 
-        recordService.saveExerciseRecord(request, currentMember.getId());
-        return ResponseEntity.ok("운동 추가 성공");
+            recordService.saveExerciseRecord(request, currentMember.getId());
+            return ResponseEntity.ok("운동 추가 성공");
+
+        } catch (IllegalArgumentException e) {
+            // 파일 크기, 확장자 등의 검증 오류
+            return ResponseEntity.badRequest().body("이미지 업로드 오류: " + e.getMessage());
+        } catch (IOException e) {
+            // 파일 저장 오류
+            return ResponseEntity.internalServerError().body("이미지 업로드 중 서버 오류가 발생했습니다.");
+        } catch (Exception e) {
+            // 기타 오류
+            return ResponseEntity.internalServerError().body("운동 기록 중 오류가 발생했습니다: " + e.getMessage());
+        }
     }
 
     // 특정 기록 조회

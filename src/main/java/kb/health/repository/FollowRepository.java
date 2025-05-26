@@ -12,10 +12,24 @@ import java.util.Optional;
 @Repository
 public interface FollowRepository extends JpaRepository<Follow, Long> {
 
-    // 해당 관계가 있는지 확인하는 메서드
+    // 기존 메서드들
     Optional<Follow> findByFromIdAndToId(Long fromId, Long toId);
 
-    // 팔로잉 목록 조회 (id만 필요하므로, 커스텀)
+    // ✅ 메서드 이름만으로 COUNT 쿼리 생성!
+    int countByFromId(Long fromId);        // SELECT COUNT(*) FROM follow WHERE from_id = ?
+    int countByToId(Long toId);            // SELECT COUNT(*) FROM follow WHERE to_id = ?
+
+
+    // ✅ 메서드 이름만으로 존재 여부 확인!
+    boolean existsByFromIdAndToId(Long fromId, Long toId);  // SELECT EXISTS(SELECT 1 FROM follow WHERE from_id = ? AND to_id = ?)
+
+    // 복잡한 조회만 @Query 사용 (JOIN FETCH는 메서드 이름으로 불가능)
     @Query("SELECT f.to.id FROM Follow f WHERE f.from.id = :memberId")
     List<Long> findFollowingIds(@Param("memberId") Long memberId);
+
+    @Query("SELECT f FROM Follow f JOIN FETCH f.to WHERE f.from.id = :memberId")
+    List<Follow> findFollowingsWithMembers(@Param("memberId") Long memberId);
+
+    @Query("SELECT f FROM Follow f JOIN FETCH f.from WHERE f.to.id = :memberId")
+    List<Follow> findFollowersWithMembers(@Param("memberId") Long memberId);
 }

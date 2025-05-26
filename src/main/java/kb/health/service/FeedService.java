@@ -101,6 +101,26 @@ public class FeedService {
         );
     }
 
+    // ✅ 새로 추가: 배치로 댓글들을 조회하는 메서드 (N+1 쿼리 해결용)
+    public List<Comment> getCommentsWithPost(List<Long> commentIds) {
+        if (commentIds == null || commentIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        System.out.println("배치로 댓글 조회: " + commentIds.size() + "개");
+        return commentRepository.findByIdsWithPost(commentIds);
+    }
+
+    // ✅ 새로 추가: 댓글 + 작성자 정보까지 한번에 조회
+    public List<Comment> getCommentsWithPostAndWriter(List<Long> commentIds) {
+        if (commentIds == null || commentIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        System.out.println("배치로 댓글+작성자 조회: " + commentIds.size() + "개");
+        return commentRepository.findByIdsWithPostAndWriter(commentIds);
+    }
+
+
+
     // 게시글 단건 호출
     public PostResponse getPostDetail(Long memberId, Long postId) {
         Post post = postRepository.findById(postId)

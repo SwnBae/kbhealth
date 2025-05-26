@@ -2,6 +2,7 @@ package kb.health.controller;
 
 import kb.health.controller.request.MemberBodyInfoEditRequest;
 import kb.health.controller.response.*;
+import kb.health.service.ImageUploadService;
 import kb.health.service.MemberService;
 import kb.health.service.RecordService;
 import kb.health.service.ScoreService;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,6 +32,7 @@ public class ProfileController {
     private final MemberService memberService;
     private final RecordService recordService;
     private final ScoreService scoreService;
+    private final ImageUploadService imageUploadService;
 
     //프로필 조회
     @GetMapping("/{member_account}")
@@ -41,8 +44,8 @@ public class ProfileController {
         // 2. 오늘의 영양성분 달성 정도 체크
         NutritionAchievementResponse nutritionAchievementResponse = recordService.getNutritionAchievement(member.getId(), LocalDate.now());
 
-        int followingCount = memberService.getFollowings(member.getId()).size(); // 팔로잉 수
-        int followerCount = memberService.getFollowers(member.getId()).size();   // 팔로워 수
+        int followingCount = memberService.getFollowingCount(member.getId());
+        int followerCount = memberService.getFollowerCount(member.getId());
 
         // 3. 최근 10일 점수 조회 및 변환
         List<DailyScore> last10Scores = scoreService.getLast10DaysScores(member);
@@ -67,23 +70,26 @@ public class ProfileController {
             @RequestPart MemberEditRequest memberEditRequest,
             @RequestPart(value = "image", required = false) MultipartFile image) {
 
-        String imageUrl = null;
-        if (image != null && !image.isEmpty()) {
-            try {
-                String uploadPath = "images";
-                String imageName = UUID.randomUUID() + "_" + image.getOriginalFilename();
-                Path filePath = Paths.get(uploadPath, imageName);
-                Files.createDirectories(filePath.getParent());
-                Files.write(filePath, image.getBytes());
-                imageUrl = String.format("/images/%s", imageName);
+        try {
+            // ✅ 이미지 업로드 처리를 서비스로 위임
+            String imageUrl = imageUploadService.uploadImage(image);
+            if (imageUrl != null) {
                 memberEditRequest.setProfileImageUrl(imageUrl);
-            } catch (Exception e) {
-                return ResponseEntity.badRequest().body("이미지 업로드 실패");
             }
-        }
 
-        memberService.updateMember(currentMember.getId(), memberEditRequest);
-        return ResponseEntity.ok("회원정보 수정 성공");
+            memberService.updateMember(currentMember.getId(), memberEditRequest);
+            return ResponseEntity.ok("회원정보 수정 성공");
+
+        } catch (IllegalArgumentException e) {
+            // 파일 크기, 확장자 등의 검증 오류
+            return ResponseEntity.badRequest().body("이미지 업로드 오류: " + e.getMessage());
+        } catch (IOException e) {
+            // 파일 저장 오류
+            return ResponseEntity.internalServerError().body("이미지 업로드 중 서버 오류가 발생했습니다.");
+        } catch (Exception e) {
+            // 기타 오류
+            return ResponseEntity.internalServerError().body("회원정보 수정 중 오류가 발생했습니다: " + e.getMessage());
+        }
     }
 
     @PostMapping("/editbodyinfo")

@@ -14,6 +14,7 @@ import kb.health.exception.FeedException;
 import kb.health.exception.ImageException;
 import kb.health.exception.NotificationException;
 import kb.health.service.FeedService;
+import kb.health.service.ImageUploadService;
 import kb.health.service.MemberService;
 import kb.health.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,6 +35,7 @@ import java.util.UUID;
 public class FeedController {
     private final FeedService feedService;
     private final NotificationService notificationService;
+    private final ImageUploadService imageUploadService;
     private final MemberService memberService;
     private final JwtUtil jwtUtil;
 
@@ -48,26 +51,29 @@ public class FeedController {
         return ResponseEntity.ok(feedService.getPostsBySelf(memberId , page, size));
     }
 
-    //포스트 작성
     @PostMapping
     public ResponseEntity<?> createPost(@LoginMember CurrentMember currentMember,
                                         @RequestPart("post") PostCreateRequest postCreateRequest,
                                         @RequestPart(value = "image",required = false) MultipartFile image) {
-        String imageUrl = null;
-        if (image != null && !image.isEmpty()) {
-            try{
-                String uploadPath = "images";
-                String imageName = UUID.randomUUID()+"_"+image.getOriginalFilename();
-                Path filePath = Paths.get(uploadPath, imageName);
-                Files.createDirectories(filePath.getParent());
-                Files.write(filePath, image.getBytes());
-                imageUrl = String.format("/images/%s", imageName);
-            } catch (Exception e){
-                throw ImageException.imageUploadFail();
-            }
+        try {
+            // ✅ 이미지 업로드 처리를 서비스로 위임
+            String imageUrl = imageUploadService.uploadImage(image);
+
+            // 게시글 저장
+            feedService.savePost(currentMember.getId(), postCreateRequest, imageUrl);
+
+            return ResponseEntity.ok("게시글 작성 완료");
+
+        } catch (IllegalArgumentException e) {
+            // 파일 크기, 확장자 등의 검증 오류
+            return ResponseEntity.badRequest().body("이미지 업로드 오류: " + e.getMessage());
+        } catch (IOException e) {
+            // 파일 저장 오류
+            return ResponseEntity.internalServerError().body("이미지 업로드 중 서버 오류가 발생했습니다.");
+        } catch (Exception e) {
+            // 기타 오류
+            return ResponseEntity.internalServerError().body("게시글 작성 중 오류가 발생했습니다: " + e.getMessage());
         }
-        feedService.savePost(currentMember.getId() , postCreateRequest, imageUrl);
-        return ResponseEntity.ok("게시글 작성 완료");
     }
 
     //포스트 수정

@@ -196,7 +196,7 @@ public class MemberService {
         }
 
         // 이미 팔로우 중인지 확인
-        if (followRepository.findByFromIdAndToId(myId, targetId).isPresent()) {
+        if (followRepository.existsByFromIdAndToId(myId, targetId)) {
 //            throw FollowException.alreadyFollowing(); // 이미 팔로우 중인 경우 예외 발생
         }
 
@@ -224,18 +224,25 @@ public class MemberService {
         followRepository.delete(follow);
     }
 
+    // ✅ 메서드 이름만으로 COUNT 쿼리 실행!
+    public int getFollowingCount(Long memberId) {
+        return followRepository.countByFromId(memberId);  // 매우 간단!
+    }
+
+    public int getFollowerCount(Long memberId) {
+        return followRepository.countByToId(memberId);    // 매우 간단!
+    }
+
     public List<FollowResponse> getFollowings(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
-        return member.getFollowings().stream()
+        List<Follow> follows = followRepository.findFollowingsWithMembers(memberId);
+        return follows.stream()
                 .map(follow -> FollowResponse.create(follow.getTo()))
                 .toList();
     }
 
     public List<FollowResponse> getFollowers(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
-        return member.getFollowers().stream()
+        List<Follow> follows = followRepository.findFollowersWithMembers(memberId);
+        return follows.stream()
                 .map(follow -> FollowResponse.create(follow.getFrom()))
                 .toList();
     }
