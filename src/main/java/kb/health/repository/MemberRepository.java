@@ -13,8 +13,6 @@ import java.util.Optional;
 @Repository
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
-    // 휴대폰 번호로 멤버 찾기
-    Optional<Member> findByPhoneNumber(String phoneNumber);
 
     // 닉네임으로 멤버 찾기
     Optional<Member> findByUserName(String userName);

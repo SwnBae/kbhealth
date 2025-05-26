@@ -37,23 +37,6 @@ public class MemberTest {
     }
 
     @Test
-    public void 휴대폰_번호로_멤버조회() throws Exception {
-        // given
-        Member member = createMember();
-        memberService.save(member);
-
-        // when
-        Member findMember = memberService.findMemberByPhoneNumber("010-0000-0000");
-
-        // then
-        assertEquals(member.getId(), findMember.getId());
-        assertEquals(member.getUserName(), findMember.getUserName());
-        assertEquals(member.getTotalScore(), findMember.getTotalScore());
-        assertEquals(member.getBaseScore(), findMember.getBaseScore());
-        assertEquals(member.getProfileImageUrl(), findMember.getProfileImageUrl());
-    }
-
-    @Test
     public void 계정으로_멤버조회() throws Exception {
         // given
         Member member = createMember();
@@ -147,18 +130,6 @@ public class MemberTest {
         );
 
         assertEquals(1003, exception.getCode());
-    }
-
-    @Test
-    public void 존재하지_않는_휴대폰번호로_조회시_예외() {
-        // when
-        MemberException exception = assertThrows(
-                MemberException.class,
-                () -> memberService.findMemberByPhoneNumber("010-9999-9999")
-        );
-
-        // then
-        assertEquals(1004, exception.getCode());
     }
 
     @Test

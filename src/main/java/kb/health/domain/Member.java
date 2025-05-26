@@ -29,9 +29,6 @@ public class Member extends BaseEntity{
     @Column(name = "member_account", unique = true, nullable = false)
     private String account;
 
-    @Column(name = "phone_number", unique = true)
-    private String phoneNumber;
-
     @Column(nullable = false)
     private String password;
 
@@ -127,7 +124,6 @@ public class Member extends BaseEntity{
         member.setAccount(account);
         member.setUserName(userName);
         member.setPassword(password);
-        member.setPhoneNumber(phoneNumber);
 
         return member;
     }
@@ -137,7 +133,6 @@ public class Member extends BaseEntity{
         member.setAccount(request.getAccount());
         member.setUserName(request.getUserName());
         member.setPassword(request.getPassword());
-        member.setPhoneNumber(request.getPhoneNumber());
 
         // 신체 정보 세팅
         BodyInfo bodyInfo = new BodyInfo(

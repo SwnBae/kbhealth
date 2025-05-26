@@ -41,11 +41,6 @@ public class MemberService {
     //회원 저장
     @Transactional
     public Long save(MemberRegistRequest request) {
-        // 휴대폰 번호 중복 확인
-        memberRepository.findByPhoneNumber(request.getPhoneNumber())
-                .ifPresent(m -> {
-                    throw MemberException.duplicatePhoneNumber();
-                });
 
         // 이름 중복 확인
         memberRepository.findByUserName(request.getUserName())
@@ -68,11 +63,6 @@ public class MemberService {
     //회원 저장
     @Transactional
     public Long save(Member member) {
-        // 휴대폰 번호 중복 확인
-        memberRepository.findByPhoneNumber(member.getPhoneNumber())
-                .ifPresent(m -> {
-                    throw MemberException.duplicatePhoneNumber();
-                });
 
         // 이름 중복 확인
         memberRepository.findByUserName(member.getUserName())
@@ -137,11 +127,7 @@ public class MemberService {
     /**
      * 회원 찾기
      */
-    // 휴대폰 번호로 찾기
-    public Member findMemberByPhoneNumber(String phoneNumber) {
-        return memberRepository.findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> MemberException.memberNotFoundByPhoneNumber());
-    }
+
 
     // 닉네임으로 찾기
     public Member findMemberByUserName(String userName) {
@@ -155,12 +141,6 @@ public class MemberService {
                 .orElseThrow(() -> MemberException.memberNotFoundByAccount());
     }
 
-    //account로 휴대폰번호 찾기
-    public String findPNByAccount(String account) {
-        return memberRepository.findByAccount(account)
-                .map(Member::getPhoneNumber)
-                .orElseThrow(() -> MemberException.memberNotFoundByPhoneNumber());
-    }
 
     // 유저 검색 (Account, userName)
     public List<Member> searchByUserNameOrAccountLike(String keyword) {
