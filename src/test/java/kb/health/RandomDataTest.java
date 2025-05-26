@@ -164,7 +164,6 @@ public class RandomDataTest {
 
         // 고유한 이름 생성 (인덱스 포함)
         request.setUserName(generateRandomName(index));
-        request.setPhoneNumber(generateRandomPhoneNumber());
 
         // 랜덤 신체 정보
         request.setHeight(ThreadLocalRandom.current().nextDouble(150.0, 190.0));
