@@ -37,7 +37,6 @@ public class ProfileController {
     //프로필 조회
     @GetMapping("/{member_account}")
     public ResponseEntity<MemberProfileResponse> getProfile(@LoginMember CurrentMember currentMember, @PathVariable("member_account") String member_account) {
-        System.out.println("프로필 조회");
         // 1. 멤버 가져오기
         Member member = memberService.findMemberByAccount(member_account);
 

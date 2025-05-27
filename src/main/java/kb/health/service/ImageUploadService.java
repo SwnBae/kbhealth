@@ -23,21 +23,14 @@ public class ImageUploadService {
      */
     public String uploadImage(MultipartFile image) throws IOException {
         if (image == null || image.isEmpty()) {
-            System.out.println("✅ 이미지 업로드: 파일이 없음 - null 반환");
             return null;
         }
 
-        // ✅ 업로드 정보 로깅
-        System.out.println("📁 이미지 업로드 시작:");
-        System.out.println("  - 파일명: " + image.getOriginalFilename());
-        System.out.println("  - 파일 크기: " + formatFileSize(image.getSize()));
-        System.out.println("  - Content-Type: " + image.getContentType());
 
         // ✅ 파일 크기 검증
         if (image.getSize() > MAX_FILE_SIZE) {
             String errorMsg = String.format("파일 크기가 너무 큽니다. 현재: %s, 최대: %s",
                     formatFileSize(image.getSize()), formatFileSize(MAX_FILE_SIZE));
-            System.err.println("🚨 " + errorMsg);
             throw new IllegalArgumentException(errorMsg);
         }
 
@@ -45,7 +38,6 @@ public class ImageUploadService {
         String originalFilename = image.getOriginalFilename();
         if (originalFilename == null || !isAllowedExtension(originalFilename)) {
             String errorMsg = "지원하지 않는 파일 형식입니다. JPG, PNG, GIF, WEBP만 업로드 가능합니다.";
-            System.err.println("🚨 " + errorMsg + " (파일: " + originalFilename + ")");
             throw new IllegalArgumentException(errorMsg);
         }
 
@@ -53,8 +45,6 @@ public class ImageUploadService {
             // ✅ 고유한 파일명 생성
             String imageName = UUID.randomUUID() + "_" + originalFilename;
             Path filePath = Paths.get(UPLOAD_PATH, imageName);
-
-            System.out.println("  - 저장 경로: " + filePath.toAbsolutePath());
 
             // ✅ 디렉터리 생성
             Files.createDirectories(filePath.getParent());
@@ -69,18 +59,13 @@ public class ImageUploadService {
 
             // ✅ 저장 완료 로깅
             long endTime = System.currentTimeMillis();
-            System.out.println("✅ 이미지 업로드 완료:");
-            System.out.println("  - 소요 시간: " + (endTime - startTime) + "ms");
-            System.out.println("  - 저장된 파일: " + imageName);
 
             // ✅ URL 반환
             String resultUrl = String.format("/images/%s", imageName);
-            System.out.println("  - 반환 URL: " + resultUrl);
             return resultUrl;
 
         } catch (IOException e) {
             String errorMsg = "이미지 업로드 중 오류가 발생했습니다: " + e.getMessage();
-            System.err.println("🚨 " + errorMsg);
             e.printStackTrace();
             throw new IOException(errorMsg, e);
         }
@@ -132,14 +117,12 @@ public class ImageUploadService {
 
             if (Files.exists(filePath)) {
                 Files.delete(filePath);
-                System.out.println("이미지 삭제 완료: " + fileName);
                 return true;
             }
 
             return false;
 
         } catch (IOException e) {
-            System.err.println("이미지 삭제 실패: " + e.getMessage());
             return false;
         }
     }

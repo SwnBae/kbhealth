@@ -35,7 +35,6 @@ public class FollowTest {
         member1.setUserName("주인공");
         Member member2 = createMember();
         member2.setUserName("얘를 팔로우");
-        member2.setPhoneNumber("001-00-00");
         member2.setAccount("account2");
 
         em.persist(member1);
@@ -62,7 +61,6 @@ public class FollowTest {
         member1.setUserName("주인공");
         Member member2 = createMember();
         member2.setUserName("얘를 팔로우");
-        member2.setPhoneNumber("001-00-00");
         member2.setAccount("account2");
 
         memberService.save(member1);
@@ -83,18 +81,15 @@ public class FollowTest {
         // given
         Member me = createMember();
         me.setUserName("me");
-        me.setPhoneNumber("001");
         memberService.save(me);
 
         Member target1 = createMember();
         target1.setUserName("target1");
-        target1.setPhoneNumber("001-00-00");
         target1.setAccount("account1");
         memberService.save(target1);
 
         Member target2 = createMember();
         target2.setUserName("target2");
-        target2.setPhoneNumber("002-00-00");
         target2.setAccount("account2");
         memberService.save(target2);
 

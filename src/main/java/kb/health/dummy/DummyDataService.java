@@ -1,4 +1,4 @@
-package kb.health;
+package kb.health.dummy;
 
 import kb.health.controller.request.CommentCreateRequest;
 import kb.health.controller.request.DietRecordRequest;
@@ -10,78 +10,63 @@ import kb.health.domain.feed.Post;
 import kb.health.domain.record.ExerciseRecord;
 import kb.health.domain.record.ExerciseType;
 import kb.health.domain.record.MealType;
+import kb.health.domain.record.DietRecord;
 import kb.health.repository.record.DietRecordRepository;
 import kb.health.repository.record.DietRepository;
 import kb.health.repository.feed.PostRepository;
 import kb.health.repository.record.ExerciseRecordRepository;
-import kb.health.service.FeedService;
-import kb.health.service.MemberService;
-import kb.health.service.RecordService;
-import kb.health.service.ScoreService;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
+import kb.health.repository.MemberRepository;
+import kb.health.service.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-/**
- * 무작위 회원, 팔로우 관계, 식단, 운동, 피드 데이터를 생성하는 테스트 클래스
- */
-@SpringBootTest
+@Service
+@RequiredArgsConstructor
 @Transactional
-public class RandomDataTest {
+public class DummyDataService {
 
     // ===== 의존성 주입 =====
-    @Autowired
-    RecordService recordService;
+    private final RecordService recordService;
+    private final MemberService memberService;
+    private final ScoreService scoreService;
+    private final FeedService feedService;
+    private final DailyNutritionAchievementService dailyNutritionAchievementService;
 
-    @Autowired
-    MemberService memberService;
-
-    @Autowired
-    ScoreService scoreService;
-
-    @Autowired
-    FeedService feedService;
-
-    @Autowired
-    DietRepository dietRepository;
-
-    @Autowired
-    DietRecordRepository dietRecordRepository;
-
-    @Autowired
-    ExerciseRecordRepository exerciseRecordRepository;
-
-    @Autowired
-    PostRepository postRepository;
+    private final DietRepository dietRepository;
+    private final DietRecordRepository dietRecordRepository;
+    private final ExerciseRecordRepository exerciseRecordRepository;
+    private final PostRepository postRepository;
+    private final MemberRepository memberRepository;
 
     // ===== 상수 설정 =====
     private final Random random = new Random();
 
     // 회원 관련 설정
     private static final int MEMBER_COUNT = 20;
-    private static final int FOLLOW_CONNECTIONS_PER_MEMBER = 5; // 각 회원당 평균 팔로우 수
+    private static final int FOLLOW_CONNECTIONS_PER_MEMBER = 6;
 
     // 기록 관련 설정
     private static final int MAX_DIET_RECORDS_PER_DAY = 5;
     private static final int MAX_EXERCISE_RECORDS_PER_DAY = 3;
-    private static final int DAYS_OF_HISTORY = 5; // 몇 일 동안의 기록을 생성할 것인지
+    private static final int DAYS_OF_HISTORY = 5;
 
     // 피드 관련 설정
-    private static final int MIN_POSTS_PER_MEMBER = 2; // 각 회원당 최소 게시글 수
-    private static final int MAX_POSTS_PER_MEMBER = 5; // 각 회원당 최대 게시글 수
-    private static final int MIN_COMMENTS_PER_POST = 1; // 각 게시글당 최소 댓글 수
-    private static final int MAX_COMMENTS_PER_POST = 10; // 각 게시글당 최대 댓글 수
-    private static final double LIKE_PROBABILITY = 0.3; // 게시글에 좋아요할 확률
+    private static final int MIN_POSTS_PER_MEMBER = 2;
+    private static final int MAX_POSTS_PER_MEMBER = 5;
+    private static final int MIN_COMMENTS_PER_POST = 1;
+    private static final int MAX_COMMENTS_PER_POST = 10;
+    private static final double LIKE_PROBABILITY = 0.3;
 
-    // 식품 ID 목록 (실제 데이터베이스의 식품 ID에 맞게 조정 필요)
+    // 식품 ID 목록
     private static final List<Long> FOOD_IDS = IntStream.rangeClosed(1, 20).boxed().map(Long::valueOf).collect(Collectors.toList());
 
     // 운동 이름 목록
@@ -91,52 +76,163 @@ public class RandomDataTest {
             "데드리프트", "바벨로우", "숄더프레스", "팔굽혀펴기", "윗몸일으키기"
     );
 
-    // ===== 메인 테스트 메서드 =====
     /**
-     * 무작위 데이터를 생성하는 메인 테스트 메서드
+     * 무작위 더미 데이터 생성
      */
-    @Test
-    @Rollback(false) // 테스트 후 롤백하지 않음 (실제 DB에 데이터 저장)
-    public void generateRandomData() {
-        System.out.println("무작위 데이터 생성 시작...");
+    public Map<String, Object> generateRandomData() {
+        Map<String, Object> result = new HashMap<>();
+        long startTime = System.currentTimeMillis();
 
         try {
             // 1. 무작위 회원 생성
             List<Long> memberIds = createRandomMembers(MEMBER_COUNT);
-            System.out.println(memberIds.size() + "명의 무작위 회원 생성 완료");
+            result.put("membersCreated", memberIds.size());
 
             // 2. 무작위 팔로우 관계 설정
-            createRandomFollowRelationships(memberIds);
-            System.out.println("무작위 팔로우 관계 설정 완료");
+            int followCount = createRandomFollowRelationships(memberIds);
+            result.put("followRelationshipsCreated", followCount);
 
             // 3. 무작위 식단 및 운동 기록 생성
-            createSimplifiedRandomRecords(memberIds);
-            System.out.println("무작위 식단 및 운동 기록 생성 완료");
+            Map<String, Integer> recordCounts = createSimplifiedRandomRecords(memberIds);
+            result.put("dietRecordsCreated", recordCounts.get("diet"));
+            result.put("exerciseRecordsCreated", recordCounts.get("exercise"));
 
             // 4. 모든 날짜에 대해 일일 점수를 업데이트
             updateDailyScores();
-            System.out.println("일일 점수 업데이트 완료");
+            result.put("dailyScoresUpdated", true);
 
             // 5. 무작위 피드(게시글, 댓글, 좋아요) 생성
-            createRandomFeeds(memberIds);
-            System.out.println("무작위 피드 생성 완료");
+            Map<String, Integer> feedCounts = createRandomFeeds(memberIds);
+            result.put("postsCreated", feedCounts.get("posts"));
+            result.put("commentsCreated", feedCounts.get("comments"));
+            result.put("likesCreated", feedCounts.get("likes"));
 
-            System.out.println("무작위 데이터 생성 완료!");
+            long endTime = System.currentTimeMillis();
+            result.put("success", true);
+            result.put("message", "더미 데이터 생성 완료");
+            result.put("executionTimeMs", endTime - startTime);
+
         } catch (Exception e) {
-            // 최상위 레벨에서 예외를 다시 던져서 트랜잭션이 롤백되는 것을 방지
-            System.err.println("데이터 생성 중 치명적 오류 발생: " + e.getMessage());
-            e.printStackTrace();
-            // 여기서 예외를 다시 던지지 않음
-            // throw e; -> 이 부분을 제거하거나 주석 처리
+            result.put("success", false);
+            result.put("message", "더미 데이터 생성 중 오류 발생: " + e.getMessage());
+            result.put("error", e.getClass().getSimpleName());
         }
+
+        return result;
     }
 
-    // ===== 회원 관련 메서드 =====
     /**
-     * 무작위 회원을 생성하는 메서드
-     * @param count 생성할 회원 수
-     * @return 생성된 회원 ID 목록
+     * 모든 기존 데이터에 대한 점수, 랭킹, 영양소 달성률 계산
      */
+    public Map<String, Object> calculateAllExistingData() {
+        Map<String, Object> result = new HashMap<>();
+        long startTime = System.currentTimeMillis();
+
+        try {
+            // 1. 데이터베이스에서 모든 회원 조회
+            List<Member> allMembers = memberRepository.findAll();
+            result.put("totalMembers", allMembers.size());
+
+            // 2. 모든 기록의 날짜 범위 계산
+            DateRange dateRange = findDateRangeOfAllRecords(allMembers);
+            result.put("dateRange", Map.of(
+                    "startDate", dateRange.getStartDate().toString(),
+                    "endDate", dateRange.getEndDate().toString(),
+                    "totalDays", dateRange.getDayCount()
+            ));
+
+            // 3. 날짜 범위 내의 모든 날짜에 대해 계산
+            Map<String, Integer> processingResult = calculateAllDataForDateRange(dateRange);
+            result.put("processedDays", processingResult.get("processedDays"));
+            result.put("daysWithData", processingResult.get("daysWithData"));
+
+            long endTime = System.currentTimeMillis();
+            result.put("success", true);
+            result.put("message", "모든 데이터 계산 완료");
+            result.put("executionTimeMs", endTime - startTime);
+
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "데이터 계산 중 오류 발생: " + e.getMessage());
+            result.put("error", e.getClass().getSimpleName());
+        }
+
+        return result;
+    }
+
+    /**
+     * 최근 30일 데이터에 대한 점수, 랭킹, 영양소 달성률 계산
+     */
+    public Map<String, Object> calculateLast30DaysData() {
+        Map<String, Object> result = new HashMap<>();
+        long startTime = System.currentTimeMillis();
+
+        try {
+            LocalDate endDate = LocalDate.now();
+            LocalDate startDate = endDate.minusDays(30);
+            DateRange dateRange = new DateRange(startDate, endDate);
+
+            result.put("dateRange", Map.of(
+                    "startDate", dateRange.getStartDate().toString(),
+                    "endDate", dateRange.getEndDate().toString(),
+                    "totalDays", dateRange.getDayCount()
+            ));
+
+            Map<String, Integer> processingResult = calculateAllDataForDateRange(dateRange);
+            result.put("processedDays", processingResult.get("processedDays"));
+            result.put("daysWithData", processingResult.get("daysWithData"));
+
+            long endTime = System.currentTimeMillis();
+            result.put("success", true);
+            result.put("message", "최근 30일 데이터 계산 완료");
+            result.put("executionTimeMs", endTime - startTime);
+
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "최근 30일 데이터 계산 중 오류 발생: " + e.getMessage());
+            result.put("error", e.getClass().getSimpleName());
+        }
+
+        return result;
+    }
+
+    /**
+     * 시스템 상태 확인
+     */
+    public Map<String, Object> getSystemStatus() {
+        Map<String, Object> status = new HashMap<>();
+
+        try {
+            // 회원 수 조회
+            long memberCount = memberRepository.count();
+            status.put("totalMembers", memberCount);
+
+            // 식단 기록 수 조회
+            long dietRecordCount = dietRecordRepository.count();
+            status.put("totalDietRecords", dietRecordCount);
+
+            // 운동 기록 수 조회
+            long exerciseRecordCount = exerciseRecordRepository.count();
+            status.put("totalExerciseRecords", exerciseRecordCount);
+
+            // 게시글 수 조회
+            long postCount = postRepository.count();
+            status.put("totalPosts", postCount);
+
+            status.put("success", true);
+            status.put("message", "시스템 상태 조회 완료");
+
+        } catch (Exception e) {
+            status.put("success", false);
+            status.put("message", "시스템 상태 조회 중 오류 발생: " + e.getMessage());
+            status.put("error", e.getClass().getSimpleName());
+        }
+
+        return status;
+    }
+
+    // ===== 내부 메서드들 (기존 테스트 코드에서 가져온 로직) =====
+
     private List<Long> createRandomMembers(int count) {
         List<Long> memberIds = new ArrayList<>();
 
@@ -150,22 +246,12 @@ public class RandomDataTest {
         return memberIds;
     }
 
-    /**
-     * 무작위 회원 정보를 생성하는 메서드
-     * @param index 회원 인덱스 (중복 방지용)
-     * @return 회원 등록 요청 객체
-     */
     private MemberRegistRequest createRandomMemberRequest(int index) {
         MemberRegistRequest request = new MemberRegistRequest();
 
-        // 고유한 계정명 생성
         request.setAccount("user" + index);
         request.setPassword("password" + index);
-
-        // 고유한 이름 생성 (인덱스 포함)
         request.setUserName(generateRandomName(index));
-
-        // 랜덤 신체 정보
         request.setHeight(ThreadLocalRandom.current().nextDouble(150.0, 190.0));
         request.setWeight(ThreadLocalRandom.current().nextDouble(45.0, 100.0));
         request.setGender(random.nextBoolean() ? kb.health.domain.Gender.MALE : kb.health.domain.Gender.FEMALE);
@@ -174,96 +260,70 @@ public class RandomDataTest {
         return request;
     }
 
-    /**
-     * 무작위 이름을 생성하는 메서드
-     * @param index 이름 인덱스 (중복 방지용)
-     * @return 생성된 이름
-     */
     private String generateRandomName(int index) {
-        // 랜덤 이름 생성 (인덱스를 포함하여 고유성 보장)
         String[] firstNames = {"김", "이", "박", "최", "정", "강", "조", "윤", "장", "임", "한", "오", "서", "신", "권", "황", "안", "송", "류", "홍"};
         String[] lastNames = {"민준", "서준", "도윤", "예준", "시우", "하준", "지호", "준서", "준우", "민서",
                 "지민", "지우", "지현", "예원", "하은", "다은", "서연", "서현", "민지", "수빈"};
 
         String baseName = firstNames[random.nextInt(firstNames.length)] + lastNames[random.nextInt(lastNames.length)];
-        return baseName + "_" + index; // 인덱스를 추가하여 중복 방지
+        return baseName + "_" + index;
     }
 
-    // ===== 팔로우 관련 메서드 =====
-    /**
-     * 무작위 팔로우 관계를 생성하는 메서드
-     * @param memberIds 회원 ID 목록
-     */
-    private void createRandomFollowRelationships(List<Long> memberIds) {
-        // 각 회원마다 무작위로 다른 회원을 팔로우
+    private int createRandomFollowRelationships(List<Long> memberIds) {
+        int totalFollows = 0;
+
         for (Long memberId : memberIds) {
-            // 이 회원이 팔로우할 다른 회원들을 무작위로 선택
             int followCount = ThreadLocalRandom.current().nextInt(0, FOLLOW_CONNECTIONS_PER_MEMBER + 1);
 
-            // 팔로우할 회원 ID 목록 생성 (자기 자신 제외)
             List<Long> potentialFollowees = memberIds.stream()
                     .filter(id -> !id.equals(memberId))
                     .collect(Collectors.toList());
 
-            // 무작위로 섞기
             Collections.shuffle(potentialFollowees);
 
-            // 팔로우 관계 생성
             for (int i = 0; i < followCount && i < potentialFollowees.size(); i++) {
                 memberService.follow(memberId, potentialFollowees.get(i));
+                totalFollows++;
             }
         }
+
+        return totalFollows;
     }
 
-    // ===== 기록 관련 메서드 =====
-    /**
-     * ScoreTest 패턴을 활용한 간소화된 무작위 식단/운동 기록 생성 메서드
-     * @param memberIds 회원 ID 목록
-     */
-    private void createSimplifiedRandomRecords(List<Long> memberIds) {
+    private Map<String, Integer> createSimplifiedRandomRecords(List<Long> memberIds) {
         LocalDate today = LocalDate.now();
         int totalDietRecords = 0;
         int totalExerciseRecords = 0;
 
-        // 각 회원마다 특정 날짜들에 대한 기록 생성
         for (Long memberId : memberIds) {
-            // 회원당 처리할 날짜 수를 제한하여 부하 감소 (DAYS_OF_HISTORY일 모두가 아닌 일부만)
-            int memberDays = Math.min(DAYS_OF_HISTORY, random.nextInt(10) + 5); // 5-14일 사이
+            int memberDays = Math.min(DAYS_OF_HISTORY, random.nextInt(10) + 5);
 
             for (int daysAgo = 0; daysAgo < memberDays; daysAgo++) {
                 LocalDate recordDate = today.minusDays(daysAgo);
 
-                // 하루에 1-3개의 식단 기록 생성 (MealType별로 하나씩)
+                // 식단 기록 생성
                 for (MealType mealType : getRandomMealTypes()) {
-                    // 식품 ID는 1-8 사이 랜덤 값 (ScoreTest 패턴과 유사하게)
                     Long foodId = (long) (random.nextInt(8) + 1);
 
                     try {
-                        // 칼로리는 300-800 사이 랜덤 값
                         int calories = 300 + random.nextInt(500);
-
-                        // ScoreTest와 동일한 메서드로 기록 저장
                         DietRecordRequest dietRequest = new DietRecordRequest(foodId, calories, null, mealType);
                         recordService.saveDietRecord(dietRequest, memberId, recordDate);
                         totalDietRecords++;
-
-                        System.out.println("식단 기록 생성: 회원 ID " + memberId + ", 날짜 " + recordDate +
-                                ", 식사 타입 " + mealType + ", 음식 ID " + foodId);
                     } catch (Exception e) {
-                        System.err.println("식단 기록 생성 중 오류: " + e.getMessage());
+                        // 오류 무시하고 계속
                     }
                 }
 
-                // 30% 확률로 운동 기록 추가
+                // 운동 기록 생성
                 if (random.nextDouble() < 0.3) {
                     try {
-                        // ScoreTest와 유사하게 운동 기록 생성
                         ExerciseType exerciseType = random.nextBoolean() ?
                                 ExerciseType.CARDIO : ExerciseType.WEIGHT;
 
                         String exerciseName = "운동" + (random.nextInt(5) + 1);
-                        int duration = 20 + random.nextInt(40); // 20-60분
-                        int caloriesBurned = 200 + random.nextInt(400); // 200-600칼로리
+                        int duration = 20 + random.nextInt(40);
+                        int caloriesBurned = 200 + random.nextInt(400);
 
                         ExerciseRecordRequest exRequest = new ExerciseRecordRequest(
                                 exerciseName, duration, caloriesBurned, exerciseType, null);
@@ -271,97 +331,64 @@ public class RandomDataTest {
                         Long recordId = recordService.saveExerciseRecord(exRequest, memberId, recordDate);
                         totalExerciseRecords++;
 
-                        // 80% 확률로 운동 완료 표시
                         if (random.nextDouble() < 0.8) {
                             ExerciseRecord record = recordService.getExerciseRecord(recordId);
                             record.setExercised(true);
                         }
-
-                        System.out.println("운동 기록 생성: 회원 ID " + memberId + ", 날짜 " + recordDate +
-                                ", 운동 타입 " + exerciseType + ", 이름 " + exerciseName);
                     } catch (Exception e) {
-                        System.err.println("운동 기록 생성 중 오류: " + e.getMessage());
+                        // 오류 무시하고 계속
                     }
                 }
             }
         }
 
-        System.out.println("총 " + totalDietRecords + "개의 식단 기록과 " + totalExerciseRecords + "개의 운동 기록이 생성되었습니다.");
+        Map<String, Integer> result = new HashMap<>();
+        result.put("diet", totalDietRecords);
+        result.put("exercise", totalExerciseRecords);
+        return result;
     }
 
-    /**
-     * 무작위 식사 타입 목록 생성
-     * 아침, 점심, 저녁 중 1-3개를 무작위로 선택
-     */
     private List<MealType> getRandomMealTypes() {
         List<MealType> allTypes = Arrays.asList(MealType.values());
         Collections.shuffle(allTypes);
 
-        // 1-3개의 식사 타입 선택
         int count = random.nextInt(3) + 1;
         return allTypes.subList(0, Math.min(count, allTypes.size()));
     }
 
-    // ===== 점수 관련 메서드 =====
-    /**
-     * 모든 날짜에 대해 일일 점수를 업데이트하는 메서드
-     */
     private void updateDailyScores() {
         LocalDate today = LocalDate.now();
 
-        System.out.println("모든 날짜에 대해 일일 점수 업데이트 중...");
-        // 모든 날짜에 대해 일일 점수 업데이트 (과거부터 현재까지)
         for (int daysAgo = DAYS_OF_HISTORY - 1; daysAgo >= 0; daysAgo--) {
             LocalDate scoreDate = today.minusDays(daysAgo);
 
             try {
-                System.out.println("  - " + scoreDate + " 데이터 점수 계산 중...");
                 scoreService.updateDailyScoresForAllMembers(scoreDate);
             } catch (Exception e) {
-                System.err.println("점수 업데이트 중 오류 발생 (" + scoreDate + "): " + e.getMessage());
+                // 오류 무시하고 계속
             }
         }
-
-        System.out.println("일일 점수 업데이트 완료!");
     }
 
-    // ===== 피드 관련 메서드 =====
-    /**
-     * 무작위 피드 데이터(게시글, 댓글, 좋아요)를 생성하는 메서드
-     * @param memberIds 회원 ID 목록
-     */
-    private void createRandomFeeds(List<Long> memberIds) {
-        System.out.println("무작위 피드 데이터 생성 중...");
-
-        // 1. 각 회원별로 무작위 게시글 생성
+    private Map<String, Integer> createRandomFeeds(List<Long> memberIds) {
         List<Long> postIds = createRandomPosts(memberIds);
-        System.out.println(postIds.size() + "개의 게시글 생성 완료");
+        int commentCount = 0;
+        int likeCount = 0;
 
-        if (postIds.isEmpty()) {
-            System.out.println("생성된 게시글이 없어 댓글과 좋아요를 추가할 수 없습니다.");
-            return;
+        if (!postIds.isEmpty()) {
+            commentCount = createRandomComments(memberIds, postIds);
+            likeCount = createRandomLikes(memberIds, postIds);
         }
 
-        // 2. 생성된 게시글에 무작위 댓글 추가
-        createRandomComments(memberIds, postIds);
-
-        // 3. 게시글에 무작위 좋아요 추가
-        createRandomLikes(memberIds, postIds);
-
-        System.out.println("피드 데이터 생성 완료!");
+        Map<String, Integer> result = new HashMap<>();
+        result.put("posts", postIds.size());
+        result.put("comments", commentCount);
+        result.put("likes", likeCount);
+        return result;
     }
 
-    /**
-     * 무작위 게시글을 생성하는 메서드
-     * @param memberIds 회원 ID 목록
-     * @return 생성된 게시글 ID 목록
-     */
     private List<Long> createRandomPosts(List<Long> memberIds) {
-        List<Long> createdPostIds = new ArrayList<>();
-
-        // 각 회원별로 게시글 생성
         for (Long memberId : memberIds) {
-            // 이 회원이 작성할 게시글 수 (MIN_POSTS_PER_MEMBER ~ MAX_POSTS_PER_MEMBER)
             int postCount = ThreadLocalRandom.current().nextInt(MIN_POSTS_PER_MEMBER, MAX_POSTS_PER_MEMBER + 1);
 
             for (int i = 0; i < postCount; i++) {
@@ -374,89 +401,177 @@ public class RandomDataTest {
                     String imageUrl = random.nextDouble() < 0.8 ? null :
                             "https://example.com/images/health_" + random.nextInt(1000) + ".jpg";
 
-                    // 게시글 생성 요청 객체
                     PostCreateRequest request = new PostCreateRequest();
                     request.setTitle(title);
                     request.setContent(content);
 
-                    // 게시글 저장
                     feedService.savePost(memberId, request, imageUrl);
                 } catch (Exception e) {
-                    System.err.println("게시글 생성 중 오류 발생: " + e.getMessage());
-                    e.printStackTrace();
+                    // 오류 무시하고 계속
                 }
             }
         }
 
-        // 저장된 모든 게시글의 ID 조회
-        // PostRepository를 사용하여 모든 게시글 조회
         List<Post> allPosts = postRepository.findAll();
-        createdPostIds = allPosts.stream().map(Post::getId).collect(Collectors.toList());
-
-        return createdPostIds;
+        return allPosts.stream().map(Post::getId).collect(Collectors.toList());
     }
 
-    /**
-     * 게시글에 무작위 댓글을 추가하는 메서드
-     * @param memberIds 회원 ID 목록
-     * @param postIds 게시글 ID 목록
-     */
-    private void createRandomComments(List<Long> memberIds, List<Long> postIds) {
-        // 각 게시글에 무작위 댓글 추가
+    private int createRandomComments(List<Long> memberIds, List<Long> postIds) {
+        int totalComments = 0;
+
         for (Long postId : postIds) {
-            // 이 게시글에 달릴 댓글 수 (MIN_COMMENTS_PER_POST ~ MAX_COMMENTS_PER_POST)
             int commentCount = ThreadLocalRandom.current().nextInt(MIN_COMMENTS_PER_POST, MAX_COMMENTS_PER_POST + 1);
 
             for (int i = 0; i < commentCount; i++) {
                 try {
-                    // 무작위로 댓글 작성자 선택
                     Long commenterId = memberIds.get(random.nextInt(memberIds.size()));
-
-                    // 무작위 댓글 내용 생성
                     String commentText = generateRandomCommentText();
 
-                    // 댓글 생성 요청 객체
                     CommentCreateRequest request = new CommentCreateRequest();
                     request.setComment(commentText);
 
-                    // 댓글 저장
                     feedService.saveComment(commenterId, postId, request);
+                    totalComments++;
                 } catch (Exception e) {
-                    System.err.println("댓글 생성 중 오류 발생 (게시글 ID: " + postId + "): " + e.getMessage());
+                    // 오류 무시하고 계속
                 }
             }
         }
 
-        System.out.println("댓글 생성 완료");
+        return totalComments;
     }
 
-    /**
-     * 게시글에 무작위 좋아요를 추가하는 메서드
-     * @param memberIds 회원 ID 목록
-     * @param postIds 게시글 ID 목록
-     */
-    private void createRandomLikes(List<Long> memberIds, List<Long> postIds) {
-        int totalLikesAdded = 0;
+    private int createRandomLikes(List<Long> memberIds, List<Long> postIds) {
+        int totalLikes = 0;
 
-        // 각 회원이 무작위로 게시글에 좋아요 추가
         for (Long memberId : memberIds) {
-            // 모든 게시글을 살펴보면서 LIKE_PROBABILITY 확률로 좋아요 추가
             for (Long postId : postIds) {
                 if (random.nextDouble() < LIKE_PROBABILITY) {
                     try {
-                        // 좋아요 토글
                         boolean isLiked = feedService.postLikeToggle(memberId, postId);
                         if (isLiked) {
-                            totalLikesAdded++;
+                            totalLikes++;
                         }
                     } catch (Exception e) {
-                        System.err.println("좋아요 추가 중 오류 발생 (게시글 ID: " + postId + "): " + e.getMessage());
+                        // 오류 무시하고 계속
                     }
                 }
             }
         }
 
-        System.out.println("좋아요 " + totalLikesAdded + "개 추가 완료");
+        return totalLikes;
+    }
+
+    private Map<String, Integer> calculateAllDataForDateRange(DateRange dateRange) {
+        LocalDate currentDate = dateRange.getStartDate();
+        int processedDays = 0;
+        int daysWithData = 0;
+
+        while (!currentDate.isAfter(dateRange.getEndDate())) {
+            // 1. 랭킹 갱신
+            memberService.updateMemberRankingsForDate(currentDate);
+
+            // 2. 점수 계산
+            boolean hasData = calculateScoreForDate(currentDate);
+            processedDays++;
+
+            if (hasData) {
+                daysWithData++;
+
+                // 3. 영양소 달성률 계산
+                calculateNutritionAchievementForDate(currentDate);
+            }
+
+            currentDate = currentDate.plusDays(1);
+        }
+
+        Map<String, Integer> result = new HashMap<>();
+        result.put("processedDays", processedDays);
+        result.put("daysWithData", daysWithData);
+        return result;
+    }
+
+    private boolean calculateScoreForDate(LocalDate date) {
+        try {
+            scoreService.updateDailyScoresForAllMembers(date);
+            return checkIfDateHasRecords(date);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private void calculateNutritionAchievementForDate(LocalDate date) {
+        try {
+            dailyNutritionAchievementService.updateDailyNutritionAchievementsForAllMembers(date);
+        } catch (Exception e) {
+            // 오류 무시하고 계속
+        }
+    }
+
+    private boolean checkIfDateHasRecords(LocalDate date) {
+        List<Member> members = memberRepository.findAll();
+        for (Member member : members) {
+            List<DietRecord> dietRecords = findDietRecordsByMemberAndDate(member, date);
+            List<ExerciseRecord> exerciseRecords = findExerciseRecordsByMemberAndDate(member, date);
+
+            if (!dietRecords.isEmpty() || !exerciseRecords.isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private List<DietRecord> findDietRecordsByMemberAndDate(Member member, LocalDate date) {
+        LocalDateTime start = date.atStartOfDay().minusDays(1);
+        LocalDateTime end = date.atStartOfDay();
+        return dietRecordRepository.findByMemberAndDateRange(member, start, end);
+    }
+
+    private List<ExerciseRecord> findExerciseRecordsByMemberAndDate(Member member, LocalDate date) {
+        LocalDateTime start = date.atStartOfDay().minusDays(1);
+        LocalDateTime end = date.atStartOfDay();
+        return exerciseRecordRepository.findByMemberAndDateRange(member, start, end);
+    }
+
+    private DateRange findDateRangeOfAllRecords(List<Member> members) {
+        LocalDate earliestDate = LocalDate.now();
+        LocalDate latestDate = LocalDate.of(2000, 1, 1);
+
+        Set<LocalDate> allDates = new HashSet<>();
+
+        for (Member member : members) {
+            List<DietRecord> dietRecords = dietRecordRepository.findByMemberId(member.getId());
+            for (DietRecord record : dietRecords) {
+                LocalDate recordDate = record.getCreatedDate().toLocalDate();
+                allDates.add(recordDate);
+
+                if (recordDate.isBefore(earliestDate)) {
+                    earliestDate = recordDate;
+                }
+                if (recordDate.isAfter(latestDate)) {
+                    latestDate = recordDate;
+                }
+            }
+
+            List<ExerciseRecord> exerciseRecords = exerciseRecordRepository.findByMemberId(member.getId());
+            for (ExerciseRecord record : exerciseRecords) {
+                LocalDate recordDate = record.getCreatedDate().toLocalDate();
+                allDates.add(recordDate);
+
+                if (recordDate.isBefore(earliestDate)) {
+                    earliestDate = recordDate;
+                }
+                if (recordDate.isAfter(latestDate)) {
+                    latestDate = recordDate;
+                }
+            }
+        }
+
+        if (allDates.isEmpty()) {
+            return new DateRange(LocalDate.now(), LocalDate.now());
+        }
+
+        return new DateRange(earliestDate, latestDate);
     }
 
     // ===== 콘텐츠 생성 관련 메서드 =====
@@ -616,5 +731,30 @@ public class RandomDataTest {
         };
 
         return commentTemplates[random.nextInt(commentTemplates.length)];
+    }
+
+    /**
+     * 날짜 범위를 저장하는 내부 클래스
+     */
+    private static class DateRange {
+        private final LocalDate startDate;
+        private final LocalDate endDate;
+
+        public DateRange(LocalDate startDate, LocalDate endDate) {
+            this.startDate = startDate;
+            this.endDate = endDate;
+        }
+
+        public LocalDate getStartDate() {
+            return startDate;
+        }
+
+        public LocalDate getEndDate() {
+            return endDate;
+        }
+
+        public long getDayCount() {
+            return ChronoUnit.DAYS.between(startDate, endDate) + 1;
+        }
     }
 }

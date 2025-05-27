@@ -39,25 +39,14 @@ public class ScoreService {
 
         // 2. 각 멤버에 대해 일일 점수 계산
         for (Member member : members) {
-            System.out.println("=============================");
-            System.out.println(member.getUserName());
             // 해당 날짜의 다이어트 기록과 운동 기록을 가져옵니다.
             List<DietRecord> dietRecordList = findDietRecordsByMemberAndDate(member, date);
             List<ExerciseRecord> exerciseRecordList = findExerciseRecordsByMemberAndDate(member, date);
 
-            System.out.println("기록");
-            for (DietRecord dietRecord : dietRecordList) {
-                System.out.println(dietRecord.getDiet().getMenu());
-            }
 
-            for (ExerciseRecord exerciseRecord : exerciseRecordList) {
-                System.out.println(exerciseRecord.getExerciseType());
-            }
 
             // 3. DailyScore 생성 및 저장
             DailyScore dailyScore = DailyScore.create(member, dietRecordList, exerciseRecordList);
-            System.out.println("점수");
-            System.out.println(dailyScore.getTotalScore());
             dailyScoreRepository.save(dailyScore);
 
             // 4. 멤버의 총점과 최근 10일 점수 갱신
@@ -73,20 +62,9 @@ public class ScoreService {
 
         // 2. 각 멤버에 대해 일일 점수 계산
         for (Member member : members) {
-            System.out.println("=============================");
-            System.out.println(member.getUserName());
             // 해당 날짜의 다이어트 기록과 운동 기록을 가져옵니다.
             List<DietRecord> dietRecordList = findDietRecordsByMemberAndDate(member, date);
             List<ExerciseRecord> exerciseRecordList = findExerciseRecordsByMemberAndDate(member, date);
-
-            System.out.println("기록");
-            for (DietRecord dietRecord : dietRecordList) {
-                System.out.println(dietRecord.getDiet().getMenu());
-            }
-
-            for (ExerciseRecord exerciseRecord : exerciseRecordList) {
-                System.out.println(exerciseRecord.getExerciseType());
-            }
 
             if (dietRecordList.isEmpty() && exerciseRecordList.isEmpty()) {
                 continue;
@@ -94,8 +72,6 @@ public class ScoreService {
 
             // 3. DailyScore 생성 및 저장
             DailyScore dailyScore = DailyScore.create(member, dietRecordList, exerciseRecordList, date);
-            System.out.println("점수");
-            System.out.println(dailyScore.getTotalScore());
             dailyScoreRepository.save(dailyScore);
 
             // 4. 멤버의 총점과 최근 10일 점수 갱신

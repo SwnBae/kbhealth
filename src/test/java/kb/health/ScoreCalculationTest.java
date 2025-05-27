@@ -8,6 +8,7 @@ import kb.health.domain.record.ExerciseRecord;
 import kb.health.repository.MemberRepository;
 import kb.health.repository.record.DietRecordRepository;
 import kb.health.repository.record.ExerciseRecordRepository;
+import kb.health.service.DailyNutritionAchievementService;
 import kb.health.service.MemberService;
 import kb.health.service.ScoreService;
 import org.junit.jupiter.api.Test;
@@ -24,8 +25,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 이미 저장된 테스트 데이터의 점수와 랭킹을 계산하는 테스트 클래스
- * 이 테스트는 데이터베이스에 있는 모든 기록에 대해 점수와 랭킹을 새로 계산합니다.
+ * 이미 저장된 테스트 데이터의 점수, 랭킹, 영양소 달성률을 계산하는 테스트 클래스
+ * 이 테스트는 데이터베이스에 있는 모든 기록에 대해 점수, 랭킹, 영양소 달성률을 새로 계산합니다.
  * 중요: 각 날짜에 대해 점수 계산 전에 랭킹 정보를 먼저 업데이트합니다.
  */
 @SpringBootTest
@@ -39,6 +40,9 @@ public class ScoreCalculationTest {
     private MemberService memberService;
 
     @Autowired
+    private DailyNutritionAchievementService dailyNutritionAchievementService;
+
+    @Autowired
     DietRecordRepository dietRecordRepository;
 
     @Autowired
@@ -48,13 +52,13 @@ public class ScoreCalculationTest {
     private MemberRepository memberRepository;
 
     /**
-     * 모든 기록 데이터에 대해 점수와 랭킹을 계산합니다.
-     * 각 날짜마다 랭킹 갱신 후 점수를 계산합니다.
+     * 모든 기록 데이터에 대해 점수, 랭킹, 영양소 달성률을 계산합니다.
+     * 각 날짜마다 랭킹 갱신 후 점수를 계산하고, 마지막에 영양소 달성률을 계산합니다.
      */
     @Test
     @Rollback(false) // 변경사항을 데이터베이스에 저장
-    public void calculateRankingsAndScoresForAllExistingData() {
-        System.out.println("=== 모든 기존 데이터에 대한 랭킹 및 점수 계산 시작 ===");
+    public void calculateRankingsScoresAndNutritionForAllExistingData() {
+        System.out.println("=== 모든 기존 데이터에 대한 랭킹, 점수, 영양소 달성률 계산 시작 ===");
 
         // 1. 데이터베이스에서 모든 회원 조회
         List<Member> allMembers = memberRepository.findAll();
@@ -64,19 +68,19 @@ public class ScoreCalculationTest {
         DateRange dateRange = findDateRangeOfAllRecords(allMembers);
         System.out.println("기록 날짜 범위: " + dateRange.getStartDate() + " ~ " + dateRange.getEndDate());
 
-        // 3. 날짜 범위 내의 모든 날짜에 대해 랭킹 먼저 갱신 후 점수 계산
-        calculateRankingsAndScoresForDateRange(dateRange);
+        // 3. 날짜 범위 내의 모든 날짜에 대해 랭킹, 점수, 영양소 달성률 계산
+        calculateAllDataForDateRange(dateRange);
 
-        System.out.println("=== 랭킹 및 점수 계산 완료 ===");
+        System.out.println("=== 랭킹, 점수, 영양소 달성률 계산 완료 ===");
     }
 
     /**
-     * 최근 30일간의 데이터에 대해서만 랭킹과 점수를 계산합니다.
+     * 최근 30일간의 데이터에 대해서만 랭킹, 점수, 영양소 달성률을 계산합니다.
      */
     @Test
     @Rollback(false)
-    public void calculateRankingsAndScoresForLast30Days() {
-        System.out.println("=== 최근 30일 데이터에 대한 랭킹 및 점수 계산 시작 ===");
+    public void calculateAllDataForLast30Days() {
+        System.out.println("=== 최근 30일 데이터에 대한 랭킹, 점수, 영양소 달성률 계산 시작 ===");
 
         LocalDate endDate = LocalDate.now();
         LocalDate startDate = endDate.minusDays(30);
@@ -84,16 +88,34 @@ public class ScoreCalculationTest {
 
         System.out.println("기록 날짜 범위: " + dateRange.getStartDate() + " ~ " + dateRange.getEndDate());
 
-        // 날짜 범위 내의 모든 날짜에 대해 랭킹 먼저 갱신 후 점수 계산
-        calculateRankingsAndScoresForDateRange(dateRange);
+        // 날짜 범위 내의 모든 날짜에 대해 랭킹, 점수, 영양소 달성률 계산
+        calculateAllDataForDateRange(dateRange);
 
-        System.out.println("=== 랭킹 및 점수 계산 완료 ===");
+        System.out.println("=== 랭킹, 점수, 영양소 달성률 계산 완료 ===");
     }
 
     /**
-     * 특정 날짜 범위 내의 모든 날짜에 대해 랭킹 먼저 갱신 후 점수를 계산합니다.
+     * ✅ 기존 메서드명 유지 (하위 호환성)
      */
-    private void calculateRankingsAndScoresForDateRange(DateRange dateRange) {
+    @Test
+    @Rollback(false)
+    public void calculateRankingsAndScoresForAllExistingData() {
+        calculateRankingsScoresAndNutritionForAllExistingData();
+    }
+
+    /**
+     * ✅ 기존 메서드명 유지 (하위 호환성)
+     */
+    @Test
+    @Rollback(false)
+    public void calculateRankingsAndScoresForLast30Days() {
+        calculateAllDataForLast30Days();
+    }
+
+    /**
+     * 특정 날짜 범위 내의 모든 날짜에 대해 랭킹, 점수, 영양소 달성률을 계산합니다.
+     */
+    private void calculateAllDataForDateRange(DateRange dateRange) {
         LocalDate currentDate = dateRange.getStartDate();
         int processedDays = 0;
         int daysWithData = 0;
@@ -111,6 +133,10 @@ public class ScoreCalculationTest {
 
             if (hasData) {
                 daysWithData++;
+
+                // 3. ✅ 영양소 달성률 계산 추가
+                System.out.println("  - " + currentDate + " 영양소 달성률 계산 중...");
+                calculateNutritionAchievementForDate(currentDate);
             }
 
             currentDate = currentDate.plusDays(1);
@@ -139,6 +165,20 @@ public class ScoreCalculationTest {
             System.err.println("날짜 " + date + "의 점수 계산 중 오류 발생: " + e.getMessage());
             e.printStackTrace();
             return false;
+        }
+    }
+
+    /**
+     * ✅ 특정 날짜의 영양소 달성률을 계산합니다.
+     */
+    private void calculateNutritionAchievementForDate(LocalDate date) {
+        try {
+            // 모든 회원에 대해 해당 날짜의 영양소 달성률 계산
+            dailyNutritionAchievementService.updateDailyNutritionAchievementsForAllMembers(date);
+            System.out.println("  - " + date + ": 영양소 달성률 계산 완료");
+        } catch (Exception e) {
+            System.err.println("날짜 " + date + "의 영양소 달성률 계산 중 오류 발생: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

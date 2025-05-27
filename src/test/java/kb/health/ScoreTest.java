@@ -65,7 +65,6 @@ class ScoreTest {
         memberRegistRequest1.setAccount("account1");
         memberRegistRequest1.setPassword("password1");
         memberRegistRequest1.setUserName("user1");
-        memberRegistRequest1.setPhoneNumber("010-1111-1111");
         memberRegistRequest1.setHeight(170.0);
         memberRegistRequest1.setWeight(60.0);
         memberRegistRequest1.setGender(kb.health.domain.Gender.MALE);
@@ -77,7 +76,6 @@ class ScoreTest {
         memberRegistRequest2.setAccount("account2");
         memberRegistRequest2.setPassword("password2");
         memberRegistRequest2.setUserName("user2");
-        memberRegistRequest2.setPhoneNumber("010-2222-2222");
         memberRegistRequest2.setHeight(160.0);
         memberRegistRequest2.setWeight(55.0);
         memberRegistRequest2.setGender(kb.health.domain.Gender.FEMALE);
@@ -89,7 +87,6 @@ class ScoreTest {
         memberRegistRequest3.setAccount("account3");
         memberRegistRequest3.setPassword("password3");
         memberRegistRequest3.setUserName("user3");
-        memberRegistRequest3.setPhoneNumber("010-3333-3333");
         memberRegistRequest3.setHeight(175.0);
         memberRegistRequest3.setWeight(70.0);
         memberRegistRequest3.setGender(kb.health.domain.Gender.MALE);
@@ -101,7 +98,6 @@ class ScoreTest {
         memberRegistRequest4.setAccount("account4");
         memberRegistRequest4.setPassword("password4");
         memberRegistRequest4.setUserName("user4");
-        memberRegistRequest4.setPhoneNumber("010-4444-4444");
         memberRegistRequest4.setHeight(165.0);
         memberRegistRequest4.setWeight(65.0);
         memberRegistRequest4.setGender(kb.health.domain.Gender.FEMALE);

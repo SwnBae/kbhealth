@@ -49,9 +49,6 @@ public class RecordController {
                 .map(DietRecordResponse::create)
                 .collect(Collectors.toList());
 
-        for(DietRecordResponse dietRecordResponse : response) {
-            System.out.println(dietRecordResponse);
-        }
         return ResponseEntity.ok(response); // 200 OK와 함께 응답
     }
 
@@ -221,8 +218,6 @@ public class RecordController {
                 return ResponseEntity.badRequest().body("이미지 업로드 실패");
             }
         }
-        System.out.println("이미지 주소");
-        System.out.println(imageUrl);
 
         recordService.updateExerciseRecord(currentMember.getId(), exId, request);
         return ResponseEntity.ok("운동 수정 성공");

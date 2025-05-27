@@ -42,12 +42,10 @@ public class FollowController {
      */
     @GetMapping("/followingList/{member_id}")
     public ResponseEntity<List<FollowResponse>> getFollowings(@PathVariable("member_id") Long memberId){
-        System.out.println("팔로잉 목록 조회 - JOIN FETCH 사용");
 
         // ✅ 최적화: JOIN FETCH를 사용한 한번의 쿼리로 모든 데이터 조회
         List<FollowResponse> followings = memberService.getFollowings(memberId);
 
-        System.out.println("조회된 팔로잉 수: " + followings.size());
         return ResponseEntity.ok(followings);
     }
 
@@ -56,12 +54,10 @@ public class FollowController {
      */
     @GetMapping("/followerList/{member_id}")
     public ResponseEntity<List<FollowResponse>> getFollowers(@PathVariable("member_id") Long memberId){
-        System.out.println("팔로워 목록 조회 - JOIN FETCH 사용");
 
         // ✅ 최적화: JOIN FETCH를 사용한 한번의 쿼리로 모든 데이터 조회
         List<FollowResponse> followers = memberService.getFollowers(memberId);
 
-        System.out.println("조회된 팔로워 수: " + followers.size());
         return ResponseEntity.ok(followers);
     }
 

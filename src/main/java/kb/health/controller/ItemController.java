@@ -57,7 +57,7 @@ public class ItemController {
 
     // GET으로도 접근 가능하게 추가
     @GetMapping("/load-data")
-    public ResponseEntity<?> loadDietDataGet(@LoginMember CurrentMember currentMember) {
+    public ResponseEntity<?> loadDietDataGet() {
         try {
             int count = dietLoadService.saveAllFromApi();
             return ResponseEntity.ok("음식 데이터 로드 완료. 총 저장된 식품 수: " + count);

@@ -37,8 +37,6 @@ public class NotificationController {
             @RequestParam int page,
             @RequestParam int size) {
 
-        System.out.println("알림 조회 시작 - N+1 쿼리 최적화 적용");
-
         Page<Notification> notifications = notificationService.getPagedNotifications(
                 currentMember.getId(), page, size);
 
@@ -48,16 +46,13 @@ public class NotificationController {
                 .map(Notification::getRelatedId)
                 .toList();
 
-        System.out.println("댓글 알림 개수: " + commentNotificationIds.size());
 
         // ✅ 댓글들을 배치로 한번에 조회 (N+1 쿼리 해결)
         final Map<Long, Comment> commentMap;
         if (!commentNotificationIds.isEmpty()) {
-            System.out.println("배치로 댓글 조회 시작...");
             List<Comment> comments = feedService.getCommentsWithPost(commentNotificationIds);
             commentMap = comments.stream()
                     .collect(Collectors.toMap(Comment::getId, comment -> comment));
-            System.out.println("배치 조회 완료: " + comments.size() + "개 댓글");
         } else {
             commentMap = new HashMap<>();
         }
@@ -91,7 +86,6 @@ public class NotificationController {
                 notifications.getTotalElements()
         );
 
-        System.out.println("알림 조회 완료: " + responseList.size() + "개");
         return ResponseEntity.ok(responsePage);
     }
 
@@ -119,7 +113,6 @@ public class NotificationController {
     // ✅ 최적화된 전체 알림 조회
     @GetMapping
     public ResponseEntity<List<NotificationResponse>> getNotifications(@LoginMember CurrentMember currentMember) {
-        System.out.println("전체 알림 조회 - 최적화된 방식");
 
         List<Notification> notifications = notificationService.getNotifications(currentMember.getId());
 

@@ -9,10 +9,12 @@ spring:
       ddl-auto: create
     properties:
       hibernate:
+        show_sql: false
+        format_sql: false
         #        show_sql: true
-        format_sql: true
+        # format_sql: true
   logging.level:
-    org.hibernate.SQL: debug
+    # org.hibernate.SQL: debug
   api:
     food:
       service-key: "BcbiMs4jqpSBNZDnJX7zIB9Jv1hsF3z7tV5SixMjUlkMba0eUIDr4Gd5pxRaNQKbLoDiyVf26xUWtWghhLA2BQ%3D%3D"
