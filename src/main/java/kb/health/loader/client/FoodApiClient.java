@@ -57,7 +57,7 @@ public class FoodApiClient {
         int totalPages = (int) Math.ceil((double) total / pageSize);
 
         // 이후 페이지들 가져오기 (1페이지를 제외한 나머지)
-        for (int i = 2; i <= 5; i++) {
+        for (int i = 2; i <= totalPages; i++) {
             FoodResponse pageData = getFoodPage(i, pageSize);
             if (pageData != null && pageData.response() != null && pageData.response().body() != null && pageData.response().body().items() != null) {
                 all.addAll(pageData.response().body().items());
