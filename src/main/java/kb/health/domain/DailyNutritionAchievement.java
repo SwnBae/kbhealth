@@ -77,6 +77,6 @@ public class DailyNutritionAchievement extends BaseEntity {
 
     private static double rate(double intake, double standard) {
         if (standard == 0) return 0;
-        return Math.min(1.0, intake / standard);
+        return intake / standard; // Math.min 제거하여 100% 초과 허용
     }
 }
