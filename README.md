@@ -1,9 +1,9 @@
-# kbHealth - 건강 관리 소셜 플랫폼
+# HealthComfit - 건강 관리 소셜 플랫폼
 
 ## 1. 프로젝트 소개
 
 ### 개발 기간
-- 2025.04.16 ~ 2025.05.17 (약 1개월)
+- 2025.04.16 ~ 2025.05.28 (약 1개월)
 
 ### 프로젝트 내용
 kbHealth는 개인의 식단과 운동을 기록하고 관리할 수 있는 종합 건강 관리 소셜 플랫폼입니다. 사용자는 자신의 건강 기록을 관리하고, 다른 사용자들과 소통하며, AI 기반 맞춤형 건강 추천을 받을 수 있습니다.
@@ -142,12 +142,6 @@ kbHealth는 개인의 식단과 운동을 기록하고 관리할 수 있는 종�
 
 ## 3. 서비스 설계
 
-### 와이어프레임
-[와이어프레임 이미지 또는 링크를 추가해주세요]
-
-### 데이터베이스 모델링 (ERD)
-[ERD 이미지 또는 링크를 추가해주세요]
-
 ### REST API 명세
 
 #### 회원 인증 관련 (AuthController)
@@ -206,13 +200,58 @@ kbHealth는 개인의 식단과 운동을 기록하고 관리할 수 있는 종�
 | 모든 알림 읽음 처리 | PUT | /api/notifications/read-all |
 | 모든 알림 삭제 | DELETE | /api/notifications/all |
 
-#### 기타 API
-- **프로필 관리 (ProfileController):** 프로필 조회/수정, 신체정보 수정, 사용자 검색
-- **팔로우 관리 (FollowController):** 팔로우/언팔로우, 팔로잉/팔로워 목록 조회
-- **채팅 (ChatController):** 채팅방 관리, 메시지 송수신, 읽음 처리
-- **AI 추천 (GptController):** 맞춤형 식단 추천, AI 건강검진
-- **음식 데이터베이스 (ItemController):** 음식 검색/관리
-- **랭킹 (RankingController):** 전체/팔로우 랭킹 조회
+## 채팅 관련 (ChatController)
+| 기능 | HTTP 메서드 | URI |
+|------|-------------|-----|
+| 채팅방 목록 조회 | GET | /api/chat/rooms |
+| 채팅 메시지 조회 | GET | /api/chat/rooms/{chatRoomId}/messages |
+| 메시지 읽음 처리 | POST | /api/chat/rooms/{chatRoomId}/read |
+| 읽지 않은 메시지 총 개수 조회 | GET | /api/chat/unread-count |
+
+**WebSocket 메시지 매핑:**
+| 기능 | 매핑 경로 |
+|------|-----------|
+| 메시지 전송 | /app/send-message |
+
+## 팔로우 관리 (FollowController)
+| 기능 | HTTP 메서드 | URI |
+|------|-------------|-----|
+| 팔로우 | POST | /api/follow/following/{member_id} |
+| 언팔로우 | DELETE | /api/follow/following/{member_id} |
+| 팔로잉 목록 조회 | GET | /api/follow/followingList/{member_id} |
+| 팔로워 목록 조회 | GET | /api/follow/followerList/{member_id} |
+
+## AI 추천 및 건강검진 (GptController)
+| 기능 | HTTP 메서드 | URI |
+|------|-------------|-----|
+| AI 식단 추천 | POST | /api/gpt/recommendDiet |
+| AI 건강검진 | POST | /api/gpt/healthCheck |
+
+## 음식 데이터베이스 관리 (ItemController)
+| 기능 | HTTP 메서드 | URI |
+|------|-------------|-----|
+| 전체 음식 목록 조회 | GET | /api/items |
+| 음식 추가 | POST | /api/items |
+| 특정 음식 조회 | GET | /api/items/{dietId} |
+| 음식 정보 수정 | PUT | /api/items/{dietId} |
+| 음식 삭제 | DELETE | /api/items/{dietId} |
+| 음식 검색 | GET | /api/items/search |
+| 음식 데이터 로드 | GET | /api/items/load-data |
+
+## 랭킹 조회 (RankingController)
+| 기능 | HTTP 메서드 | URI |
+|------|-------------|-----|
+| 전체 랭킹 조회 | GET | /api/ranking |
+| 팔로잉 랭킹 조회 | GET | /api/ranking/following |
+
+
+## 개발/테스트용 관리자 API (DummyDataController)
+> ⚠️ **주의**: 개발 및 테스트 환경에서만 사용되는 API입니다. 프로덕션 환경에서는 보안을 위해 비활성화됩니다.
+
+### 관리자 API 사용 목적
+- **더미 데이터 생성**: 개발 환경에서 테스트용 대량 데이터 생성
+- **데이터 계산**: 점수 시스템 및 랭킹 알고리즘 검증
+- **시스템 모니터링**: 데이터베이스 상태 및 시스템 헬스체크
 
 ### WebSocket 통신 엔드포인트
 
@@ -234,19 +273,21 @@ kbHealth는 개인의 식단과 운동을 기록하고 관리할 수 있는 종�
 
 ### 팀원 및 업무분담
 
-**팀장 (1명)**
+**권순주 (팀장)**
 - 로그인/회원가입 시스템 구현
 - 게시판 및 소셜 피드 기능
-- UI/UX 디자인 및 프론트엔드
+- UI/UX 디자인
 - 회원 관리 시스템
 - 전반적인 오류 처리 및 예외 관리
+- 웹소켓 로직(알림, 채팅) 및 호출 로직 최적화
 
-**팀원 (1명)**
+**배수한 (팀원)**
 - 식단 기록 관리 시스템
 - 운동 기록 관리 시스템
 - 점수 계산 및 랭킹 시스템
+- 알림 채팅 시스템
+- AI기반 API 기능
 - 서버 배포 및 인프라 관리
-- 데이터베이스 설계 및 최적화
 
 ### 배포 및 인프라 구성
 
@@ -270,23 +311,9 @@ kbHealth는 개인의 식단과 운동을 기록하고 관리할 수 있는 종�
 - MySQL HikariCP 연결 풀 설정
 - JVM 메모리 최적화
 
-## 4. 후기
-
-### 팀장
-[팀장의 프로젝트 후기를 작성해주세요]
-
-### 팀원
-[팀원의 프로젝트 후기를 작성해주세요]
-
 ---
 
 ## 추가 정보
-
-### 테스트케이스
-- **FollowTest:** 팔로우 기능 테스트
-- **MemberTest:** 회원 기능 테스트  
-- **DietTest:** 음식과 식단기록 기능 테스트
-- **ExerciseTest:** 운동 기록 기능 테스트
 
 ### 예외 처리
 사용자가 잘못된 값을 입력할 경우 적절한 Exception을 발생시키고, 각 예외에 맞는 유형별 오류 메시지를 처리합니다. (IllegalArgumentException, IllegalStateException 등)
